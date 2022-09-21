@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{8b7ed093-66ce-4096-96d2-fbb9faa4bf52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Modules">
+      <UniqueIdentifier>{7b418be2-1631-4a31-9ef2-8a8b234a7339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Containers">
+      <UniqueIdentifier>{afc36133-f401-499a-aa33-0da1e500fb52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Tools">
+      <UniqueIdentifier>{7e4dfaf7-022c-4f7d-92aa-f3b3fa9d6248}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Helpers">
+      <UniqueIdentifier>{121f8e6b-df36-4ab0-be0d-601ddfc9e503}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Modules\EngineUI">
+      <UniqueIdentifier>{9d561647-6f58-4659-a81f-effccfa8767d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Modules\EngineUI\DearImGUI">
+      <UniqueIdentifier>{f204ff43-ab08-4e80-91af-6a5fc420b873}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\Color.cpp" />
+    <ClCompile Include="src\glmath.cpp" />
+    <ClCompile Include="src\log.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\ModuleCamera3D.cpp" />
+    <ClCompile Include="src\ModuleInput.cpp" />
+    <ClCompile Include="src\ModuleRenderer3D.cpp" />
+    <ClCompile Include="src\ModuleWindow.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\Color.h" />
+    <ClInclude Include="src\glmath.h" />
+    <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\Module.h" />
+    <ClInclude Include="src\ModuleCamera3D.h" />
+    <ClInclude Include="src\ModuleInput.h" />
+    <ClInclude Include="src\ModuleRenderer3D.h" />
+    <ClInclude Include="src\ModuleWindow.h" />
+    <ClInclude Include="src\Timer.h" />
+  </ItemGroup>
+</Project>
