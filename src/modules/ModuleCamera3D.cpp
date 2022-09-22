@@ -1,5 +1,5 @@
-#include "Globals.h"
-#include "Application.h"
+#include <src/helpers/Globals.h>
+#include <src/Application.h>
 #include "ModuleCamera3D.h"
 
 ModuleCamera3D::ModuleCamera3D(Application* app, bool start_enabled) : Module(app, start_enabled)

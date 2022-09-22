@@ -1,4 +1,4 @@
-#include "Application.h"
+#include <src/Application.h>
 
 Application::Application()
 {
@@ -44,7 +44,7 @@ bool Application::Init()
 	bool ret = true;
 
 	// Call Init() in all modules
-	std::list<Module*>::iterator item = list_modules.begin();
+	//std::list<Module*>::iterator item = list_modules.begin();
 
 	for (Module* item : list_modules) {
 		item->Init();

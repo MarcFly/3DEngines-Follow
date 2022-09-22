@@ -12,27 +12,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
-    <ClCompile Include="src\Color.cpp" />
-    <ClCompile Include="src\glmath.cpp" />
-    <ClCompile Include="src\log.cpp" />
+    <ClCompile Include="src\helpers\Color.cpp" />
+    <ClCompile Include="src\helpers\glmath.cpp" />
+    <ClCompile Include="src\helpers\log.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\ModuleCamera3D.cpp" />
-    <ClCompile Include="src\ModuleInput.cpp" />
-    <ClCompile Include="src\ModuleRenderer3D.cpp" />
-    <ClCompile Include="src\ModuleWindow.cpp" />
-    <ClCompile Include="src\Timer.cpp" />
+    <ClCompile Include="src\modules\ModuleCamera3D.cpp" />
+    <ClCompile Include="src\modules\ModuleInput.cpp" />
+    <ClCompile Include="src\modules\ModuleRenderer3D.cpp" />
+    <ClCompile Include="src\modules\ModuleWindow.cpp" />
+    <ClCompile Include="src\helpers\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
-    <ClInclude Include="src\Color.h" />
-    <ClInclude Include="src\glmath.h" />
-    <ClInclude Include="src\Globals.h" />
-    <ClInclude Include="src\Module.h" />
-    <ClInclude Include="src\ModuleCamera3D.h" />
-    <ClInclude Include="src\ModuleInput.h" />
-    <ClInclude Include="src\ModuleRenderer3D.h" />
-    <ClInclude Include="src\ModuleWindow.h" />
-    <ClInclude Include="src\Timer.h" />
+    <ClInclude Include="src\helpers\Color.h" />
+    <ClInclude Include="src\helpers\glmath.h" />
+    <ClInclude Include="src\helpers\Globals.h" />
+    <ClInclude Include="src\modules\Module.h" />
+    <ClInclude Include="src\modules\ModuleCamera3D.h" />
+    <ClInclude Include="src\modules\ModuleInput.h" />
+    <ClInclude Include="src\modules\ModuleRenderer3D.h" />
+    <ClInclude Include="src\modules\ModuleWindow.h" />
+    <ClInclude Include="src\helpers\Timer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{746CC4C3-787F-4B0E-AA66-E388FE3FF4F6}</ProjectGuid>

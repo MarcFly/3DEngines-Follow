@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Globals.h"
-#include "Timer.h"
-#include "Module.h"
-#include "ModuleWindow.h"
-#include "ModuleInput.h"
-#include "ModuleRenderer3D.h"
-#include "ModuleCamera3D.h"
+#include <src/helpers/Globals.h>
+#include <src/helpers/Timer.h>
+#include <src/modules/Module.h>
+#include <src/modules/ModuleWindow.h>
+#include <src/modules/ModuleInput.h>
+#include <src/modules/ModuleRenderer3D.h>
+#include <src/modules/ModuleCamera3D.h>
 
 #include<list>
 #include<vector>

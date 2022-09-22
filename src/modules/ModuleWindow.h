@@ -1,7 +1,7 @@
 #ifndef __ModuleWindow_H__
 #define __ModuleWindow_H__
 
-#include "Module.h"
+#include <src/modules/Module.h>
 #include <libs/SDL/include/SDL.h>
 
 class Application;

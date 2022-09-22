@@ -1,7 +1,7 @@
 #pragma once
-#include "Module.h"
-#include "Globals.h"
-#include "glmath.h"
+#include <src/modules/Module.h>
+#include <src/helpers/Globals.h>
+#include <src/helpers/glmath.h>
 
 #define MAX_LIGHTS 8
 

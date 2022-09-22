@@ -1,5 +1,5 @@
-#include "Globals.h"
-#include "Application.h"
+#include <src/helpers/Globals.h>
+#include <src/Application.h>
 #include "ModuleInput.h"
 
 #define MAX_KEYS 300
