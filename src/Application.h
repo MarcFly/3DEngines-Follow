@@ -7,6 +7,7 @@
 #include <src/modules/ModuleInput.h>
 #include <src/modules/ModuleRenderer3D.h>
 #include <src/modules/ModuleCamera3D.h>
+#include <src/modules/EngineUI/ModuleEngineUI.h>
 
 #include<list>
 #include<vector>
@@ -18,6 +19,8 @@ public:
 	ModuleInput* input;
 	ModuleRenderer3D* renderer3D;
 	ModuleCamera3D* camera;
+
+	ModuleEngineUI* engine_ui;
 
 private:
 

@@ -34,6 +34,18 @@
     <ClCompile Include="src\modules\ModuleRenderer3D.cpp" />
     <ClCompile Include="src\modules\ModuleWindow.cpp" />
     <ClCompile Include="src\helpers\Timer.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_sdl.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_sdlrenderer.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\misc\fonts\binary_to_compressed_c.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\imgui.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\imgui_demo.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\imgui_draw.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\imgui_tables.cpp" />
+    <ClCompile Include="src\modules\EngineUI\DearImGUI\imgui_widgets.cpp" />
+    <ClCompile Include="src\modules\EngineUI\ModuleEngineUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -46,5 +58,19 @@
     <ClInclude Include="src\modules\ModuleRenderer3D.h" />
     <ClInclude Include="src\modules\ModuleWindow.h" />
     <ClInclude Include="src\helpers\Timer.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_osx.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_sdl.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_sdlrenderer.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\imconfig.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\imgui.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\imgui_internal.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\imstb_rectpack.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\imstb_textedit.h" />
+    <ClInclude Include="src\modules\EngineUI\DearImGUI\imstb_truetype.h" />
+    <ClInclude Include="src\modules\EngineUI\ModuleEngineUI.h" />
   </ItemGroup>
 </Project>

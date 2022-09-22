@@ -88,6 +88,7 @@ update_status ModuleInput::PreUpdate(float dt)
 	SDL_Event e;
 	while(SDL_PollEvent(&e))
 	{
+		App->engine_ui->GetEvent(&e);
 		switch(e.type)
 		{
 			case SDL_MOUSEWHEEL:

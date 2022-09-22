@@ -1,7 +1,7 @@
 #pragma once
+#include <src/helpers/Globals.h>
 
 class Application;
-struct PhysBody3D;
 
 class Module
 {
@@ -11,6 +11,7 @@ private :
 public:
 	Application* App;
 
+	Module() {}
 	Module(Application* parent, bool start_enabled = true) : App(parent)
 	{}
 
@@ -46,7 +47,4 @@ public:
 	{ 
 		return true; 
 	}
-
-	virtual void OnCollision(PhysBody3D* body1, PhysBody3D* body2)
-	{}
 };
