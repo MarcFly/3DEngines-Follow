@@ -18,6 +18,8 @@ public:
 
 	void OnResize(int width, int height);
 
+	void RenderGrid() const;
+
 public:
 
 	SDL_GLContext context;
@@ -25,4 +27,7 @@ public:
 	mat4x4 ModelMatrix, ViewMatrix, ProjectionMatrix;
 
 	const char* glsl_version = "#version 330";
+
+	// State
+	bool lighting = false;
 };

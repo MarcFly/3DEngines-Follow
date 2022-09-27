@@ -30,6 +30,7 @@
     <ClCompile Include="src\modules\EngineUI\MenuBar\MenuBar.cpp" />
     <ClCompile Include="src\modules\EngineUI\ModuleEngineUI.cpp" />
     <ClCompile Include="src\modules\EngineUI\ui_item.cpp" />
+    <ClCompile Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.cpp" />
     <ClCompile Include="src\modules\ModuleCamera3D.cpp" />
     <ClCompile Include="src\modules\ModuleInput.cpp" />
     <ClCompile Include="src\modules\ModuleRenderer3D.cpp" />

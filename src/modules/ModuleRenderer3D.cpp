@@ -26,8 +26,24 @@ bool ModuleRenderer3D::Init()
 	LOG("Creating 3D Renderer context");
 	bool ret = true;
 	
+	// Base Flags
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+
 	//Create context
 	context = SDL_GL_CreateContext(App->window->window);
+
+	GLenum err = glewInit();
+	LOG("Using Glew %s", glewGetString(GLEW_VERSION));
+
+	LOG("Vendor: %s", glGetString(GL_VENDOR));
+	LOG("Renderer: %s", glGetString(GL_RENDERER));
+	LOG("OpenGL version supported %s", glGetString(GL_VERSION));
+	LOG("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+
 	if(context == NULL)
 	{
 		LOG("OpenGL context could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -91,6 +107,7 @@ bool ModuleRenderer3D::Init()
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_COLOR_MATERIAL);
+		glEnable(GL_TEXTURE_2D);
 	}
 
 	// Projection matrix for
@@ -114,6 +131,7 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 // PostUpdate present buffer to screen
 update_status ModuleRenderer3D::PostUpdate(float dt)
 {
+	RenderGrid();
 	SDL_GL_SwapWindow(App->window->window);
 	return UPDATE_CONTINUE;
 }
@@ -128,6 +146,30 @@ bool ModuleRenderer3D::CleanUp()
 	return true;
 }
 
+#define GRID_SIZE 10
+
+void ModuleRenderer3D::RenderGrid() const
+{
+	glDisable(GL_LIGHTING);
+
+	for (int i = 0; i < GRID_SIZE * 2 + 1; i++)
+	{
+		glBegin(GL_LINES);
+		glColor3f(0.5f, 0.5f, 0.5f);
+
+		//Z
+		glVertex3i(GRID_SIZE - i, 0, GRID_SIZE);
+		glVertex3i(GRID_SIZE - i, 0, -GRID_SIZE);
+
+		//X
+		glVertex3i(-GRID_SIZE, 0, -GRID_SIZE + i);
+		glVertex3i(GRID_SIZE, 0, -GRID_SIZE + i);
+		glEnd();
+	}
+
+	if (lighting)
+		glEnable(GL_LIGHTING);
+}
 
 void ModuleRenderer3D::OnResize(int width, int height)
 {
