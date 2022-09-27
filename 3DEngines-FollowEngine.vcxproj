@@ -27,7 +27,9 @@
     <ClCompile Include="src\modules\EngineUI\DearImGUI\imgui_widgets.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\misc\fonts\binary_to_compressed_c.cpp" />
+    <ClCompile Include="src\modules\EngineUI\MenuBar\MenuBar.cpp" />
     <ClCompile Include="src\modules\EngineUI\ModuleEngineUI.cpp" />
+    <ClCompile Include="src\modules\EngineUI\ui_item.cpp" />
     <ClCompile Include="src\modules\ModuleCamera3D.cpp" />
     <ClCompile Include="src\modules\ModuleInput.cpp" />
     <ClCompile Include="src\modules\ModuleRenderer3D.cpp" />
@@ -52,7 +54,11 @@
     <ClInclude Include="src\modules\EngineUI\DearImGUI\imstb_textedit.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\imstb_truetype.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="src\modules\EngineUI\MenuBar\MenuBar.h" />
     <ClInclude Include="src\modules\EngineUI\ModuleEngineUI.h" />
+    <ClInclude Include="src\modules\EngineUI\ui_item.h" />
+    <ClInclude Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.h" />
+    <ClInclude Include="src\modules\EngineUI\Windows\DemoWindow.h" />
     <ClInclude Include="src\modules\Module.h" />
     <ClInclude Include="src\modules\ModuleCamera3D.h" />
     <ClInclude Include="src\modules\ModuleInput.h" />

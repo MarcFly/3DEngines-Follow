@@ -3,8 +3,12 @@
 #include "DearImGUI/backends/imgui_impl_sdl.h"
 #include "DearImGUI/backends/imgui_impl_opengl3.h"
 #include <gl/GL.h>
+#include "ui_item.h"
+#include "MenuBar/MenuBar.h"
 
-ModuleEngineUI::ModuleEngineUI(Application* app, bool start_enabled) : Module(app, start_enabled)
+ModuleEngineUI e_engine_ui(true);
+
+ModuleEngineUI::ModuleEngineUI(bool start_enabled) : Module(start_enabled)
 {
 	
 }
@@ -13,8 +17,7 @@ ModuleEngineUI::~ModuleEngineUI()
 {
 }
 
-bool ModuleEngineUI::Start()
-{	
+void StartImGUI(Application* App) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -41,6 +44,15 @@ bool ModuleEngineUI::Start()
     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForOpenGL(App->window->window, App->renderer3D->context);
     ImGui_ImplOpenGL3_Init(App->renderer3D->glsl_version);
+}
+
+#include "Windows/DemoWindow.h"
+
+bool ModuleEngineUI::Start()
+{	
+    StartImGUI(App);
+
+    EngineUI_UpdateActives();
 
 	return false;
 }
@@ -54,61 +66,31 @@ update_status ModuleEngineUI::Update(float dt)
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
+       
+    // For now, just update actives each frame
+    EngineUI_UpdateActives();
 
-    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+    // Update the main menu first
+    menu_bar.Update();
 
-    if (show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);
-
-    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-    if(show_simple_window)
-    {
-        static float f = 0.0f;
-        static int counter = 0;
-
-        ImGui::Begin("Hello, world!", &show_simple_window);                          // Create a window called "Hello, world!" and append into it.
-
-        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-        ImGui::Checkbox("Another Window", &show_another_window);
-
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGui::End();
-    }
-    else { ret = UPDATE_STOP; }
-
-    // 3. Show another simple window.
-    if (show_another_window)
-    {
-        ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        ImGui::Text("Hello from another window!");
-        if (ImGui::Button("Close Me"))
-            show_another_window = false;
-        ImGui::End();
-    }
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+    
+    for (uint32_t i = 0; i < active_items.size(); ++i)
+        items[i]->Update();
+    
+    
 
     // Rendering
     ImGui::Render();
-    glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
     SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
     SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
-
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();
-
     SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+    
+    if (require_update) EngineUI_UpdateActives();
 
 	return ret;
 }
@@ -127,3 +109,20 @@ bool ModuleEngineUI::GetEvent(SDL_Event* e)
     ImGui_ImplSDL2_ProcessEvent(e);
     return true;
 }
+
+void ModuleEngineUI::EngineUI_RegisterItem(UI_Item* item)
+{
+    items.push_back(item);
+    item->id = items.size() - 1;
+    if (item->active) active_items.push_back(item->id);
+}
+
+void ModuleEngineUI::EngineUI_UpdateActives() {
+    active_items.clear();
+    uint32_t s = items.size();
+    for (uint32_t i = 0; i < s; ++i)
+        if (items[i]->active) active_items.push_back(items[i]->id);
+
+    require_update = false;
+}
+

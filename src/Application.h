@@ -19,9 +19,7 @@ public:
 	ModuleInput* input;
 	ModuleRenderer3D* renderer3D;
 	ModuleCamera3D* camera;
-
-	ModuleEngineUI* engine_ui;
-
+	ModuleEngineUI* engine_ui = &e_engine_ui;
 private:
 
 	Timer	ms_timer;
@@ -43,3 +41,5 @@ private:
 	void PrepareUpdate();
 	void FinishUpdate();
 };
+
+extern Application* App;

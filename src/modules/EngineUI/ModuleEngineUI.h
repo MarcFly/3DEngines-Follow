@@ -3,12 +3,17 @@
 #include <src/helpers/Globals.h>
 #include "DearImGUI/imgui.h"
 #include <libs/SDL/include/SDL.h>
+#include <vector>
+
+class UI_Item;
 
 class ModuleEngineUI : public Module
 {
 public:
-	ModuleEngineUI(Application* app, bool start_enabled = true);
+	ModuleEngineUI(bool start_updated);
 	~ModuleEngineUI();
+
+	bool IsStaticModule() { return true; }
 
 	bool Start();
 	update_status Update(float dt);
@@ -16,9 +21,24 @@ public:
 
 	bool GetEvent(SDL_Event* e);
 
+	void EngineUI_RegisterItem(UI_Item* item);
+	void EngineUI_RequireUpdate(bool window_state)
+	{
+		require_update = require_update || !window_state;
+	}
+
 private:
-	bool show_another_window = false;
-	bool show_demo_window = true;
-	bool show_simple_window = true;
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	std::vector<UI_Item*> items;
+	std::vector<uint32_t> active_items;
+	bool require_update = false;
+
+private:
+
+	
+
+	void EngineUI_UpdateActives();
 };
+
+extern ModuleEngineUI e_engine_ui;
+
+

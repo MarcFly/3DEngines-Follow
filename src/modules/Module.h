@@ -9,10 +9,9 @@ private :
 	bool enabled;
 
 public:
-	Application* App;
 
 	Module() {}
-	Module(Application* parent, bool start_enabled = true) : App(parent)
+	Module(bool start_enabled = true)
 	{}
 
 	virtual ~Module()
@@ -22,6 +21,7 @@ public:
 	{
 		return true; 
 	}
+	virtual bool IsStaticModule() { return false; }
 
 	virtual bool Start()
 	{

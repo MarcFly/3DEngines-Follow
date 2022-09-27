@@ -46,6 +46,8 @@
     <ClCompile Include="src\modules\EngineUI\DearImGUI\imgui_tables.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\imgui_widgets.cpp" />
     <ClCompile Include="src\modules\EngineUI\ModuleEngineUI.cpp" />
+    <ClCompile Include="src\modules\EngineUI\ui_item.cpp" />
+    <ClCompile Include="src\modules\EngineUI\MenuBar\MenuBar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -72,5 +74,9 @@
     <ClInclude Include="src\modules\EngineUI\DearImGUI\imstb_textedit.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\imstb_truetype.h" />
     <ClInclude Include="src\modules\EngineUI\ModuleEngineUI.h" />
+    <ClInclude Include="src\modules\EngineUI\ui_item.h" />
+    <ClInclude Include="src\modules\EngineUI\MenuBar\MenuBar.h" />
+    <ClInclude Include="src\modules\EngineUI\Windows\DemoWindow.h" />
+    <ClInclude Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.h" />
   </ItemGroup>
 </Project>

@@ -2,11 +2,10 @@
 
 Application::Application()
 {
-	window = new ModuleWindow(this);
-	input = new ModuleInput(this);
-	renderer3D = new ModuleRenderer3D(this);
-	camera = new ModuleCamera3D(this);
-	engine_ui = new ModuleEngineUI(this);
+	window = new ModuleWindow();
+	input = new ModuleInput();
+	renderer3D = new ModuleRenderer3D();
+	camera = new ModuleCamera3D();
 
 	// The order of calls is very important!
 	// Modules will Init() Start() and Update in this order
@@ -23,14 +22,17 @@ Application::Application()
 	AddModule(renderer3D);
 
 	// UI Even further last!
-	AddModule(engine_ui);
+	AddModule(this->engine_ui);
 }
 
 Application::~Application()
 {	
 	std::list<Module*>::iterator item = --list_modules.end();
 	while (true) {
-		if (*item == nullptr) { if (item == list_modules.begin()) break; --item; continue; }
+		if (*item == nullptr || (*item)->IsStaticModule()) { 
+			if (item == list_modules.begin()) 
+				break; 
+			--item; continue; }
 		delete* item;
 		*item = nullptr;
 
@@ -109,15 +111,16 @@ bool Application::CleanUp()
 	bool ret = true;
 
 	std::list<Module*>::iterator item = --list_modules.end();
-	while (true) {
+	do {
+		if ((*item)->IsStaticModule()) {
+			--item; 
+			continue;
+		}
 		delete* item;
 		*item = nullptr;
 
-		if (item == list_modules.begin())
-			break;
-
 		--item;
-	}
+	} while (item != list_modules.begin());
 	return ret;
 }
 
