@@ -5,12 +5,16 @@
 #include <vector>
 #define MAX_LIGHTS 8
 
+
 struct OpenGLState {
 	bool lighting = true;
 	bool cull_faces = true;
 	bool depth_test = true;
 	bool color_material = true;
 	bool texture2D = true;
+
+	uint32_t src_alpha, dst_alpha;
+	uint32_t src_color, dst_color;
 };
 
 void SetOpenGLState(const OpenGLState& state);

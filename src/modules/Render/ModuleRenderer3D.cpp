@@ -6,7 +6,7 @@
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
-#pragma comment (lib, "glew/lib_use/Release/Win32/glew32.lib")
+#pragma comment (lib, "glew/lib/Win32/glew32.lib")
 #pragma comment (lib, "glu32.lib")    /* link OpenGL Utility lib     */
 #pragma comment (lib, "opengl32.lib") /* link Microsoft OpenGL lib   */
 
@@ -19,11 +19,14 @@ void SetOpenGLState(const OpenGLState& state) {
 	SET_STATE(state.cull_faces, GL_CULL_FACE);
 	SET_STATE(state.lighting, GL_LIGHTING);
 	SET_STATE(state.texture2D, GL_TEXTURE_2D);
+	glBlendFunc(state.src_alpha, state.dst_alpha);
 }
 
 ModuleRenderer3D::ModuleRenderer3D(bool start_enabled) : Module(start_enabled)
 {
 	grid_state.lighting = false;
+	default_state.src_alpha = grid_state.src_alpha = GL_SRC_ALPHA;
+	default_state.dst_alpha = grid_state.dst_alpha = GL_ONE_MINUS_SRC_ALPHA;
 }
 
 // Destructor
@@ -124,6 +127,8 @@ bool ModuleRenderer3D::Init()
 // PreUpdate: clear buffer
 update_status ModuleRenderer3D::PreUpdate(float dt)
 {
+	SDL_GL_SwapWindow(App->window->window);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
@@ -137,7 +142,7 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 update_status ModuleRenderer3D::PostUpdate(float dt)
 {
 	RenderGrid();
-	SDL_GL_SwapWindow(App->window->window);
+	
 	return UPDATE_CONTINUE;
 }
 

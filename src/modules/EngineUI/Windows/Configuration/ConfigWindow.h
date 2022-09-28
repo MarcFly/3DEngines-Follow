@@ -10,6 +10,7 @@ public:
 	void PerformanceGraphs();
 	void WindowOptions();
 	void HardwareInfo();
+	void RenderOptions();
 
 	void Update() {
 		ImGui::Begin(name.c_str(), &active);
@@ -17,6 +18,7 @@ public:
 		PerformanceGraphs();
 		WindowOptions();
 		HardwareInfo();
+		RenderOptions();
 
 		ImGui::End();
 	}

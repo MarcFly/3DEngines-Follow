@@ -6,6 +6,7 @@ Application::Application()
 	input = new ModuleInput();
 	renderer3D = new ModuleRenderer3D();
 	camera = new ModuleCamera3D();
+	events = new ModuleEventSystem();
 
 	// The order of calls is very important!
 	// Modules will Init() Start() and Update in this order
@@ -23,6 +24,8 @@ Application::Application()
 
 	// UI Even further last!
 	AddModule(this->engine_ui);
+
+	AddModule(events);
 }
 
 Application::~Application()

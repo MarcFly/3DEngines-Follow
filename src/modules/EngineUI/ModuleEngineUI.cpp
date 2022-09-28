@@ -77,9 +77,15 @@ update_status ModuleEngineUI::Update(float dt)
     
     for (uint32_t i = 0; i < active_items.size(); ++i)
         items[i]->Update();
-    
-    
 
+    
+    if (require_update) EngineUI_UpdateActives();
+
+	return ret;
+}
+
+update_status ModuleEngineUI::PostUpdate(float dt)
+{
     // Rendering
     ImGui::Render();
     //glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
@@ -89,10 +95,8 @@ update_status ModuleEngineUI::Update(float dt)
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();
     SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
-    
-    if (require_update) EngineUI_UpdateActives();
 
-	return ret;
+    return update_status::UPDATE_CONTINUE;
 }
 
 bool ModuleEngineUI::CleanUp()

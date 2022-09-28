@@ -5,9 +5,10 @@
 #include <src/modules/Module.h>
 #include <src/modules/ModuleWindow.h>
 #include <src/modules/ModuleInput.h>
-#include <src/modules/ModuleRenderer3D.h>
+#include <src/modules/Render/ModuleRenderer3D.h>
 #include <src/modules/ModuleCamera3D.h>
 #include <src/modules/EngineUI/ModuleEngineUI.h>
+#include <src/modules/EventSystem/ModuleEventSystem.h>
 
 #include<list>
 #include<vector>
@@ -20,6 +21,8 @@ public:
 	ModuleRenderer3D* renderer3D;
 	ModuleCamera3D* camera;
 	ModuleEngineUI* engine_ui = &e_engine_ui;
+	ModuleEventSystem* events;
+
 private:
 
 	Timer	ms_timer;

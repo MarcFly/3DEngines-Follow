@@ -33,7 +33,7 @@
     <ClCompile Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.cpp" />
     <ClCompile Include="src\modules\ModuleCamera3D.cpp" />
     <ClCompile Include="src\modules\ModuleInput.cpp" />
-    <ClCompile Include="src\modules\ModuleRenderer3D.cpp" />
+    <ClCompile Include="src\modules\Render\ModuleRenderer3D.cpp" />
     <ClCompile Include="src\modules\ModuleWindow.cpp" />
     <ClCompile Include="src\helpers\Timer.cpp" />
   </ItemGroup>
@@ -60,10 +60,12 @@
     <ClInclude Include="src\modules\EngineUI\ui_item.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\DemoWindow.h" />
+    <ClInclude Include="src\modules\EventSystem\Event.h" />
+    <ClInclude Include="src\modules\EventSystem\ModuleEventSystem.h" />
     <ClInclude Include="src\modules\Module.h" />
     <ClInclude Include="src\modules\ModuleCamera3D.h" />
     <ClInclude Include="src\modules\ModuleInput.h" />
-    <ClInclude Include="src\modules\ModuleRenderer3D.h" />
+    <ClInclude Include="src\modules\Render\ModuleRenderer3D.h" />
     <ClInclude Include="src\modules\ModuleWindow.h" />
     <ClInclude Include="src\helpers\Timer.h" />
   </ItemGroup>
