@@ -2,8 +2,18 @@
 #include <src/modules/Module.h>
 #include <src/helpers/Globals.h>
 #include <src/helpers/glmath.h>
-
+#include <vector>
 #define MAX_LIGHTS 8
+
+struct OpenGLState {
+	bool lighting = true;
+	bool cull_faces = true;
+	bool depth_test = true;
+	bool color_material = true;
+	bool texture2D = true;
+};
+
+void SetOpenGLState(const OpenGLState& state);
 
 class ModuleRenderer3D : public Module
 {
@@ -29,5 +39,8 @@ public:
 	const char* glsl_version = "#version 330";
 
 	// State
-	bool lighting = false;
+	OpenGLState default_state;
+	OpenGLState grid_state;
+	std::vector<OpenGLState> state_stack;
+	std::vector<OpenGLState> states;
 };

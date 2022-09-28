@@ -6,14 +6,24 @@
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
-#pragma comment (lib, "glew/lib/Release/Win32/glew32.lib")
+#pragma comment (lib, "glew/lib_use/Release/Win32/glew32.lib")
 #pragma comment (lib, "glu32.lib")    /* link OpenGL Utility lib     */
 #pragma comment (lib, "opengl32.lib") /* link Microsoft OpenGL lib   */
 
-
+#include <stdint.h>
+#define SET_STATE(enabled, value) if (enabled) glEnable(value); else glDisable(value);
+//====================================
+void SetOpenGLState(const OpenGLState& state) {
+	SET_STATE(state.depth_test, GL_DEPTH_TEST);
+	SET_STATE(state.color_material, GL_COLOR_MATERIAL);
+	SET_STATE(state.cull_faces, GL_CULL_FACE);
+	SET_STATE(state.lighting, GL_LIGHTING);
+	SET_STATE(state.texture2D, GL_TEXTURE_2D);
+}
 
 ModuleRenderer3D::ModuleRenderer3D(bool start_enabled) : Module(start_enabled)
 {
+	grid_state.lighting = false;
 }
 
 // Destructor
@@ -102,16 +112,11 @@ bool ModuleRenderer3D::Init()
 
 		GLfloat MaterialDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, MaterialDiffuse);
-		
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_LIGHTING);
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_TEXTURE_2D);
 	}
 
 	// Projection matrix for
 	OnResize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	SetOpenGLState(default_state);
 
 	return ret;
 }
@@ -150,7 +155,8 @@ bool ModuleRenderer3D::CleanUp()
 
 void ModuleRenderer3D::RenderGrid() const
 {
-	glDisable(GL_LIGHTING);
+	// glDisable(GL_LIGHTING);
+	SetOpenGLState(grid_state);
 
 	for (int i = 0; i < GRID_SIZE * 2 + 1; i++)
 	{
@@ -167,8 +173,8 @@ void ModuleRenderer3D::RenderGrid() const
 		glEnd();
 	}
 
-	if (lighting)
-		glEnable(GL_LIGHTING);
+	SetOpenGLState(default_state);
+	// glEnable(GL_LIGHTING)
 }
 
 void ModuleRenderer3D::OnResize(int width, int height)
