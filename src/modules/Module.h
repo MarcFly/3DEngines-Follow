@@ -1,5 +1,8 @@
 #pragma once
 #include <src/helpers/Globals.h>
+#include <vector>
+#include <memory>
+#include <src/modules/EventSystem/Event.h>
 
 class Application;
 
@@ -42,6 +45,8 @@ public:
 	{
 		return UPDATE_CONTINUE;
 	}
+
+	virtual void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec) {}
 
 	virtual bool CleanUp() 
 	{ 

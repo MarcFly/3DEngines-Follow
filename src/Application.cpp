@@ -85,11 +85,19 @@ void Application::FinishUpdate()
 }
 
 // Call PreUpdate, Update and PostUpdate on all modules
+void Application::SendEvents(std::vector<std::shared_ptr<Event>>& evt_vec) {
+	for (Module* item : list_modules) {
+		item->ReceiveEvents(evt_vec);
+	}
+
+	evt_vec.clear();
+}
+
 update_status Application::Update()
 {
 	update_status ret = UPDATE_CONTINUE;
 	PrepareUpdate();
-
+	
 	for (Module* item : list_modules) {
 		if (ret != UPDATE_CONTINUE) break;
 		ret = item->PreUpdate(dt);

@@ -35,6 +35,7 @@ public:
 	~Application();
 
 	bool Init();
+	void SendEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
 	update_status Update();
 	bool CleanUp();
 

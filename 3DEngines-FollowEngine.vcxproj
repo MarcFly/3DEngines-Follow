@@ -31,6 +31,7 @@
     <ClCompile Include="src\modules\EngineUI\ModuleEngineUI.cpp" />
     <ClCompile Include="src\modules\EngineUI\ui_item.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.cpp" />
+    <ClCompile Include="src\modules\EventSystem\ModuleEventSystem.cpp" />
     <ClCompile Include="src\modules\ModuleCamera3D.cpp" />
     <ClCompile Include="src\modules\ModuleInput.cpp" />
     <ClCompile Include="src\modules\Render\ModuleRenderer3D.cpp" />
@@ -68,6 +69,7 @@
     <ClInclude Include="src\modules\Render\ModuleRenderer3D.h" />
     <ClInclude Include="src\modules\ModuleWindow.h" />
     <ClInclude Include="src\helpers\Timer.h" />
+    <ClInclude Include="src\modules\Render\RendererTypes.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{746CC4C3-787F-4B0E-AA66-E388FE3FF4F6}</ProjectGuid>

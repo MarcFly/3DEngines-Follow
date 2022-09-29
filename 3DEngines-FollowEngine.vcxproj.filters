@@ -49,6 +49,7 @@
     <ClCompile Include="src\modules\EngineUI\ui_item.cpp" />
     <ClCompile Include="src\modules\EngineUI\MenuBar\MenuBar.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.cpp" />
+    <ClCompile Include="src\modules\EventSystem\ModuleEventSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -81,5 +82,6 @@
     <ClInclude Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.h" />
     <ClInclude Include="src\modules\EventSystem\ModuleEventSystem.h" />
     <ClInclude Include="src\modules\EventSystem\Event.h" />
+    <ClInclude Include="src\modules\Render\RendererTypes.h" />
   </ItemGroup>
 </Project>

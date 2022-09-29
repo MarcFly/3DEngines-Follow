@@ -3,19 +3,10 @@
 #include <src/helpers/Globals.h>
 #include <src/helpers/glmath.h>
 #include <vector>
+#include <src/modules/EventSystem/Event.h>
+#include "RendererTypes.h"
+
 #define MAX_LIGHTS 8
-
-
-struct OpenGLState {
-	bool lighting = true;
-	bool cull_faces = true;
-	bool depth_test = true;
-	bool color_material = true;
-	bool texture2D = true;
-
-	uint32_t src_alpha, dst_alpha;
-	uint32_t src_color, dst_color;
-};
 
 void SetOpenGLState(const OpenGLState& state);
 
@@ -29,6 +20,8 @@ public:
 	update_status PreUpdate(float dt);
 	update_status PostUpdate(float dt);
 	bool CleanUp();
+
+	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
 
 	void OnResize(int width, int height);
 

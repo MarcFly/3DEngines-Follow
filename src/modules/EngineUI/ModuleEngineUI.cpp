@@ -54,6 +54,10 @@ bool ModuleEngineUI::Start()
 
     EngineUI_UpdateActives();
 
+    for (UI_Item* item : items) {
+        item->Start();
+    }
+
 	return false;
 }
 
@@ -76,7 +80,7 @@ update_status ModuleEngineUI::Update(float dt)
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
     
     for (uint32_t i = 0; i < active_items.size(); ++i)
-        items[i]->Update();
+        items[active_items[i]]->Update();
 
     
     if (require_update) EngineUI_UpdateActives();
@@ -125,7 +129,8 @@ void ModuleEngineUI::EngineUI_UpdateActives() {
     active_items.clear();
     uint32_t s = items.size();
     for (uint32_t i = 0; i < s; ++i)
-        if (items[i]->active) active_items.push_back(items[i]->id);
+        if (items[i]->active) 
+            active_items.push_back(items[i]->id);
 
     require_update = false;
 }

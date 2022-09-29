@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include <src/modules/render/ModuleRenderer3D.h>
+#include <src/modules/render/RendererTypes.h>
 enum EventType {
 	// STRING 
 	// BOOL 

@@ -20,8 +20,8 @@ public:
 	void SetShortCut(SDL_Scancode _shortcut) { shortcut = _shortcut; };
 	void SetInactive() { active = false; };
 	
-
 	virtual void Init() {};
+	virtual void Start() {};
 	virtual void PreUpdate() {};
 	virtual void Update() {};
 	virtual void PostUpdate() {};

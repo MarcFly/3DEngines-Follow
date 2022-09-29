@@ -19,14 +19,14 @@ void SetOpenGLState(const OpenGLState& state) {
 	SET_STATE(state.cull_faces, GL_CULL_FACE);
 	SET_STATE(state.lighting, GL_LIGHTING);
 	SET_STATE(state.texture2D, GL_TEXTURE_2D);
-	glBlendFunc(state.src_alpha, state.dst_alpha);
+	glBlendFunc(state.src_blend, state.dst_blend);
 }
 
 ModuleRenderer3D::ModuleRenderer3D(bool start_enabled) : Module(start_enabled)
 {
 	grid_state.lighting = false;
-	default_state.src_alpha = grid_state.src_alpha = GL_SRC_ALPHA;
-	default_state.dst_alpha = grid_state.dst_alpha = GL_ONE_MINUS_SRC_ALPHA;
+	default_state.src_blend = GL_SRC_ALPHA;
+	default_state.dst_blend = GL_ONE_MINUS_SRC_ALPHA;
 }
 
 // Destructor
@@ -154,6 +154,18 @@ bool ModuleRenderer3D::CleanUp()
 	SDL_GL_DeleteContext(context);
 
 	return true;
+}
+
+void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
+{
+	for (std::shared_ptr<Event> ev : evt_vec) {
+		switch (ev->type) {
+		case EventType::CHANGED_DEFAULT_OPENGL_STATE:
+			default_state = ev->ogl_state;
+			SetOpenGLState(default_state);
+			continue;
+		}
+	}
 }
 
 #define GRID_SIZE 10
