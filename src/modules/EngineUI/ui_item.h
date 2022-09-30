@@ -26,6 +26,8 @@ public:
 	virtual void Update() {};
 	virtual void PostUpdate() {};
 	
+	virtual void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec) {};
+
 	virtual void CleanUp() {};	
 
 public:

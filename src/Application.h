@@ -9,9 +9,11 @@
 #include <src/modules/ModuleCamera3D.h>
 #include <src/modules/EngineUI/ModuleEngineUI.h>
 #include <src/modules/EventSystem/ModuleEventSystem.h>
+#include <src/modules/FileSystem/ModuleFS.h>
 
 #include<list>
 #include<vector>
+
 
 class Application
 {
@@ -22,9 +24,9 @@ public:
 	ModuleCamera3D* camera;
 	ModuleEngineUI* engine_ui = &e_engine_ui;
 	ModuleEventSystem* events;
+	ModuleFS* fs;
 
 private:
-
 	Timer	ms_timer;
 	float	dt;
 	std::list<Module*> list_modules;

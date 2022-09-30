@@ -50,6 +50,8 @@
     <ClCompile Include="src\modules\EngineUI\MenuBar\MenuBar.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.cpp" />
     <ClCompile Include="src\modules\EventSystem\ModuleEventSystem.cpp" />
+    <ClCompile Include="src\modules\FileSystem\ModuleFS.cpp" />
+    <ClCompile Include="src\helpers\JSON\parson.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -83,5 +85,7 @@
     <ClInclude Include="src\modules\EventSystem\ModuleEventSystem.h" />
     <ClInclude Include="src\modules\EventSystem\Event.h" />
     <ClInclude Include="src\modules\Render\RendererTypes.h" />
+    <ClInclude Include="src\modules\FileSystem\ModuleFS.h" />
+    <ClInclude Include="src\helpers\JSON\parson.h" />
   </ItemGroup>
 </Project>

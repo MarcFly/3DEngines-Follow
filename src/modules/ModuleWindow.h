@@ -18,12 +18,14 @@ public:
 	bool Init();
 	bool CleanUp();
 
+	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
+
 	void SetTitle(const char* title);
 
 public:
 	//The window we'll be rendering to
 	SDL_Window* window;
-
+	bool fullscreen, full_desktop, resizable, borderless;
 	//The surface contained by the window
 	SDL_Surface* screen_surface;
 };

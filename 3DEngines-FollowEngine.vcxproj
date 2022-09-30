@@ -14,6 +14,7 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\helpers\Color.cpp" />
     <ClCompile Include="src\helpers\glmath.cpp" />
+    <ClCompile Include="src\helpers\JSON\parson.c" />
     <ClCompile Include="src\helpers\log.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.cpp" />
@@ -32,6 +33,7 @@
     <ClCompile Include="src\modules\EngineUI\ui_item.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.cpp" />
     <ClCompile Include="src\modules\EventSystem\ModuleEventSystem.cpp" />
+    <ClCompile Include="src\modules\FileSystem\ModuleFS.cpp" />
     <ClCompile Include="src\modules\ModuleCamera3D.cpp" />
     <ClCompile Include="src\modules\ModuleInput.cpp" />
     <ClCompile Include="src\modules\Render\ModuleRenderer3D.cpp" />
@@ -43,6 +45,7 @@
     <ClInclude Include="src\helpers\Color.h" />
     <ClInclude Include="src\helpers\glmath.h" />
     <ClInclude Include="src\helpers\Globals.h" />
+    <ClInclude Include="src\helpers\JSON\parson.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3_loader.h" />
@@ -63,6 +66,7 @@
     <ClInclude Include="src\modules\EngineUI\Windows\DemoWindow.h" />
     <ClInclude Include="src\modules\EventSystem\Event.h" />
     <ClInclude Include="src\modules\EventSystem\ModuleEventSystem.h" />
+    <ClInclude Include="src\modules\FileSystem\ModuleFS.h" />
     <ClInclude Include="src\modules\Module.h" />
     <ClInclude Include="src\modules\ModuleCamera3D.h" />
     <ClInclude Include="src\modules\ModuleInput.h" />

@@ -24,4 +24,6 @@ public:
 
 		ImGui::End();
 	}
+
+	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
 };

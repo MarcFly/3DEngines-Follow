@@ -26,6 +26,8 @@ public:
 	}
 	virtual bool IsStaticModule() { return false; }
 
+	
+
 	virtual bool Start()
 	{
 		return true;

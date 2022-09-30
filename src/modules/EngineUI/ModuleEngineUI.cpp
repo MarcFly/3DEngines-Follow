@@ -112,6 +112,13 @@ bool ModuleEngineUI::CleanUp()
 	return false;
 }
 
+void ModuleEngineUI::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
+{
+    for (UI_Item* item : items) {
+        item->ReceiveEvents(evt_vec);
+    }
+}
+
 bool ModuleEngineUI::GetEvent(SDL_Event* e)
 {
     ImGui_ImplSDL2_ProcessEvent(e);

@@ -88,6 +88,10 @@ update_status ModuleInput::PreUpdate(float dt)
 	SDL_Event e;
 	while(SDL_PollEvent(&e))
 	{
+		// Is it better to link directly, or to send each event
+		// That would pollute the event pool and require more cycles to avoid them
+		// But might still be almost "free"
+		// Else wioll have to implement subscribe based
 		App->engine_ui->GetEvent(&e);
 		switch(e.type)
 		{
@@ -109,8 +113,13 @@ update_status ModuleInput::PreUpdate(float dt)
 
 			case SDL_WINDOWEVENT:
 			{
-				if(e.window.event == SDL_WINDOWEVENT_RESIZED)
-					App->renderer3D->OnResize(e.window.data1, e.window.data2);
+				switch (e.window.event) {
+				case SDL_WINDOWEVENT_RESIZED:
+					std::shared_ptr<Event> ev = std::make_shared<Event>(WINDOW_RESIZE);
+					ev->point2d.x = e.window.data1;
+					ev->point2d.y = e.window.data2;
+					App->events->RegisterEvent(ev);
+				}
 			}
 		}
 	}

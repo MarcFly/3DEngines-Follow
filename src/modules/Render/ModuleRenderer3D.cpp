@@ -133,6 +133,8 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 	glLoadIdentity();
 
 	glMatrixMode(GL_MODELVIEW);
+	// TODO: Camera Matrix part of a Renderdata that can be freely read each frame
+	// Will then be useful for splitting the rendering in a different thread
 	glLoadMatrixf(App->camera->GetViewMatrix());
 
 	return UPDATE_CONTINUE;
@@ -160,10 +162,12 @@ void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_ve
 {
 	for (std::shared_ptr<Event> ev : evt_vec) {
 		switch (ev->type) {
-		case EventType::CHANGED_DEFAULT_OPENGL_STATE:
-			default_state = ev->ogl_state;
-			SetOpenGLState(default_state);
-			continue;
+			case EventType::WINDOW_RESIZE:
+				OnResize(ev->point2d.x, ev->point2d.y);
+			case EventType::CHANGED_DEFAULT_OPENGL_STATE:
+				default_state = ev->ogl_state;
+				SetOpenGLState(default_state);
+				continue;
 		}
 	}
 }
