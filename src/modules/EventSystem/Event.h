@@ -33,7 +33,7 @@ struct Event {
 			uint32_t x, y;
 		} point2d;
 		OpenGLState ogl_state;
-		std::shared_ptr<JSON_Object> json_object;
+		JSON_Object* json_object;
 	};
 
 	Event(EventType _type) : type(_type) {};
@@ -53,4 +53,6 @@ struct Event {
 	ev->point2d.y = val2;\
 	App->events->RegisterEvent(ev);}
 
-
+#define EV_SEND_JSON_OBJ(type, val) {std::shared_ptr<Event> ev = std::make_shared<Event>(type);\
+	ev->json_object = val; \
+	App->events->RegisterEvent(ev);}

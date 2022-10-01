@@ -12,9 +12,10 @@ private :
 	bool enabled;
 
 public:
+	const char* name = "noname";
 
 	Module() {}
-	Module(bool start_enabled = true)
+	Module(const char* _name, bool start_enabled = true) : name(_name)
 	{}
 
 	virtual ~Module()
@@ -25,8 +26,6 @@ public:
 		return true; 
 	}
 	virtual bool IsStaticModule() { return false; }
-
-	
 
 	virtual bool Start()
 	{
@@ -54,4 +53,7 @@ public:
 	{ 
 		return true; 
 	}
+
+	virtual void Save(JSON_Object* obj) {};
+	virtual void Load(JSON_Object* obj) {};
 };

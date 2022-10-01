@@ -88,6 +88,18 @@ void Application::FinishUpdate()
 
 // Call PreUpdate, Update and PostUpdate on all modules
 void Application::SendEvents(std::vector<std::shared_ptr<Event>>& evt_vec) {
+	// App can also react to certain events
+	for (std::shared_ptr<Event> evt : evt_vec) {
+		switch (evt->type) {
+		case EventType::SAVE_CONFIG:
+			Save(evt->json_object);
+			continue;
+		case EventType::LOAD_CONFIG:
+			Load(evt->json_object);
+			continue;
+		}
+	}
+
 	for (Module* item : list_modules) {
 		item->ReceiveEvents(evt_vec);
 	}
@@ -125,6 +137,7 @@ bool Application::CleanUp()
 
 	std::list<Module*>::iterator item = --list_modules.end();
 	do {
+		(*item)->CleanUp();
 		if ((*item)->IsStaticModule()) {
 			--item; 
 			continue;
@@ -135,6 +148,29 @@ bool Application::CleanUp()
 		--item;
 	} while (item != list_modules.begin());
 	return ret;
+}
+
+void Application::Save(JSON_Object* root_node)
+{
+	JSON_Value* curr_val;
+	JSON_Object* curr_obj;
+	for (Module* mod : list_modules) {
+		curr_val = json_value_init_object();
+		json_object_set_value(root_node, mod->name, curr_val);
+		curr_obj = json_value_get_object(curr_val);
+		mod->Save(curr_obj);
+	}
+}
+
+void Application::Load(JSON_Object* root_node)
+{
+	JSON_Value* curr_val;
+	JSON_Object* curr_obj;
+	for (Module* mod : list_modules) {
+		curr_val = json_object_get_value(root_node, mod->name);
+		curr_obj = json_value_get_object(curr_val);
+		mod->Load(curr_obj);
+	}
 }
 
 void Application::AddModule(Module* mod)

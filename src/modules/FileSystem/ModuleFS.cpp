@@ -7,8 +7,11 @@ bool ModuleFS::Init()
 	if (jsons[0] == NULL)
 	{
 		jsons[0] = json_value_init_object();
-		App->events->RegisterEvent(std::make_shared<Event>(EventType::SAVE_CONFIG));
-	}
+		json_object_set_string(json_object(jsons[0]), "name", "config.json");
+		EV_SEND_JSON_OBJ(EventType::SAVE_CONFIG, json_object(jsons[0]));
+	} 
+
+	EV_SEND_JSON_OBJ(EventType::LOAD_CONFIG, json_object(jsons[0]));
 
 	return true;
 }
@@ -22,4 +25,13 @@ bool ModuleFS::WriteToDisk(const char* file_path, char* data, uint64_t size)
 	write_file.close();
 
 	return false;
+}
+
+bool ModuleFS::CleanUp() {
+	for (JSON_Value* json : jsons) {
+		json_serialize_to_file(json, json_object_get_string(json_object(json), "name"));
+		json_value_free(json);
+	}
+
+	return true;
 }

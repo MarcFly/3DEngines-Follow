@@ -22,10 +22,14 @@ public:
 
 	void SetTitle(const char* title);
 
+	void Save(JSON_Object* obj);
+	void Load(JSON_Object* obj);
+
 public:
 	//The window we'll be rendering to
 	SDL_Window* window;
 	bool fullscreen, full_desktop, resizable, borderless;
+	int w = SCREEN_WIDTH * SCREEN_SIZE, h = SCREEN_HEIGHT * SCREEN_SIZE;
 	//The surface contained by the window
 	SDL_Surface* screen_surface;
 };

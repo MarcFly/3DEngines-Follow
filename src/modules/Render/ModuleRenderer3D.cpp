@@ -22,7 +22,7 @@ void SetOpenGLState(const OpenGLState& state) {
 	glBlendFunc(state.src_blend, state.dst_blend);
 }
 
-ModuleRenderer3D::ModuleRenderer3D(bool start_enabled) : Module(start_enabled)
+ModuleRenderer3D::ModuleRenderer3D(bool start_enabled) : Module("renderer", start_enabled)
 {
 	grid_state.lighting = false;
 	default_state.src_blend = GL_SRC_ALPHA;

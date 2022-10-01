@@ -2,7 +2,7 @@
 #include <src/Application.h>
 #include "ModuleWindow.h"
 
-ModuleWindow::ModuleWindow(bool start_enabled) : Module(start_enabled)
+ModuleWindow::ModuleWindow(bool start_enabled) : Module("window", start_enabled)
 {
 	window = NULL;
 	screen_surface = NULL;
@@ -93,7 +93,8 @@ void ModuleWindow::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 	for (std::shared_ptr<Event> ev : evt_vec) {
 		switch (ev->type) {
 		case EventType::WINDOW_RESIZE:
-			SDL_SetWindowSize(window, ev->point2d.x, ev->point2d.y);
+			w = ev->point2d.x; h = ev->point2d.y;
+			SDL_SetWindowSize(window, w, h);
 			continue;
 		case EventType::WINDOW_SET_FULLSCREEN:
 			fullscreen = ev->boolean;
@@ -121,4 +122,26 @@ void ModuleWindow::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 void ModuleWindow::SetTitle(const char* title)
 {
 	SDL_SetWindowTitle(window, title);
+}
+
+void ModuleWindow::Save(JSON_Object* obj)
+{
+	json_object_set_boolean(obj, "fullscreen", fullscreen);
+	json_object_set_boolean(obj, "borderless", borderless);
+	json_object_set_boolean(obj, "full_desktop", full_desktop);
+	json_object_set_boolean(obj, "resizable", resizable);
+	json_object_set_number(obj, "width", w);
+	json_object_set_number(obj, "height", h);
+	json_object_set_string(obj, "title", SDL_GetWindowTitle(window));
+}
+
+
+void ModuleWindow::Load(JSON_Object* obj) {
+	fullscreen = json_object_get_boolean(obj, "fullscreen");
+	borderless = json_object_get_boolean(obj, "borderless");
+	full_desktop = json_object_get_boolean(obj, "full_desktop");
+	resizable = json_object_get_boolean(obj, "resizable");
+	w = json_object_get_number(obj, "width");
+	h = json_object_get_number(obj, "height");
+	SDL_SetWindowTitle(window, json_object_get_string(obj, "title"));
 }

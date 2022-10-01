@@ -22,7 +22,7 @@ class ModuleEventSystem : public Module {
 	// Basically has a ReadWriteLock for push operations...
 
 public:
-	ModuleEventSystem() : Module(true) {};
+	ModuleEventSystem() : Module("eventsys", true) {};
 	~ModuleEventSystem() {};
 
 	bool Init() { return true; };

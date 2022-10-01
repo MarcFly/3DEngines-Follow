@@ -8,7 +8,7 @@
 
 ModuleEngineUI e_engine_ui(true);
 
-ModuleEngineUI::ModuleEngineUI(bool start_enabled) : Module(start_enabled)
+ModuleEngineUI::ModuleEngineUI(bool start_enabled) : Module("editor_ui", start_enabled)
 {
 	
 }

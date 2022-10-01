@@ -15,14 +15,7 @@ enum main_states
 };
 
 #include <iostream>
-#include <src/helpers/JSON/simdjson.h>
-using namespace simdjson;
-int test(void) {
-	ondemand::parser parser;
-	padded_string json = padded_string::load("twitter.json");
-	ondemand::document tweets = parser.iterate(json);
-	std::cout << uint64_t(tweets["search_metadata"]["count"]) << " results." << std::endl;
-}
+
 
 Application* App = NULL;
 int main(int argc, char ** argv)

@@ -41,6 +41,8 @@ public:
 	update_status Update();
 	bool CleanUp();
 
+	void Save(JSON_Object* root_node);
+	void Load(JSON_Object* root_node);
 private:
 
 	void AddModule(Module* mod);
