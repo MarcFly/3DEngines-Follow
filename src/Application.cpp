@@ -62,7 +62,7 @@ bool Application::Init()
 	}
 
 	// After all Init calls we call Start() in all modules
-	LOG("Application Start --------------");
+	PLOG("Application Start --------------");
 	
 	for (Module* item : list_modules) {
 		item->Start();

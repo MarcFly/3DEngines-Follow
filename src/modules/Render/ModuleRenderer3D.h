@@ -1,6 +1,7 @@
 #pragma once
 #include <src/modules/Module.h>
 #include <src/helpers/Globals.h>
+#include <src/helpers/MathGeoLib/MathGeoLib.h>
 #include <src/helpers/glmath.h>
 #include <vector>
 #include <src/modules/EventSystem/Event.h>
