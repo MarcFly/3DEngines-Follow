@@ -28,6 +28,8 @@ public:
 
 	void RenderGrid() const;
 
+	
+
 public:
 
 	SDL_GLContext context;
@@ -41,4 +43,6 @@ public:
 	OpenGLState grid_state;
 	std::vector<OpenGLState> state_stack;
 	std::vector<OpenGLState> states;
+	uint32_t example_fun = 0;
+	bool draw_example_primitive = false;
 };

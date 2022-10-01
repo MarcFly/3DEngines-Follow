@@ -93,7 +93,8 @@
     <ClCompile Include="src\helpers\MathGeoLib\Math\SSEMath.cpp" />
     <ClCompile Include="src\helpers\MathGeoLib\Math\TransformOps.cpp" />
     <ClCompile Include="src\helpers\MathGeoLib\Time\Clock.cpp" />
-    <ClCompile Include="src\modules\Render\Primitives\Primitives.cpp" />
+    <ClCompile Include="src\modules\Render\Primitives\DirectDrawPrimitives.cpp" />
+    <ClCompile Include="src\modules\Render\Primitives\BufferedPrimitives.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />

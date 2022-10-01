@@ -13,6 +13,13 @@
 #include <stdint.h>
 #define SET_STATE(enabled, value) if (enabled) glEnable(value); else glDisable(value);
 //====================================
+typedef void(*VoidFun)();
+VoidFun primitive_draw_funs[] = {
+	DDCube, DDCube_BadIndices, DDCube_VecIndices,
+	VB_Cube,
+};
+
+//====================================
 void SetOpenGLState(const OpenGLState& state) {
 	SET_STATE(state.depth_test, GL_DEPTH_TEST);
 	SET_STATE(state.color_material, GL_COLOR_MATERIAL);
@@ -122,6 +129,8 @@ bool ModuleRenderer3D::Init()
 	OnResize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	SetOpenGLState(default_state);
 
+	InitPrimitives();
+
 	return ret;
 }
 
@@ -145,9 +154,7 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 update_status ModuleRenderer3D::PostUpdate(float dt)
 {
 	RenderGrid();
-	//DDCube();
-	//DDCube_BadIndices();
-	DDCube_VecIndices();
+	if (draw_example_primitive) primitive_draw_funs[example_fun]();
 
 	return UPDATE_CONTINUE;
 }
@@ -156,6 +163,7 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 bool ModuleRenderer3D::CleanUp()
 {
 	PLOG("Destroying 3D Renderer");
+	CleanUpPrimitives();
 
 	SDL_GL_DeleteContext(context);
 
@@ -168,9 +176,16 @@ void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_ve
 		switch (ev->type) {
 			case EventType::WINDOW_RESIZE:
 				OnResize(ev->point2d.x, ev->point2d.y);
+				continue;
 			case EventType::CHANGED_DEFAULT_OPENGL_STATE:
 				default_state = ev->ogl_state;
 				SetOpenGLState(default_state);
+				continue;
+			case EventType::TOGGLE_RENDERER_PRIMITIVES:
+				draw_example_primitive = ev->boolean;
+				continue;
+			case EventType::CHANGE_RENDERER_PRIMITIVE:
+				example_fun = ev->uint32;
 				continue;
 		}
 	}

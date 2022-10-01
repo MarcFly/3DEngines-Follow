@@ -120,6 +120,16 @@ uint32_t blend_vals[] = {
 
 constexpr int arrsize = sizeof(blend_vals) / sizeof(uint32_t);
 
+#include <src/modules/Render/Primitives/Primitives.h>
+
+bool render_primitives = false;
+const char* primitive_strs[] = {
+	"Direct Draw Cube", "DD Cube Index example", "DD Cube Loop Index",
+	"Vertex Array Cube",
+};
+int curr_primitive = 0;
+
+constexpr int primitive_arrsize = sizeof(primitive_strs) / sizeof(char*);
 void ConfigWindow::RenderOptions()
 {
 	bool ret = false;
@@ -143,6 +153,14 @@ void ConfigWindow::RenderOptions()
 		ev->ogl_state = state;
 		App->events->RegisterEvent(ev);
 	}
+
+	// Example Primitives
+	ret = false;
+	if (ImGui::Checkbox("Render Primitive", &render_primitives))
+		EV_SEND_BOOL(TOGGLE_RENDERER_PRIMITIVES, render_primitives);
+
+	if (ImGui::Combo("##PrimitiveExamples", &curr_primitive, primitive_strs, primitive_arrsize))
+		EV_SEND_UINT32(CHANGE_RENDERER_PRIMITIVE, curr_primitive);
 }
 
 //================================================================
@@ -180,6 +198,8 @@ void ConfigWindow::Start() {
 	state = App->renderer3D->default_state;
 	for (int i = 0; blend_vals[(curr_src_blend = i)] != state.src_blend; ++i);
 	for (int i = 0; blend_vals[(curr_dst_blend = i)] != state.dst_blend; ++i);
+	render_primitives = App->renderer3D->draw_example_primitive;
+	curr_primitive = App->renderer3D->example_fun;
 }
 
 void ConfigWindow::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec) {

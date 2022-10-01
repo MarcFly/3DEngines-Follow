@@ -1,5 +1,8 @@
 #pragma once
 #include <stdint.h>
+#include <libs/glew/include/GL/glew.h>
+#include <gl/GL.h>
+#include <src/helpers/MathGeoLib/MathGeoLib.h>
 
 struct OpenGLState {
 	bool lighting = false;
@@ -9,4 +12,10 @@ struct OpenGLState {
 	bool texture2D = true;
 
 	uint32_t src_blend, dst_blend;
+};
+
+
+struct VTX_arr {
+	std::vector<float3> vertices;
+	GLenum draw_mode = GL_STATIC_DRAW;
 };

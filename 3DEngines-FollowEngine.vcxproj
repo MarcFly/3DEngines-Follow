@@ -80,7 +80,8 @@
     <ClCompile Include="src\modules\Render\ModuleRenderer3D.cpp" />
     <ClCompile Include="src\modules\ModuleWindow.cpp" />
     <ClCompile Include="src\helpers\Timer.cpp" />
-    <ClCompile Include="src\modules\Render\Primitives\Primitives.cpp" />
+    <ClCompile Include="src\modules\Render\Primitives\BufferedPrimitives.cpp" />
+    <ClCompile Include="src\modules\Render\Primitives\DirectDrawPrimitives.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
