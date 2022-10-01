@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 struct OpenGLState {
-	bool lighting = true;
+	bool lighting = false;
 	bool cull_faces = true;
 	bool depth_test = true;
 	bool color_material = true;

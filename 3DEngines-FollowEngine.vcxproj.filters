@@ -93,6 +93,7 @@
     <ClCompile Include="src\helpers\MathGeoLib\Math\SSEMath.cpp" />
     <ClCompile Include="src\helpers\MathGeoLib\Math\TransformOps.cpp" />
     <ClCompile Include="src\helpers\MathGeoLib\Time\Clock.cpp" />
+    <ClCompile Include="src\modules\Render\Primitives\Primitives.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -203,6 +204,7 @@
     <ClInclude Include="src\helpers\MathGeoLib\MathBuildConfig.h" />
     <ClInclude Include="src\helpers\MathGeoLib\MathGeoLib.h" />
     <ClInclude Include="src\helpers\MathGeoLib\MathGeoLibFwd.h" />
+    <ClInclude Include="src\modules\Render\Primitives\Primitives.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\helpers\MathGeoLib\Geometry\KDTree.inl" />

@@ -80,6 +80,7 @@
     <ClCompile Include="src\modules\Render\ModuleRenderer3D.cpp" />
     <ClCompile Include="src\modules\ModuleWindow.cpp" />
     <ClCompile Include="src\helpers\Timer.cpp" />
+    <ClCompile Include="src\modules\Render\Primitives\Primitives.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -189,6 +190,7 @@
     <ClInclude Include="src\modules\Render\ModuleRenderer3D.h" />
     <ClInclude Include="src\modules\ModuleWindow.h" />
     <ClInclude Include="src\helpers\Timer.h" />
+    <ClInclude Include="src\modules\Render\Primitives\Primitives.h" />
     <ClInclude Include="src\modules\Render\RendererTypes.h" />
   </ItemGroup>
   <ItemGroup>

@@ -6,7 +6,7 @@
 #include <vector>
 #include <src/modules/EventSystem/Event.h>
 #include "RendererTypes.h"
-
+#include "Primitives/Primitives.h"
 #define MAX_LIGHTS 8
 
 void SetOpenGLState(const OpenGLState& state);

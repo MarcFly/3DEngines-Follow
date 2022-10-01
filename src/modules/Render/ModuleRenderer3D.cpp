@@ -45,6 +45,7 @@ bool ModuleRenderer3D::Init()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
 	//Create context
 	context = SDL_GL_CreateContext(App->window->window);
@@ -144,7 +145,10 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 update_status ModuleRenderer3D::PostUpdate(float dt)
 {
 	RenderGrid();
-	
+	//DDCube();
+	//DDCube_BadIndices();
+	DDCube_VecIndices();
+
 	return UPDATE_CONTINUE;
 }
 
@@ -182,7 +186,7 @@ void ModuleRenderer3D::RenderGrid() const
 	for (int i = 0; i < GRID_SIZE * 2 + 1; i++)
 	{
 		glBegin(GL_LINES);
-		glColor3f(0.5f, 0.5f, 0.5f);
+		glColor3f(1.5f, 0.5f, 0.5f);
 
 		//Z
 		glVertex3i(GRID_SIZE - i, 0, GRID_SIZE);
