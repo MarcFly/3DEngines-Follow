@@ -12,6 +12,7 @@ struct OpenGLState {
 	bool texture2D = true;
 
 	uint32_t src_blend, dst_blend;
+	uint32_t poly_mode = GL_FRONT_AND_BACK, poly_fill = GL_FILL;
 };
 
 

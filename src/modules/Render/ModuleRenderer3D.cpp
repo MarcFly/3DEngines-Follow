@@ -16,7 +16,7 @@
 typedef void(*VoidFun)();
 VoidFun primitive_draw_funs[] = {
 	DDCube, DDCube_BadIndices, DDCube_VecIndices,
-	VB_Cube,
+	VB_Cube, VBI_Pyramid, VBI_DiskSphere,
 };
 
 //====================================
@@ -27,6 +27,7 @@ void SetOpenGLState(const OpenGLState& state) {
 	SET_STATE(state.lighting, GL_LIGHTING);
 	SET_STATE(state.texture2D, GL_TEXTURE_2D);
 	glBlendFunc(state.src_blend, state.dst_blend);
+	glPolygonMode(state.poly_mode, state.poly_fill);
 }
 
 ModuleRenderer3D::ModuleRenderer3D(bool start_enabled) : Module("renderer", start_enabled)
@@ -153,6 +154,14 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 // PostUpdate present buffer to screen
 update_status ModuleRenderer3D::PostUpdate(float dt)
 {
+	GLfloat light_position[] = { sin(dt), 0., cos(dt) };
+	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat mat_shininess[] = { 50.0 };
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
 	RenderGrid();
 	if (draw_example_primitive) primitive_draw_funs[example_fun]();
 

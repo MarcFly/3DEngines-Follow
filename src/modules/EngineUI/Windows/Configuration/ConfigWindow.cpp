@@ -117,15 +117,32 @@ uint32_t blend_vals[] = {
 	GL_ONE_MINUS_SRC_ALPHA, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA,
 	GL_SRC_ALPHA_SATURATE,
 };
+constexpr int blend_arrsize = sizeof(blend_vals) / sizeof(uint32_t);
 
-constexpr int arrsize = sizeof(blend_vals) / sizeof(uint32_t);
+const char* polymode_strings[] = {
+	"FRONT AND BACK", "FRONT"
+};
+uint32_t polymode_vals[] = {
+	GL_FRONT_AND_BACK, GL_FRONT_FACE
+};
+constexpr int polymode_arrsize = sizeof(polymode_vals) / sizeof(uint32_t);
+int curr_polymode = 0;
+
+const char* polyfill_strings[] = {
+	"FILL", "LINES", "POINTS"
+};
+uint32_t polyfill_vals[] = {
+	GL_FILL, GL_LINE, GL_POINT,
+};
+constexpr int polyfill_arrsize = sizeof(polymode_vals) / sizeof(uint32_t);
+int curr_polyfill = 0;
 
 #include <src/modules/Render/Primitives/Primitives.h>
 
 bool render_primitives = false;
 const char* primitive_strs[] = {
 	"Direct Draw Cube", "DD Cube Index example", "DD Cube Loop Index",
-	"Vertex Array Cube",
+	"Vertex Array Cube", "Indexed Tetrahedron", "Indexed DiskSphere"
 };
 int curr_primitive = 0;
 
@@ -141,14 +158,23 @@ void ConfigWindow::RenderOptions()
 	ImGui::Separator();
 	ImGui::Text("Blend Factors:");
 	ImGui::Text("Source: "); ImGui::SameLine();
-	ret |= ImGui::Combo("##SRCBLEND", &curr_src_blend, blend_strings, arrsize);
+	ret |= ImGui::Combo("##SRCBLEND", &curr_src_blend, blend_strings, blend_arrsize);
 	
-	ImGui::Text("| Dest: "); ImGui::SameLine();
-	ret |= ImGui::Combo("##DSTBLEND", &curr_dst_blend, blend_strings, arrsize);
+	ImGui::Text("Dest: "); ImGui::SameLine();
+	ret |= ImGui::Combo("##DSTBLEND", &curr_dst_blend, blend_strings, blend_arrsize);
 	
+	ImGui::Text("Poly Mode: "); ImGui::SameLine();
+	ret |= ImGui::Combo("##PolyMode", &curr_polymode, polymode_strings, polymode_arrsize);
+
+	ImGui::Text("Poly Fill: "); ImGui::SameLine();
+	ret |= ImGui::Combo("##PolyFill", &curr_polyfill, polyfill_strings, polyfill_arrsize);
+
 	if (ret) {
-		state.src_blend = curr_src_blend;
-		state.dst_blend = curr_dst_blend;
+		state.src_blend = blend_vals[curr_src_blend];
+		state.dst_blend = blend_vals[curr_dst_blend];
+		state.poly_mode = polymode_vals[curr_polymode];
+		state.poly_fill = polyfill_vals[curr_polyfill];
+
 		std::shared_ptr<Event> ev = std::make_shared<Event>(CHANGED_DEFAULT_OPENGL_STATE);
 		ev->ogl_state = state;
 		App->events->RegisterEvent(ev);
@@ -200,6 +226,8 @@ void ConfigWindow::Start() {
 	for (int i = 0; blend_vals[(curr_dst_blend = i)] != state.dst_blend; ++i);
 	render_primitives = App->renderer3D->draw_example_primitive;
 	curr_primitive = App->renderer3D->example_fun;
+	for (int i = 0; polymode_vals[(curr_polymode = i)] != state.poly_mode; ++i);
+	for (int i = 0; polyfill_vals[(curr_polyfill = i)] != state.poly_fill; ++i);
 }
 
 void ConfigWindow::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec) {
