@@ -124,6 +124,7 @@ bool ModuleRenderer3D::Init()
 
 		GLfloat MaterialDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, MaterialDiffuse);
+		glShadeModel(GL_SMOOTH);
 	}
 
 	// Projection matrix for
@@ -144,6 +145,7 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 	glLoadIdentity();
 
 	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 	// TODO: Camera Matrix part of a Renderdata that can be freely read each frame
 	// Will then be useful for splitting the rendering in a different thread
 	glLoadMatrixf(App->camera->GetViewMatrix());
@@ -152,18 +154,40 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 }
 
 // PostUpdate present buffer to screen
+double cum_dt = 0;
 update_status ModuleRenderer3D::PostUpdate(float dt)
 {
-	GLfloat light_position[] = { sin(dt), 0., cos(dt) };
+	cum_dt += dt;
+	float4 light_position = { (float)sin(cum_dt)*5.f, 0.f, (float)cos(cum_dt)*5.f, .5f};
 	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat mat_shininess[] = { 50.0 };
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 	glEnable(GL_LIGHT0);
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-
+	
+	glLightfv(GL_LIGHT0, GL_POSITION, (float*)&light_position);
+	float4 neg_lp = float4(-light_position.xyz(), 1.);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, (float*)&neg_lp);
+	
+	glPointSize(10.);
+	glBegin(GL_POINTS);
+	glColor3f(1., 1., 1.);
+	glVertex3f(light_position[0], light_position[1], light_position[2]);
+	glEnd();
 	RenderGrid();
+	glPointSize(1.);
+
 	if (draw_example_primitive) primitive_draw_funs[example_fun]();
+
+	for (GPUMesh& m : meshes) {
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glBindBuffer(GL_ARRAY_BUFFER, m.vtx_id);
+		glVertexPointer(3, GL_FLOAT, 0, NULL);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.idx_id);
+		glDrawElements(GL_TRIANGLES, m.num_idx, GL_UNSIGNED_INT, NULL);
+		glDisableClientState(GL_VERTEX_ARRAY);
+	}
 
 	return UPDATE_CONTINUE;
 }
@@ -196,6 +220,10 @@ void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_ve
 			case EventType::CHANGE_RENDERER_PRIMITIVE:
 				example_fun = ev->uint32;
 				continue;
+			case EventType::LOAD_MESH_TO_GPU:
+				const PlainData& pdata = App->fs->RetrieveData(ev->uint64);
+				const NIMesh* mesh = (const NIMesh*)pdata.data;
+				LoadMesh(mesh);
 		}
 	}
 }
@@ -224,6 +252,35 @@ void ModuleRenderer3D::RenderGrid() const
 
 	SetOpenGLState(default_state);
 	// glEnable(GL_LIGHTING)
+}
+
+void ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
+{
+	GPUMesh push;
+	push.num_vtx = mesh->vertices.size();
+	glGenBuffers(1, &push.vtx_id);
+	glBindBuffer(GL_ARRAY_BUFFER, push.vtx_id);
+	glBufferData(GL_ARRAY_BUFFER, push.num_vtx * sizeof(float3), mesh->vertices.data(), GL_STATIC_DRAW);
+	
+	if (mesh->normals.size() > 0) {
+		glGenBuffers(1, &push.norm_id);
+		glBindBuffer(GL_ARRAY_BUFFER, push.norm_id);
+		glBufferData(GL_ARRAY_BUFFER, mesh->normals.size() * sizeof(float3), mesh->normals.data(), GL_STATIC_DRAW);
+	}
+	if (mesh->uvs.size() > 0) {
+		glGenBuffers(1, &push.uvs_id);
+		glBindBuffer(GL_ARRAY_BUFFER, push.uvs_id);
+		glBufferData(GL_ARRAY_BUFFER, mesh->uvs.size() * sizeof(float2), mesh->uvs.data(), GL_STATIC_DRAW);
+	}
+	if (mesh->indices.size() > 0) {
+		push.num_idx = mesh->indices.size();
+		glGenBuffers(1, &push.idx_id);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, push.vtx_id);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, push.num_idx * sizeof(uint32_t), mesh->indices.data(), GL_STATIC_DRAW);
+
+	}
+
+	meshes.push_back(push);
 }
 
 void ModuleRenderer3D::OnResize(int width, int height)

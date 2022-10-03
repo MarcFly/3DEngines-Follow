@@ -129,12 +129,12 @@ constexpr int polymode_arrsize = sizeof(polymode_vals) / sizeof(uint32_t);
 int curr_polymode = 0;
 
 const char* polyfill_strings[] = {
-	"FILL", "LINES", "POINTS"
+	"FILL", "LINES", "POINTS",
 };
 uint32_t polyfill_vals[] = {
 	GL_FILL, GL_LINE, GL_POINT,
 };
-constexpr int polyfill_arrsize = sizeof(polymode_vals) / sizeof(uint32_t);
+constexpr int polyfill_arrsize = sizeof(polyfill_vals) / sizeof(uint32_t);
 int curr_polyfill = 0;
 
 #include <src/modules/Render/Primitives/Primitives.h>

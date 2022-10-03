@@ -95,11 +95,15 @@ update_status ModuleInput::PreUpdate(float dt)
 		App->engine_ui->GetEvent(&e);
 		switch(e.type)
 		{
-			case SDL_MOUSEWHEEL:
+		case SDL_DROPFILE:
+			EV_SEND_STR(EventType::FILE_DROPPED, e.drop.file); 
+			// MEMLEAK: event does not free sdl allocated str
+			break;
+		case SDL_MOUSEWHEEL:
 			mouse_z = e.wheel.y;
 			break;
 
-			case SDL_MOUSEMOTION:
+		case SDL_MOUSEMOTION:
 			mouse_x = e.motion.x / SCREEN_SIZE;
 			mouse_y = e.motion.y / SCREEN_SIZE;
 
@@ -107,11 +111,11 @@ update_status ModuleInput::PreUpdate(float dt)
 			mouse_y_motion = e.motion.yrel / SCREEN_SIZE;
 			break;
 
-			case SDL_QUIT:
+		case SDL_QUIT:
 			quit = true;
 			break;
 
-			case SDL_WINDOWEVENT:
+		case SDL_WINDOWEVENT:
 			{
 				switch (e.window.event) {
 				case SDL_WINDOWEVENT_RESIZED:

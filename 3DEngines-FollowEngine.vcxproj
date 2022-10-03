@@ -74,6 +74,8 @@
     <ClCompile Include="src\modules\EngineUI\ui_item.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.cpp" />
     <ClCompile Include="src\modules\EventSystem\ModuleEventSystem.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Importers\FileTypes\ImporterMesh.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Importers\AssimpImporter.cpp" />
     <ClCompile Include="src\modules\FileSystem\ModuleFS.cpp" />
     <ClCompile Include="src\modules\ModuleCamera3D.cpp" />
     <ClCompile Include="src\modules\ModuleInput.cpp" />
@@ -184,6 +186,8 @@
     <ClInclude Include="src\modules\EngineUI\Windows\DemoWindow.h" />
     <ClInclude Include="src\modules\EventSystem\Event.h" />
     <ClInclude Include="src\modules\EventSystem\ModuleEventSystem.h" />
+    <ClInclude Include="src\modules\FileSystem\FSDataTypes.h" />
+    <ClInclude Include="src\modules\FileSystem\Importers\AssimpImporter.h" />
     <ClInclude Include="src\modules\FileSystem\ModuleFS.h" />
     <ClInclude Include="src\modules\Module.h" />
     <ClInclude Include="src\modules\ModuleCamera3D.h" />
@@ -235,7 +239,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(ProjectDir)/libs;$(ProjectDir)/libs/SDL/include</LibraryPath>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(ProjectDir)\libs\SDL\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(ProjectDir)\libs\SDL\include;C:\dev\Gitkraken_Repos\Motors3D-Follow\libs</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)/src/modules/EngineUI/DearImGUI;</ExternalIncludePath>
     <SourcePath>$(VC_SourcePath);$(ProjectDir)/src/modules/EngineUI/DearImGUI</SourcePath>
   </PropertyGroup>

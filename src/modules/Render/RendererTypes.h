@@ -20,3 +20,26 @@ struct VTX_arr {
 	std::vector<float3> vertices;
 	GLenum draw_mode = GL_STATIC_DRAW;
 };
+
+// Non-Interleaved Mesh - Data Blocks
+struct NIMesh {
+	std::vector<float3> vertices;
+	std::vector<float3> normals;
+	std::vector<float2> uvs;
+
+	std::vector<uint32_t> indices;
+	std::vector<uint16_t> h_indices; // in case it has halfsized indices
+
+	GLenum draw_mode;
+	GLenum polytype;
+};
+
+struct GPUMesh {
+	uint32_t vtx_id = 0;
+	uint32_t norm_id = 0;
+	uint32_t uvs_id = 0;
+	uint32_t num_vtx = 0;
+
+	uint32_t idx_id = 0;
+	uint64_t num_idx = 0;
+};
