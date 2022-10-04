@@ -31,21 +31,16 @@ Application::Application()
 }
 
 Application::~Application()
-{	
-	std::list<Module*>::iterator item = --list_modules.end();
-	while (true) {
-		if (*item == nullptr || (*item)->IsStaticModule()) { 
-			if (item == list_modules.begin()) 
-				break; 
-			--item; continue; }
+{		
+	std::list<Module*>::iterator item = list_modules.end(); 
+
+	do {
+		--item;
+		if (*item == nullptr || (*item)->IsStaticModule())
+			continue;
 		delete* item;
 		*item = nullptr;
-
-		if (item == list_modules.begin())
-			break;
-
-		--item;
-	}
+	} while (item != list_modules.begin());
 
 	list_modules.clear();
 }
@@ -135,18 +130,16 @@ bool Application::CleanUp()
 {
 	bool ret = true;
 
-	std::list<Module*>::iterator item = --list_modules.end();
+	std::list<Module*>::iterator item = list_modules.end();
 	do {
+		--item;
 		(*item)->CleanUp();
-		if ((*item)->IsStaticModule()) {
-			--item; 
+		if ((*item)->IsStaticModule())
 			continue;
-		}
 		delete* item;
 		*item = nullptr;
-
-		--item;
 	} while (item != list_modules.begin());
+
 	return ret;
 }
 

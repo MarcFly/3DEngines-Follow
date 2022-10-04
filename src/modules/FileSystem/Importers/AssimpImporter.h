@@ -15,6 +15,6 @@ public:
 	bool CleanUp();
 
 	// Import Functions
-	PlainData ExportAssimpScene(const PlainData& data);
+	std::vector<WatchedData> ExportAssimpScene(const PlainData& data);
 	PlainData ExportAssimpMesh(const aiMesh* aimesh);
 };

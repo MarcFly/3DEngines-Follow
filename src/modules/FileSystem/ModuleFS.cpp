@@ -19,17 +19,23 @@ bool ModuleFS::Init()
 }
 
 #include <fstream>
-uint64_t ModuleFS::RegisterFile(PlainData& data)
-{
-	uint64_t ret = allocs.size();
-	allocs.push_back(data);
-	return ret;
-}
+//uint64_t ModuleFS::RegisterFile(PlainData& data)
+//{
+//	uint64_t ret = allocs.size();
+//	allocs.push_back(data);
+//	return ret;
+//}
 
 const PlainData& ModuleFS::RetrieveData(uint64_t id)
 {
-	return allocs[id];
+	WatchedData& wd = allocs[id];
+	//if(wd.loaded == false && wd.offload_id == UINT64_MAX)
+	// 
+
+	++wd.users;
+	return wd.pd;
 }
+
 
 bool ModuleFS::WriteToDisk(const char* file_path, char* data, uint64_t size)
 {
@@ -47,6 +53,11 @@ bool ModuleFS::CleanUp() {
 		json_value_free(json);
 	}
 
+	for (WatchedData& data : allocs) {
+		if (data.pd.data != nullptr)
+			delete data.pd.data;
+		data.pd.data = nullptr;
+	}
 
 	assimp.CleanUp();
 
@@ -55,37 +66,46 @@ bool ModuleFS::CleanUp() {
 
 #include <cstring>
 
-PlainData ModuleFS::WorkWithExtension(const char* ext, const char* path) {
-	PlainData ret;
-	std::ifstream file;
-	file.open(path, std::ifstream::binary);
-	PlainData temp;
-	file.seekg(0, std::ios::end);
-	temp.size = file.tellg();
-	file.seekg(0, std::ios::beg);
-	temp.data = new char[temp.size + 1];
-	file.read((char*)temp.data, temp.size);
-
+std::vector<WatchedData> ModuleFS::TryLoadFromDisk(const char* path) {
+	std::vector<WatchedData> ret;
+	TempIfStream file(path);
+	const char* ext = strrchr(path, '.');
 	if (strcmp(ext, ".fbx") == 0 || strcmp(ext, ".FBX") == 0)
-		ret = assimp.ExportAssimpScene(temp);
-
-
-	// Close and delete file and temp
+		ret = assimp.ExportAssimpScene(file.GetData()); // Assimp Scene never saved to memory
 
 	return ret;
 }
 
 void ModuleFS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 {
+	std::vector<WatchedData> unregistered;
+	// TODO: Data to unload vector
+
 	for (std::shared_ptr<Event> ev : evt_vec) {
+		std::vector<WatchedData> data;
 		switch (ev->type) {
 		case EventType::FILE_DROPPED:
-			const char* ext = strrchr(ev->str, '.');
-			PlainData data = WorkWithExtension(ext, ev->str);
-			if (data.size > 0) EV_SEND_UINT64(LOAD_MESH_TO_GPU, RegisterFile(data));
+			data = TryLoadFromDisk(ev->str);
+			unregistered.insert(unregistered.end(), std::make_move_iterator(data.begin()), std::make_move_iterator( data.end()));
+			data.erase(data.begin(), data.end());
+			data.clear();
+			continue;
+		case EventType::USER_UNLOADED_DATA:
+			--allocs[ev->uint64].users;
 			continue;
 		}
 	}
+
+	uint64_t num_registered = allocs.size();
+	int num_unregistered = unregistered.size();
+	for (int i = 0; i < num_unregistered; ++i){
+		const WatchedData& unreg_data = unregistered[i];
+		if(unreg_data.event_type > 0) EV_SEND_UINT64((EventType)unreg_data.event_type, i + num_registered);
+		// TODO: Prepare unregistered data for being put in the alloc vector
+	}
+	allocs.insert(allocs.end(), std::make_move_iterator(unregistered.begin()), std::make_move_iterator(unregistered.end()));
+	unregistered.erase(unregistered.begin(), unregistered.end());
+	unregistered.clear();
 }
 
 

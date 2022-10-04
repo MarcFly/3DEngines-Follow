@@ -177,7 +177,7 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 
 	glRotatef(cum_dt * 100., 0., 1., 1.);
 	if (draw_example_primitive) primitive_draw_funs[example_fun]();
-
+	glRotatef(- cum_dt * 100., 0., 1., 1.);
 	
 	for (GPUMesh& m : meshes) {
 		
@@ -202,6 +202,8 @@ bool ModuleRenderer3D::CleanUp()
 {
 	PLOG("Destroying 3D Renderer");
 	CleanUpPrimitives();
+	for (GPUMesh& mesh : meshes)
+		UnloadMesh(mesh);
 
 	SDL_GL_DeleteContext(context);
 
@@ -261,39 +263,38 @@ void ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
 	GPUMesh push;
 	push.num_vtx = mesh->vertices.size();
 	glGenBuffers(1, &push.vtx_id);
-	PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 	glBindBuffer(GL_ARRAY_BUFFER, push.vtx_id);
-	PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 	glBufferData(GL_ARRAY_BUFFER, push.num_vtx * sizeof(float3), mesh->vertices.data(), GL_STATIC_DRAW);
-	PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 	if (mesh->normals.size() > 0) {
 		glGenBuffers(1, &push.norm_id);
-		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBindBuffer(GL_ARRAY_BUFFER, push.norm_id);
-		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBufferData(GL_ARRAY_BUFFER, mesh->normals.size() * sizeof(float3), mesh->normals.data(), GL_STATIC_DRAW);
-		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 	}
 	if (mesh->uvs.size() > 0) {
 		glGenBuffers(1, &push.uvs_id);
-		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBindBuffer(GL_ARRAY_BUFFER, push.uvs_id);
-		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBufferData(GL_ARRAY_BUFFER, mesh->uvs.size() * sizeof(float2), mesh->uvs.data(), GL_STATIC_DRAW);
-		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 	}
 	if (mesh->indices.size() > 0) {
 		push.num_idx = mesh->indices.size();
 		glGenBuffers(1, &push.idx_id);
-		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, push.idx_id);
-		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, push.num_idx * sizeof(uint32_t), mesh->indices.data(), GL_STATIC_DRAW);
-		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
-
 	}
 
 	meshes.push_back(push);
+}
+
+void ModuleRenderer3D::UnloadMesh(GPUMesh& mesh) {
+	std::vector<uint32_t> ids;
+	if (mesh.vtx_id > 0) ids.push_back(mesh.vtx_id);
+	if (mesh.norm_id > 0) ids.push_back(mesh.norm_id);
+	if (mesh.uvs_id > 0) ids.push_back(mesh.uvs_id);
+	if (mesh.idx_id > 0) ids.push_back(mesh.idx_id);
+
+	glDeleteBuffers(ids.size(), ids.data());
+
+	mesh.vtx_id = mesh.norm_id = mesh.uvs_id = mesh.idx_id = 0;
 }
 
 void ModuleRenderer3D::OnResize(int width, int height)

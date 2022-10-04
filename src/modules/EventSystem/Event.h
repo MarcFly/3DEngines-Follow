@@ -5,6 +5,7 @@
 #include <src/helpers/JSON/parson.h>
 #include <string>
 enum EventType {
+	NO_EVENT,
 	// STRING 
 	// BOOL 
 	// UINT32 
@@ -24,7 +25,10 @@ enum EventType {
 	CHANGED_DEFAULT_OPENGL_STATE,
 	TOGGLE_RENDERER_PRIMITIVES,
 	CHANGE_RENDERER_PRIMITIVE,
+	
 	LOAD_MESH_TO_GPU,
+	USER_OFFLOADED_DATA,
+	USER_UNLOADED_DATA,
 
 	EVENTTYPE_MAX
 };

@@ -21,12 +21,18 @@ bool AssimpImporter::CleanUp() {
 }
 
 #include <fstream>
-PlainData AssimpImporter::ExportAssimpScene(const PlainData& data) {
-	PlainData ret;
+std::vector<WatchedData> AssimpImporter::ExportAssimpScene(const PlainData& data) {
+	std::vector<WatchedData> ret;
 
 	const aiScene* aiscene = aiImportFileFromMemory(data.data, data.size, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_Triangulate, nullptr);
-	const aiMesh* aimesh = aiscene->mMeshes[0];
-	ret = ExportAssimpMesh(aimesh);
+	
+	WatchedData curr;
+	for (int i = 0; i < aiscene->mNumMeshes; ++i) {
+		const aiMesh* aimesh = aiscene->mMeshes[i];
+		curr.pd = ExportAssimpMesh(aimesh);
+		curr.event_type = LOAD_MESH_TO_GPU;
+		ret.push_back(curr);
+	}
 
 	return ret;
 }

@@ -29,6 +29,7 @@ public:
 	void RenderGrid() const;
 
 	void LoadMesh(const NIMesh* mesh);
+	void UnloadMesh(GPUMesh& mesh);
 
 public:
 
