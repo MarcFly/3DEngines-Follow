@@ -3,9 +3,20 @@
 #include <libs/glew/include/GL/glew.h>
 #include <gl/GL.h>
 
+void DDTriangle() {
+	glBegin(GL_TRIANGLES);
+	glColor3f(1., 1., 0.);
+	glVertex3f(-1., -1., 1.);	// 5
+	glVertex3f(1., -1., 1.);	// 6
+	glVertex3f(1., 1., 1.);		// 8
+	glEnd();
+}
+
 void DDCube()
 {
+	//glTranslatef(1. + cum_val, 0., 1. + cum_val);
 	glBegin(GL_TRIANGLES);
+	
 	glColor3f(1., 1., 0.);
 
 	/// <summary>

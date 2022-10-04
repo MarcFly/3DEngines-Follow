@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/modules/Module.h>
-#include <assimp/scene.h>
+#include <libs/assimp/scene.h>
 #include "../FSDataTypes.h"
 #include <src/modules/Render/RendererTypes.h>
 

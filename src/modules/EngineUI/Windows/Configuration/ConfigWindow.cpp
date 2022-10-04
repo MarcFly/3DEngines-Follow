@@ -141,7 +141,7 @@ int curr_polyfill = 0;
 
 bool render_primitives = false;
 const char* primitive_strs[] = {
-	"Direct Draw Cube", "DD Cube Index example", "DD Cube Loop Index",
+	"Direct Draw Triangle", "Direct Draw Cube", "DD Cube Index example", "DD Cube Loop Index",
 	"Vertex Array Cube", "Indexed Tetrahedron", "Indexed DiskSphere"
 };
 int curr_primitive = 0;
