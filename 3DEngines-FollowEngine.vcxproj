@@ -239,7 +239,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(ProjectDir)/libs;$(ProjectDir)/libs/SDL/include</LibraryPath>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(ProjectDir)\libs\SDL\include;C:\dev\Gitkraken_Repos\Motors3D-Follow\libs</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(ProjectDir)\libs\SDL\include;$(ProjectDir)\libs;$(ProjectDir)\libs\assimp</IncludePath>
     <ExternalIncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)/src/modules/EngineUI/DearImGUI;</ExternalIncludePath>
     <SourcePath>$(VC_SourcePath);$(ProjectDir)/src/modules/EngineUI/DearImGUI</SourcePath>
   </PropertyGroup>

@@ -15,7 +15,7 @@
 //====================================
 typedef void(*VoidFun)();
 VoidFun primitive_draw_funs[] = {
-	DDCube, DDCube_BadIndices, DDCube_VecIndices,
+	DDTriangle, DDCube, DDCube_BadIndices, DDCube_VecIndices,
 	VB_Cube, VBI_Pyramid, VBI_DiskSphere,
 };
 
@@ -177,9 +177,12 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 	RenderGrid();
 	glPointSize(1.);
 
+	glRotatef(cum_dt * 100., 0., 1., 1.);
 	if (draw_example_primitive) primitive_draw_funs[example_fun]();
 
+	
 	for (GPUMesh& m : meshes) {
+		
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glBindBuffer(GL_ARRAY_BUFFER, m.vtx_id);
 		glVertexPointer(3, GL_FLOAT, 0, NULL);

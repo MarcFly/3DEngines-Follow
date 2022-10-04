@@ -1,5 +1,6 @@
 #pragma once
 
+void DDTriangle();
 void DDCube();
 
 void DDCube_BadIndices();
