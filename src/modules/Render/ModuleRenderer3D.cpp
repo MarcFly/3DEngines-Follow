@@ -28,13 +28,13 @@ void SetOpenGLState(const OpenGLState& state) {
 	SET_STATE(state.texture2D, GL_TEXTURE_2D);
 	glBlendFunc(state.src_blend, state.dst_blend);
 	glPolygonMode(state.poly_mode, state.poly_fill);
+
+	PLOG("Check for error: %s\n", gluErrorString(glGetError()));
 }
 
 ModuleRenderer3D::ModuleRenderer3D(bool start_enabled) : Module("renderer", start_enabled)
 {
 	grid_state.lighting = false;
-	default_state.src_blend = GL_SRC_ALPHA;
-	default_state.dst_blend = GL_ONE_MINUS_SRC_ALPHA;
 }
 
 // Destructor
@@ -54,7 +54,7 @@ bool ModuleRenderer3D::Init()
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-
+	
 	//Create context
 	context = SDL_GL_CreateContext(App->window->window);
 
@@ -65,7 +65,7 @@ bool ModuleRenderer3D::Init()
 	PLOG("Renderer: %s", glGetString(GL_RENDERER));
 	PLOG("OpenGL version supported %s", glGetString(GL_VERSION));
 	PLOG("GLSL: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-
+	
 	if(context == NULL)
 	{
 		PLOG("OpenGL context could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -112,7 +112,7 @@ bool ModuleRenderer3D::Init()
 		error = glGetError();
 		if(error != GL_NO_ERROR)
 		{
-			PLOG("Error initializing OpenGL! %s\n", gluErrorString(error));
+			PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 			ret = false;
 		}
 		
@@ -130,7 +130,7 @@ bool ModuleRenderer3D::Init()
 	// Projection matrix for
 	OnResize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	SetOpenGLState(default_state);
-
+	glEnable(GL_DEBUG_OUTPUT);
 	InitPrimitives();
 
 	return ret;
@@ -145,7 +145,6 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 	glLoadIdentity();
 
 	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
 	// TODO: Camera Matrix part of a Renderdata that can be freely read each frame
 	// Will then be useful for splitting the rendering in a different thread
 	glLoadMatrixf(App->camera->GetViewMatrix());
@@ -157,6 +156,7 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 double cum_dt = 0;
 update_status ModuleRenderer3D::PostUpdate(float dt)
 {
+
 	cum_dt += dt;
 	float4 light_position = { (float)sin(cum_dt)*5.f, 0.f, (float)cos(cum_dt)*5.f, .5f};
 	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -164,11 +164,9 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 	glEnable(GL_LIGHT0);
-	
 	glLightfv(GL_LIGHT0, GL_POSITION, (float*)&light_position);
 	float4 neg_lp = float4(-light_position.xyz(), 1.);
 	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, (float*)&neg_lp);
-	
 	glPointSize(10.);
 	glBegin(GL_POINTS);
 	glColor3f(1., 1., 1.);
@@ -178,14 +176,18 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 	glPointSize(1.);
 
 	if (draw_example_primitive) primitive_draw_funs[example_fun]();
-
+	PLOG("Check for error: %s\n", gluErrorString(glGetError()));
 	for (GPUMesh& m : meshes) {
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glBindBuffer(GL_ARRAY_BUFFER, m.vtx_id);
 		glVertexPointer(3, GL_FLOAT, 0, NULL);
-
+		if (m.norm_id != 0) {
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glBindBuffer(GL_ARRAY_BUFFER, m.norm_id);
+			glNormalPointer(GL_FLOAT, 0, NULL);
+		}
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.idx_id);
-		glDrawElements(GL_TRIANGLES, m.num_idx, GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_TRIANGLES, m.num_idx, GL_UNSIGNED_INT, nullptr);
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
 
@@ -232,9 +234,7 @@ void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_ve
 
 void ModuleRenderer3D::RenderGrid() const
 {
-	// glDisable(GL_LIGHTING);
 	SetOpenGLState(grid_state);
-
 	for (int i = 0; i < GRID_SIZE * 2 + 1; i++)
 	{
 		glBegin(GL_LINES);
@@ -251,7 +251,6 @@ void ModuleRenderer3D::RenderGrid() const
 	}
 
 	SetOpenGLState(default_state);
-	// glEnable(GL_LIGHTING)
 }
 
 void ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
@@ -259,24 +258,35 @@ void ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
 	GPUMesh push;
 	push.num_vtx = mesh->vertices.size();
 	glGenBuffers(1, &push.vtx_id);
+	PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 	glBindBuffer(GL_ARRAY_BUFFER, push.vtx_id);
+	PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 	glBufferData(GL_ARRAY_BUFFER, push.num_vtx * sizeof(float3), mesh->vertices.data(), GL_STATIC_DRAW);
-	
+	PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 	if (mesh->normals.size() > 0) {
 		glGenBuffers(1, &push.norm_id);
+		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBindBuffer(GL_ARRAY_BUFFER, push.norm_id);
+		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBufferData(GL_ARRAY_BUFFER, mesh->normals.size() * sizeof(float3), mesh->normals.data(), GL_STATIC_DRAW);
+		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 	}
 	if (mesh->uvs.size() > 0) {
 		glGenBuffers(1, &push.uvs_id);
+		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBindBuffer(GL_ARRAY_BUFFER, push.uvs_id);
+		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBufferData(GL_ARRAY_BUFFER, mesh->uvs.size() * sizeof(float2), mesh->uvs.data(), GL_STATIC_DRAW);
+		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 	}
 	if (mesh->indices.size() > 0) {
 		push.num_idx = mesh->indices.size();
 		glGenBuffers(1, &push.idx_id);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, push.vtx_id);
+		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, push.idx_id);
+		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, push.num_idx * sizeof(uint32_t), mesh->indices.data(), GL_STATIC_DRAW);
+		PLOG("Error initializing OpenGL! %s\n", gluErrorString(glGetError()));
 
 	}
 

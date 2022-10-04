@@ -52,6 +52,7 @@ uint32_t pyramid_vert_id;
 uint32_t pyramid_idx_id;
 
 void VBI_Pyramid() {
+	
 	glEnableClientState(GL_VERTEX_ARRAY);
 	//glEnableClientState(GL_NORMAL_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, pyramid_vert_id);

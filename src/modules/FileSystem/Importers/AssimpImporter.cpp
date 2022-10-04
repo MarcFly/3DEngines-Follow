@@ -24,7 +24,7 @@ bool AssimpImporter::CleanUp() {
 PlainData AssimpImporter::ExportAssimpScene(const PlainData& data) {
 	PlainData ret;
 
-	const aiScene* aiscene = aiImportFileFromMemory(data.data, data.size, aiProcessPreset_TargetRealtime_Fast, nullptr);
+	const aiScene* aiscene = aiImportFileFromMemory(data.data, data.size, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_Triangulate, nullptr);
 	const aiMesh* aimesh = aiscene->mMeshes[0];
 	ret = ExportAssimpMesh(aimesh);
 

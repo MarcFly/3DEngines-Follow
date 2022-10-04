@@ -6,16 +6,26 @@ PlainData AssimpImporter::ExportAssimpMesh(const aiMesh* aimesh) {
 
 	mesh->vertices.resize(aimesh->mNumVertices);
 	memcpy(mesh->vertices.data(), aimesh->mVertices, aimesh->mNumVertices * sizeof(float3));
-	mesh->normals.resize(aimesh->mNumVertices);
-	memcpy(mesh->normals.data(), aimesh->mNormals, aimesh->mNumVertices * sizeof(float3));
-	if (aimesh->HasFaces()) {
-		mesh->indices.resize(aimesh->mNumFaces * 3);
-		for (int i = 0; i < aimesh->mNumFaces; ++i) 
-			memcpy(&mesh->indices[i * 3], aimesh->mFaces[i].mIndices, sizeof(int) * 3);
+	
+	if (aimesh->HasNormals()) {
+		mesh->normals.resize(aimesh->mNumVertices);
+		memcpy(mesh->normals.data(), aimesh->mNormals, aimesh->mNumVertices * sizeof(float3));
 	}
+
+	if (aimesh->HasFaces()) {
+		//mesh->indices.resize(aimesh->mNumFaces * 3);
+		mesh->indices.reserve(aimesh->mNumFaces * 3);
+		for (int i = 0; i < aimesh->mNumFaces; ++i) {
+			//memcpy(&mesh->indices[i * 3], aimesh->mFaces[i].mIndices, sizeof(uint32_t) * 3);
+			mesh->indices.push_back(aimesh->mFaces[i].mIndices[0]);
+			mesh->indices.push_back(aimesh->mFaces[i].mIndices[1]);
+			mesh->indices.push_back(aimesh->mFaces[i].mIndices[2]);
+		}
+	}
+	
 	if (aimesh->HasTextureCoords(0)) {
 		mesh->uvs.resize(aimesh->mNumVertices);
-		memcpy(mesh->uvs.data(), aimesh->mTextureCoords, aimesh->mNumVertices * sizeof(float2));
+		memcpy(mesh->uvs.data(), aimesh->mTextureCoords[0], aimesh->mNumVertices * sizeof(float2));
 	}
 	// TODO: Base Color / Bounding Box /
 
@@ -24,3 +34,5 @@ PlainData AssimpImporter::ExportAssimpMesh(const aiMesh* aimesh) {
 
 	return ret;
 }
+
+
