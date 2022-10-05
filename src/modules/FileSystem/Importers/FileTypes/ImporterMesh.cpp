@@ -13,13 +13,9 @@ PlainData AssimpImporter::ExportAssimpMesh(const aiMesh* aimesh) {
 	}
 
 	if (aimesh->HasFaces()) {
-		//mesh->indices.resize(aimesh->mNumFaces * 3);
-		mesh->indices.reserve(aimesh->mNumFaces * 3);
+		mesh->indices.resize(aimesh->mNumFaces * 3);
 		for (int i = 0; i < aimesh->mNumFaces; ++i) {
-			//memcpy(&mesh->indices[i * 3], aimesh->mFaces[i].mIndices, sizeof(uint32_t) * 3);
-			mesh->indices.push_back(aimesh->mFaces[i].mIndices[0]);
-			mesh->indices.push_back(aimesh->mFaces[i].mIndices[1]);
-			mesh->indices.push_back(aimesh->mFaces[i].mIndices[2]);
+			memcpy(&mesh->indices[i * 3], aimesh->mFaces[i].mIndices, sizeof(uint32_t) * 3);
 		}
 	}
 	
