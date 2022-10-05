@@ -1,6 +1,6 @@
-#include "../AssimpImporter.h"
+#include "../../Importers.h"
 
-PlainData AssimpImporter::ExportAssimpMesh(const aiMesh* aimesh) {
+PlainData ExportAssimpMesh(const aiMesh* aimesh) {
 	PlainData ret;
 	NIMesh* mesh = new NIMesh();
 
@@ -23,7 +23,7 @@ PlainData AssimpImporter::ExportAssimpMesh(const aiMesh* aimesh) {
 		mesh->uvs.resize(aimesh->mNumVertices);
 		memcpy(mesh->uvs.data(), aimesh->mTextureCoords[0], aimesh->mNumVertices * sizeof(float2));
 	}
-	// TODO: Base Color / Bounding Box /
+	// TODO: Base Color / Bounding Box / 
 
 	ret.data = (char*)mesh;
 	ret.size = sizeof(NIMesh);

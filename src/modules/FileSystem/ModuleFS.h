@@ -2,7 +2,7 @@
 #include "../Module.h"
 
 #include <src/helpers/JSON/parson.h>
-#include "Importers/AssimpImporter.h"
+#include "Importers.h"
 #include "FSDataTypes.h"
 
 class ModuleFS : public Module {

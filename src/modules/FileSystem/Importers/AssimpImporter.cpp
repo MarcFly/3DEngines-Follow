@@ -1,4 +1,4 @@
-#include "AssimpImporter.h"
+#include "../Importers.h"
 #include <libs/assimp/cimport.h>
 #include <libs/assimp/postprocess.h>
 #include <libs/assimp/scene.h>

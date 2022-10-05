@@ -97,6 +97,7 @@
     <ClCompile Include="src\modules\Render\Primitives\BufferedPrimitives.cpp" />
     <ClCompile Include="src\modules\FileSystem\Importers\AssimpImporter.cpp" />
     <ClCompile Include="src\modules\FileSystem\Importers\FileTypes\ImporterMesh.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Importers\FileTypes\ImporterTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -208,7 +209,7 @@
     <ClInclude Include="src\helpers\MathGeoLib\MathGeoLib.h" />
     <ClInclude Include="src\helpers\MathGeoLib\MathGeoLibFwd.h" />
     <ClInclude Include="src\modules\Render\Primitives\Primitives.h" />
-    <ClInclude Include="src\modules\FileSystem\Importers\AssimpImporter.h" />
+    <ClInclude Include="src\modules\FileSystem\Importers.h" />
     <ClInclude Include="src\modules\FileSystem\FSDataTypes.h" />
   </ItemGroup>
   <ItemGroup>
