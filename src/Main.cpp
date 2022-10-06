@@ -18,8 +18,14 @@ enum main_states
 
 
 Application* App = NULL;
+#include <src/helpers/pcg/pcg_basic.h>
+pcg32_random_t rngptr_a, rngptr_b;
+
 int main(int argc, char ** argv)
 {
+	pcg32_srandom_r(&rngptr_a, time(NULL), (intptr_t)&rngptr_a);
+	pcg32_srandom_r(&rngptr_b, time(NULL), (intptr_t)&rngptr_b);
+
 	PLOG("Starting game '%s'...", TITLE);
 
 	int main_return = EXIT_FAILURE;

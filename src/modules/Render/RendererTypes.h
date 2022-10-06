@@ -3,6 +3,7 @@
 #include <libs/glew/include/GL/glew.h>
 #include <gl/GL.h>
 #include <src/helpers/MathGeoLib/MathGeoLib.h>
+#include <src/modules/FileSystem/FSDataTypes.h>
 
 struct OpenGLState {
 	bool lighting = false;
@@ -32,6 +33,8 @@ struct NIMesh {
 
 	GLenum draw_mode;
 	GLenum polytype;
+
+	KeyPosPair material;
 };
 
 struct GPUMesh {
@@ -42,6 +45,8 @@ struct GPUMesh {
 
 	uint32_t idx_id = 0;
 	uint64_t num_idx = 0;
+
+	KeyPosPair material;
 };
 
 struct Texture {
@@ -88,12 +93,12 @@ struct Material {
 
 	float refractiveness;
 
-	std::vector<TexRel>
-	
+	std::vector<TexRelation> textures;
 
 };
 
 struct GPUMat {
-
-	uint64_t tex_id;
+	const Material* mat;
+	KeyPosPair disk_id;
+	std::vector<TexRelation> gpu_textures;
 };

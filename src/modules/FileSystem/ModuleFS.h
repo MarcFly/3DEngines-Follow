@@ -4,6 +4,7 @@
 #include <src/helpers/JSON/parson.h>
 #include "Importers.h"
 #include "FSDataTypes.h"
+#include <unordered_map>
 
 class ModuleFS : public Module {
 	std::vector<JSON_Value*> jsons;
@@ -20,7 +21,8 @@ public:
 	const PlainData& RetrieveData(uint64_t id);
 	template<class T>
 	const T* RetrievePValue(uint64_t id) {
-		WatchedData& wd = allocs[id];
+		
+		WatchedData& wd = allocs[key_to_vec.at(id)];
 		//if(wd.loaded == false && wd.offload_id == UINT64_MAX)
 		// 
 
@@ -28,17 +30,17 @@ public:
 		return (T*)wd.pd.data;
 	}
 
-	bool WriteToDisk(const char* file_path, char* data, uint64_t size);
-
 	bool CleanUp();
 
-	std::vector<WatchedData> ModuleFS::TryLoadFromDisk(const char* path);
+	
 
 	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
 
 private:
-	AssimpImporter assimp;
+
+	std::unordered_map<uint64_t, uint64_t> key_to_vec;
 	std::vector<WatchedData> allocs;
 };
 
-
+std::vector<WatchedData> TryLoadFromDisk(const char* path);
+bool WriteToDisk(const char* file_path, char* data, uint64_t size);

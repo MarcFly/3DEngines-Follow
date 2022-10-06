@@ -57,6 +57,7 @@
     <ClCompile Include="src\helpers\MathGeoLib\Math\SSEMath.cpp" />
     <ClCompile Include="src\helpers\MathGeoLib\Math\TransformOps.cpp" />
     <ClCompile Include="src\helpers\MathGeoLib\Time\Clock.cpp" />
+    <ClCompile Include="src\helpers\pcg\pcg_basic.c" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="src\helpers\MathGeoLib\Math\TransformOps.h" />
     <ClInclude Include="src\helpers\MathGeoLib\Math\vec2d.h" />
     <ClInclude Include="src\helpers\MathGeoLib\Time\Clock.h" />
+    <ClInclude Include="src\helpers\pcg\pcg_basic.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3_loader.h" />

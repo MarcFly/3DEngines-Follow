@@ -6,6 +6,8 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include <src/helpers/pcg/pcg_basic.h>
+uint64_t PCGRand();
 
 #define PLOG(format, ...) log(__FILE__, __LINE__, format, __VA_ARGS__);
 

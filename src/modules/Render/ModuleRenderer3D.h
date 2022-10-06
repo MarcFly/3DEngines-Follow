@@ -19,6 +19,8 @@ public:
 
 	bool Init();
 	update_status PreUpdate(float dt);
+
+	void BindMaterial(const GPUMesh& m);
 	update_status PostUpdate(float dt);
 	bool CleanUp();
 
@@ -34,6 +36,9 @@ public:
 	void LoadTexture(const Texture* tex);
 	void UnloadTex(GPUTex& tex);
 
+	GPUMat LoadMaterial(const Material* mat);
+
+	void SetMeshMats();
 public:
 
 	SDL_GLContext context;
@@ -52,4 +57,5 @@ public:
 
 	std::vector<GPUMesh> meshes;
 	std::vector<GPUTex> textures;
+	std::vector<GPUMat> materials;
 };

@@ -14,3 +14,9 @@ void log(const char file[], int line, const char* format, ...)
 	sprintf_s(tmp_string2, 4096, "\n%s(%d) : %s", file, line, tmp_string);
 	OutputDebugString(tmp_string2);
 }
+
+extern pcg32_random_t rngptr_a, rngptr_b;
+uint64_t PCGRand() {
+	return ((uint64_t)(pcg32_random_r(&rngptr_a)) << 32)
+		| pcg32_random_r(&rngptr_b + 1);
+}

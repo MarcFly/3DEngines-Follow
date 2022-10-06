@@ -32,6 +32,8 @@ PlainData ExportAssimpMesh(const aiMesh* aimesh) {
 		}
 	}
 
+	mesh->material.uid = aimesh->mMaterialIndex;
+
 
 
 	// TODO: Base Color / Bounding Box / 

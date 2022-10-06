@@ -8,7 +8,7 @@
 
 bool ModuleFS::Init()
 {
-	assimp.Init();
+	AssimpInit();
 
 	jsons.push_back(json_parse_file("config.json"));
 	if (jsons[0] == NULL)
@@ -45,7 +45,7 @@ const PlainData& ModuleFS::RetrieveData(uint64_t id)
 }
 
 
-bool ModuleFS::WriteToDisk(const char* file_path, char* data, uint64_t size)
+bool WriteToDisk(const char* file_path, char* data, uint64_t size)
 {
 	std::ofstream write_file;
 	write_file.open(file_path, std::ofstream::binary);
@@ -67,26 +67,30 @@ bool ModuleFS::CleanUp() {
 		data.pd.data = nullptr;
 	}
 
-	assimp.CleanUp();
+	AssimpCleanUp();
 
 	return true;
 }
 
 #include <cstring>
 
-std::vector<WatchedData> ModuleFS::TryLoadFromDisk(const char* path) {
+// TODO: Send the base filepath from which a scene/mesh was loaded!
+// That is so that subdata that depends on knowing that can be loaded
+
+std::vector<WatchedData> TryLoadFromDisk(const char* path) {
 	std::vector<WatchedData> ret;
 	TempIfStream file(path);
 	const char* ext = strrchr(path, '.');
 	uint32_t tex_type = 0;
 	if (strcmp(ext, ".fbx") == 0 || strcmp(ext, ".FBX") == 0)
-		ret = assimp.ExportAssimpScene(file.GetData()); // Assimp Scene never saved to memory
+		ret = ExportAssimpScene(file.GetData()); // Assimp Scene never saved to memory
 	if ((tex_type = ExtensionToDevILType(ext)) != 0)
 	{
 		ret.push_back(WatchedData());
 		WatchedData& curr = ret.back();
-		curr.pd = ExportDevILTexture(file.GetData(), tex_type);
+		curr.pd = ImportDevILTexture(file.GetData(), tex_type);
 		curr.event_type = LOAD_TEX_TO_GPU;
+		curr.uid = PCGRand();
 	}
 	return ret;
 }
@@ -101,9 +105,10 @@ void ModuleFS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 		switch (ev->type) {
 		case EventType::FILE_DROPPED:
 			data = TryLoadFromDisk(ev->str);
-			unregistered.insert(unregistered.end(), std::make_move_iterator(data.begin()), std::make_move_iterator( data.end()));
-			data.erase(data.begin(), data.end());
-			data.clear();
+			AppendVec(unregistered, data);
+			//unregistered.insert(unregistered.end(), std::make_move_iterator(data.begin()), std::make_move_iterator( data.end()));
+			//data.erase(data.begin(), data.end());
+			//data.clear();
 			continue;
 		case EventType::USER_UNLOADED_DATA:
 			--allocs[ev->uint64].users;
@@ -115,12 +120,14 @@ void ModuleFS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 	int num_unregistered = unregistered.size();
 	for (int i = 0; i < num_unregistered; ++i){
 		const WatchedData& unreg_data = unregistered[i];
-		if(unreg_data.event_type > 0) EV_SEND_UINT64((EventType)unreg_data.event_type, i + num_registered);
+		if(unreg_data.event_type > 0) EV_SEND_UINT64((EventType)unreg_data.event_type, unreg_data.uid);
 		// TODO: Prepare unregistered data for being put in the alloc vector
+		key_to_vec.insert(std::pair<uint64_t, uint64_t>( unreg_data.uid, num_registered + i));
 	}
-	allocs.insert(allocs.end(), std::make_move_iterator(unregistered.begin()), std::make_move_iterator(unregistered.end()));
-	unregistered.erase(unregistered.begin(), unregistered.end());
-	unregistered.clear();
+	AppendVec(allocs, unregistered);
+	//allocs.insert(allocs.end(), std::make_move_iterator(unregistered.begin()), std::make_move_iterator(unregistered.end()));
+	//unregistered.erase(unregistered.begin(), unregistered.end());
+	//unregistered.clear();
 }
 
 

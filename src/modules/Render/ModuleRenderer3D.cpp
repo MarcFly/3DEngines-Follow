@@ -154,6 +154,17 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 
 // PostUpdate present buffer to screen
 double cum_dt = 0;
+void ModuleRenderer3D::BindMaterial(const GPUMesh& m)
+{
+	int baset = GL_TEXTURE0;
+	for (TexRelation tr : materials[m.material.data_pos].gpu_textures) {
+		glEnable(baset);
+		const GPUTex& t = textures[tr.tex_uid];
+		glBindTexture(GL_TEXTURE_2D, t.img_id);
+		++baset;
+	}
+}
+
 update_status ModuleRenderer3D::PostUpdate(float dt)
 {
 
@@ -179,6 +190,7 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 	if (draw_example_primitive) primitive_draw_funs[example_fun]();
 	glRotatef(- cum_dt * 100., 0., 1., 1.);
 	glColor3f(1., 1., 1.);
+
 	glEnable(GL_TEXTURE_2D);
 	for (GPUMesh& m : meshes) {
 		
@@ -191,12 +203,14 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 			glNormalPointer(GL_FLOAT, 0, NULL);
 		}
 		if (m.uvs_id != 0) {
-			if(textures.size() > 0)glBindTexture(GL_TEXTURE_2D, textures[0].img_id);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glBindBuffer(GL_ARRAY_BUFFER, m.uvs_id);
 			glTexCoordPointer(2, GL_FLOAT, 0, NULL);
 		}
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.idx_id);
+
+		BindMaterial(m);
+
 		glDrawElements(GL_TRIANGLES, m.num_idx, GL_UNSIGNED_INT, nullptr);
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -235,18 +249,25 @@ void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_ve
 			case EventType::CHANGE_RENDERER_PRIMITIVE:
 				example_fun = ev->uint32;
 				continue;
-			case EventType::LOAD_MESH_TO_GPU:
-			{
+			case EventType::LOAD_MESH_TO_GPU:{
 				const NIMesh* mesh = App->fs->RetrievePValue<NIMesh>(ev->uint64);
 				LoadMesh(mesh);
-				continue;
-			}
-			case EventType::LOAD_TEX_TO_GPU:
+				continue; }
+			case EventType::LOAD_TEX_TO_GPU: {
 				const Texture* tex = App->fs->RetrievePValue<Texture>(ev->uint64);
 				LoadTexture(tex);
-				continue;
+				continue; }
+			case EventType::LOAD_MAT_TO_GPU: {
+				const Material* mat = App->fs->RetrievePValue<Material>(ev->uint64);
+				GPUMat m = LoadMaterial(mat);
+				m.disk_id.uid = ev->uint64;
+				materials.push_back(m);
+				continue; }
 		}
 	}
+
+	// Not ideal, but should work to update materials of meshes
+	SetMeshMats();
 }
 
 #define GRID_SIZE 10
@@ -296,6 +317,8 @@ void ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, push.num_idx * sizeof(uint32_t), mesh->indices.data(), GL_STATIC_DRAW);
 	}
 
+	push.material = mesh->material;
+
 	meshes.push_back(push);
 }
 
@@ -333,6 +356,33 @@ void ModuleRenderer3D::UnloadTex(GPUTex& tex)
 {
 	glDeleteTextures(1, &tex.img_id);
 	tex.img_id = 0;
+}
+
+GPUMat ModuleRenderer3D::LoadMaterial(const Material* mat) {
+	GPUMat push;
+	push.mat = mat;
+
+	for (const TexRelation& tr : mat->textures) {
+		const Texture* tex = App->fs->RetrievePValue<Texture>(tr.tex_uid);
+		LoadTexture(App->fs->RetrievePValue<Texture>(tr.tex_uid));
+		TexRelation texp;
+		texp.tex_uid = textures.size()-1;
+		texp.type = tr.type; // Care about type here?
+		push.gpu_textures.push_back(texp);
+	}
+
+	return push;
+}
+
+void ModuleRenderer3D::SetMeshMats() {
+	for (GPUMesh& mesh : meshes) {
+		for (int i = 0; i < materials.size(); ++i) {
+			if (materials[i].disk_id.uid == mesh.material.uid) {
+				mesh.material.data_pos = i;
+				break;
+			}
+		}
+	}
 }
 
 void ModuleRenderer3D::OnResize(int width, int height)

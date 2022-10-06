@@ -12,6 +12,13 @@ inline void SetPlainData(PlainData& pd, T* _data, uint64_t size) {
 	pd.size = size;
 }
 
+template<class T>
+inline void AppendVec(std::vector<T>& vec_receiver, std::vector<T>& vec_append) {
+	vec_receiver.insert(vec_receiver.end(), std::make_move_iterator(vec_append.begin()), std::make_move_iterator(vec_append.end()));
+	vec_append.erase(vec_append.begin(), vec_append.end());
+	vec_append.clear();
+}
+
 struct WatchedData {
 	uint64_t uid = UINT64_MAX;
 	PlainData pd;
@@ -27,6 +34,11 @@ struct WatchedData {
 	char* path;
 
 	uint32_t event_type = 0; // No Event
+};
+
+struct KeyPosPair {
+	uint64_t uid;
+	uint64_t data_pos;
 };
 
 #include <fstream>
