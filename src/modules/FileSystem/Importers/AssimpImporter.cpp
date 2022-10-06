@@ -27,12 +27,20 @@ std::vector<WatchedData> AssimpImporter::ExportAssimpScene(const PlainData& data
 	const aiScene* aiscene = aiImportFileFromMemory(data.data, data.size, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_Triangulate, nullptr);
 	
 	WatchedData curr;
+	
+	for (int i = 0; i < aiscene->mNumMaterials; ++i) {
+		const aiMaterial* aimat = aiscene->mMaterials[i];
+		aimat->mProperties[i].
+	}
+
 	for (int i = 0; i < aiscene->mNumMeshes; ++i) {
 		const aiMesh* aimesh = aiscene->mMeshes[i];
 		curr.pd = ExportAssimpMesh(aimesh);
 		curr.event_type = LOAD_MESH_TO_GPU;
 		ret.push_back(curr);
 	}
+
+	aiReleaseImport(aiscene);
 
 	return ret;
 }

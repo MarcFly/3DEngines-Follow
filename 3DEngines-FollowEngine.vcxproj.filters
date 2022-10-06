@@ -97,7 +97,8 @@
     <ClCompile Include="src\modules\Render\Primitives\BufferedPrimitives.cpp" />
     <ClCompile Include="src\modules\FileSystem\Importers\AssimpImporter.cpp" />
     <ClCompile Include="src\modules\FileSystem\Importers\FileTypes\ImporterMesh.cpp" />
-    <ClCompile Include="src\modules\FileSystem\Importers\FileTypes\ImporterTexture.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Importers\FileTypes\ImporterMaterial.cpp" />
+    <ClCompile Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -211,6 +212,7 @@
     <ClInclude Include="src\modules\Render\Primitives\Primitives.h" />
     <ClInclude Include="src\modules\FileSystem\Importers.h" />
     <ClInclude Include="src\modules\FileSystem\FSDataTypes.h" />
+    <ClInclude Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\helpers\MathGeoLib\Geometry\KDTree.inl" />

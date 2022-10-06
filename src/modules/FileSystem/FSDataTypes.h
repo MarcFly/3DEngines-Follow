@@ -6,7 +6,14 @@ struct PlainData {
 	uint64_t size = 0;	
 };
 
+template<class T>
+inline void SetPlainData(PlainData& pd, T* _data, uint64_t size) {
+	pd.data = (char*)_data;
+	pd.size = size;
+}
+
 struct WatchedData {
+	uint64_t uid = UINT64_MAX;
 	PlainData pd;
 	uint32_t users = 0;
 	bool loaded = false;

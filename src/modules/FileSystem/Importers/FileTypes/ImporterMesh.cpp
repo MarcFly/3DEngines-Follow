@@ -19,10 +19,21 @@ PlainData ExportAssimpMesh(const aiMesh* aimesh) {
 		}
 	}
 	
+	// Only allow 1 set of uvs for now
 	if (aimesh->HasTextureCoords(0)) {
 		mesh->uvs.resize(aimesh->mNumVertices);
-		memcpy(mesh->uvs.data(), aimesh->mTextureCoords[0], aimesh->mNumVertices * sizeof(float2));
+		if (aimesh->mNumUVComponents[0] == 2) {
+			for (int i = 0; i < aimesh->mNumVertices; ++i) {
+				memcpy(&mesh->uvs[i], &aimesh->mTextureCoords[0][i], sizeof(float2));
+			}
+		}
+		else {
+			memcpy(mesh->uvs.data(), aimesh->mTextureCoords[0], aimesh->mNumVertices * sizeof(float3));
+		}
 	}
+
+
+
 	// TODO: Base Color / Bounding Box / 
 
 	ret.data = (char*)mesh;

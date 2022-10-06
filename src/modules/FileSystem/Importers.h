@@ -18,4 +18,11 @@ public:
 	std::vector<WatchedData> ExportAssimpScene(const PlainData& data);
 };
 
+// Meshes
 PlainData ExportAssimpMesh(const aiMesh* aimesh);
+
+// Materials
+
+// Textures
+uint32_t ExtensionToDevILType(const char* ext);
+PlainData ExportDevILTexture(const PlainData& pd, uint32_t tex_type);

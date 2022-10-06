@@ -178,7 +178,8 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 	glRotatef(cum_dt * 100., 0., 1., 1.);
 	if (draw_example_primitive) primitive_draw_funs[example_fun]();
 	glRotatef(- cum_dt * 100., 0., 1., 1.);
-	
+	glColor3f(1., 1., 1.);
+	glEnable(GL_TEXTURE_2D);
 	for (GPUMesh& m : meshes) {
 		
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -189,9 +190,16 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 			glBindBuffer(GL_ARRAY_BUFFER, m.norm_id);
 			glNormalPointer(GL_FLOAT, 0, NULL);
 		}
+		if (m.uvs_id != 0) {
+			if(textures.size() > 0)glBindTexture(GL_TEXTURE_2D, textures[0].img_id);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glBindBuffer(GL_ARRAY_BUFFER, m.uvs_id);
+			glTexCoordPointer(2, GL_FLOAT, 0, NULL);
+		}
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.idx_id);
 		glDrawElements(GL_TRIANGLES, m.num_idx, GL_UNSIGNED_INT, nullptr);
 		glDisableClientState(GL_VERTEX_ARRAY);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	return UPDATE_CONTINUE;
@@ -228,9 +236,15 @@ void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_ve
 				example_fun = ev->uint32;
 				continue;
 			case EventType::LOAD_MESH_TO_GPU:
-				const PlainData& pdata = App->fs->RetrieveData(ev->uint64);
-				const NIMesh* mesh = (const NIMesh*)pdata.data;
+			{
+				const NIMesh* mesh = App->fs->RetrievePValue<NIMesh>(ev->uint64);
 				LoadMesh(mesh);
+				continue;
+			}
+			case EventType::LOAD_TEX_TO_GPU:
+				const Texture* tex = App->fs->RetrievePValue<Texture>(ev->uint64);
+				LoadTexture(tex);
+				continue;
 		}
 	}
 }
@@ -295,6 +309,30 @@ void ModuleRenderer3D::UnloadMesh(GPUMesh& mesh) {
 	glDeleteBuffers(ids.size(), ids.data());
 
 	mesh.vtx_id = mesh.norm_id = mesh.uvs_id = mesh.idx_id = 0;
+}
+
+void ModuleRenderer3D::LoadTexture(const Texture* tex)
+{
+	GPUTex push;
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &push.img_id);
+	glBindTexture(GL_TEXTURE_2D, push.img_id);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, tex->format, tex->w, tex->h, 0, tex->format, tex->unit_type, tex->bytes);
+
+	push.w = tex->w;
+	push.h = tex->h;
+
+	textures.push_back(push);
+}
+
+void ModuleRenderer3D::UnloadTex(GPUTex& tex)
+{
+	glDeleteTextures(1, &tex.img_id);
+	tex.img_id = 0;
 }
 
 void ModuleRenderer3D::OnResize(int width, int height)

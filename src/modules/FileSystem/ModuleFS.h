@@ -18,6 +18,15 @@ public:
 	// TODO: Watched Struct File - File, load checker, load function, unload function,...
 	//uint64_t RegisterFile(WatchedData& data);
 	const PlainData& RetrieveData(uint64_t id);
+	template<class T>
+	const T* RetrievePValue(uint64_t id) {
+		WatchedData& wd = allocs[id];
+		//if(wd.loaded == false && wd.offload_id == UINT64_MAX)
+		// 
+
+		++wd.users;
+		return (T*)wd.pd.data;
+	}
 
 	bool WriteToDisk(const char* file_path, char* data, uint64_t size);
 
@@ -31,3 +40,5 @@ private:
 	AssimpImporter assimp;
 	std::vector<WatchedData> allocs;
 };
+
+

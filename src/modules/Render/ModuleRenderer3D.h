@@ -31,6 +31,9 @@ public:
 	void LoadMesh(const NIMesh* mesh);
 	void UnloadMesh(GPUMesh& mesh);
 
+	void LoadTexture(const Texture* tex);
+	void UnloadTex(GPUTex& tex);
+
 public:
 
 	SDL_GLContext context;
@@ -48,4 +51,5 @@ public:
 	bool draw_example_primitive = false;
 
 	std::vector<GPUMesh> meshes;
+	std::vector<GPUTex> textures;
 };

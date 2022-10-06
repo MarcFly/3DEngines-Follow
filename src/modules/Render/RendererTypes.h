@@ -43,3 +43,57 @@ struct GPUMesh {
 	uint32_t idx_id = 0;
 	uint64_t num_idx = 0;
 };
+
+struct Texture {
+	char* bytes;
+	uint32_t size;
+	uint32_t w, h;
+	uint32_t format;
+	uint32_t unit_size;
+	uint32_t unit_type;
+};
+
+struct GPUTex {
+	uint32_t img_id;
+	uint32_t w, h;
+};
+
+struct MaterialState {
+	bool cull_faces = true;
+	bool texture2D = true;
+	uint32_t shading_model = GL_SMOOTH;
+	uint32_t src_blend = GL_SRC_ALPHA, dst_blend = GL_ONE_MINUS_SRC_ALPHA;
+};
+
+struct TexRelation {
+	uint64_t tex_uid;
+	uint32_t type; // Be it Normal Map, Albedo,...
+};
+
+struct Material {
+	std::string name;
+	float3 diffuse;
+	float3 specular;
+	float shininess;
+	float shine_strength;
+
+	float3 ambient;
+	float3 emissive;
+	
+	float3 transparent;
+	float opacity;
+
+	float3 reflective;
+	float reflectivity;
+
+	float refractiveness;
+
+	std::vector<TexRel>
+	
+
+};
+
+struct GPUMat {
+
+	uint64_t tex_id;
+};

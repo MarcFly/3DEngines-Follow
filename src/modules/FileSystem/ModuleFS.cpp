@@ -1,6 +1,11 @@
 #include "ModuleFS.h"
 #include <src/Application.h>
 
+#include <DevIL/include/IL/il.h>
+#include <DevIL/include/IL/ilu.h>
+#pragma comment(lib, "DevIL/libx86/DevIL.lib")
+#pragma comment(lib, "DevIL/libx86/ILU.lib")
+
 bool ModuleFS::Init()
 {
 	assimp.Init();
@@ -14,6 +19,9 @@ bool ModuleFS::Init()
 	} 
 
 	EV_SEND_JSON_OBJ(EventType::LOAD_CONFIG, json_object(jsons[0]));
+
+	ilInit();
+	iluInit();
 
 	return true;
 }
@@ -70,9 +78,16 @@ std::vector<WatchedData> ModuleFS::TryLoadFromDisk(const char* path) {
 	std::vector<WatchedData> ret;
 	TempIfStream file(path);
 	const char* ext = strrchr(path, '.');
+	uint32_t tex_type = 0;
 	if (strcmp(ext, ".fbx") == 0 || strcmp(ext, ".FBX") == 0)
 		ret = assimp.ExportAssimpScene(file.GetData()); // Assimp Scene never saved to memory
-
+	if ((tex_type = ExtensionToDevILType(ext)) != 0)
+	{
+		ret.push_back(WatchedData());
+		WatchedData& curr = ret.back();
+		curr.pd = ExportDevILTexture(file.GetData(), tex_type);
+		curr.event_type = LOAD_TEX_TO_GPU;
+	}
 	return ret;
 }
 
