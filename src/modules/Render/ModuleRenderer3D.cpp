@@ -106,7 +106,7 @@ bool ModuleRenderer3D::Init()
 		glClearDepth(1.0f);
 		
 		//Initialize clear color
-		glClearColor(0.f, 0.f, 0.f, 1.f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 
 		//Check for error
 		error = glGetError();
@@ -157,6 +157,8 @@ double cum_dt = 0;
 void ModuleRenderer3D::BindMaterial(const GPUMesh& m)
 {
 	int baset = GL_TEXTURE0;
+	glEnable(baset);	
+
 	for (TexRelation tr : materials[m.material.data_pos].gpu_textures) {
 		glEnable(baset);
 		const GPUTex& t = textures[tr.tex_uid];
@@ -187,7 +189,10 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 	glPointSize(1.);
 
 	glRotatef(cum_dt * 100., 0., 1., 1.);
+
 	if (draw_example_primitive) primitive_draw_funs[example_fun]();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	glRotatef(- cum_dt * 100., 0., 1., 1.);
 	glColor3f(1., 1., 1.);
 

@@ -11,4 +11,7 @@ public:
 	void Update();
 
 	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
+
+private:
+	int t_w = 500;
 };
