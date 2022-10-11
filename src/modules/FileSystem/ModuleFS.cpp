@@ -80,6 +80,8 @@ bool ModuleFS::CleanUp() {
 std::vector<WatchedData> TryLoadFromDisk(const char* path) {
 	std::vector<WatchedData> ret;
 	TempIfStream file(path);
+	if (file.GetData().size == 0) return ret;
+
 	const char* ext = strrchr(path, '.');
 	uint32_t tex_type = 0;
 	if (strcmp(ext, ".fbx") == 0 || strcmp(ext, ".FBX") == 0)

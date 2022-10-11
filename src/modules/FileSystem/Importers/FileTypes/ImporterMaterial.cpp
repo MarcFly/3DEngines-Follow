@@ -6,12 +6,14 @@
 
 uint32_t ExtensionToDevILType(const char* ext) {
 	uint32_t ret = 0;
-	if(strcmp(ext, ".png") == 0 || strcmp(ext, ".PNG")==0)
+	if (strcmp(ext, ".png") == 0 || strcmp(ext, ".PNG") == 0)
 		ret = IL_PNG;
 	else if (strcmp(ext, ".dds") == 0 || strcmp(ext, ".DDS") == 0)
 		ret = IL_DDS;
 	else if (strcmp(ext, ".tiff") == 0 || strcmp(ext, ".TIFF") == 0 || strcmp(ext, ".TIF") == 0 || strcmp(ext, ".tif") == 0)
 		ret = IL_TIF;
+	else if (strcmp(ext, ".tga") == 0 || strcmp(ext, ".TGA") == 0)
+		ret = IL_TGA;
 
 	return ret;
 }

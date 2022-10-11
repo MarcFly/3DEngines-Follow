@@ -47,11 +47,13 @@ public:
 	TempIfStream(const char* path) {
 		if(pd.data != nullptr) this->~TempIfStream();
 		stream.open(path, std::ifstream::binary);
-		stream.seekg(0, std::ios::end);
-		pd.size = stream.tellg();
-		stream.seekg(0, std::ios::beg);
-		pd.data = new char[pd.size + 1];
-		stream.read((char*)pd.data, pd.size);
+		if (!stream.fail()) {
+			stream.seekg(0, std::ios::end);
+			pd.size = stream.tellg();
+			stream.seekg(0, std::ios::beg);
+			pd.data = new char[pd.size + 1];
+			stream.read((char*)pd.data, pd.size);
+		}
 	};
 	~TempIfStream() { stream.close(); delete[] pd.data; pd.data = nullptr; }
 	
