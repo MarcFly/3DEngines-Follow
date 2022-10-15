@@ -9,23 +9,22 @@ class Application;
 class Module
 {
 private :
-	bool enabled;
+	bool enabled = true;
 
 public:
 	const char* name = "noname";
-
+	bool static_m = false;
 	Module() {}
-	Module(const char* _name, bool start_enabled = true) : name(_name)
+	Module(const char* _name, bool is_static = false, bool start_enabled = true) : name(_name), static_m(is_static), enabled(start_enabled)
 	{}
 
 	virtual ~Module()
 	{}
 
-	virtual bool Init() 
+	virtual bool Init()
 	{
-		return true; 
+		return true;
 	}
-	virtual bool IsStaticModule() { return false; }
 
 	virtual bool Start()
 	{

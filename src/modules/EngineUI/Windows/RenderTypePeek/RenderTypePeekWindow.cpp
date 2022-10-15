@@ -11,6 +11,7 @@ void RenderPeekWindow::Start()
 
 void RenderPeekWindow::Update()
 {
+	ImGui::Begin(name.c_str(), &active);
 	
 	if (ImGui::CollapsingHeader("Meshes")) {
 
@@ -31,6 +32,7 @@ void RenderPeekWindow::Update()
 	extern GLuint checkers_textureID;
 	ImGui::Image((ImTextureID)checkers_textureID, ImVec2(400,400));
 
+	ImGui::End();
 }
 
 void RenderPeekWindow::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)

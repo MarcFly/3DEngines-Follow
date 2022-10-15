@@ -15,8 +15,6 @@ enum main_states
 };
 
 #include <iostream>
-
-
 Application* App = NULL;
 #include <src/helpers/pcg/pcg_basic.h>
 pcg32_random_t rngptr_a, rngptr_b;

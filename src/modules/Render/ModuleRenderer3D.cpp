@@ -32,7 +32,7 @@ void SetOpenGLState(const OpenGLState& state) {
 	PLOG("Check for error: %s\n", gluErrorString(glGetError()));
 }
 
-ModuleRenderer3D::ModuleRenderer3D(bool start_enabled) : Module("renderer", start_enabled)
+ModuleRenderer3D::ModuleRenderer3D(bool start_enabled) : Module("renderer")
 {
 	grid_state.lighting = false;
 }

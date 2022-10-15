@@ -156,7 +156,7 @@ void VBI_DiskSphere() {
 	
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, disk_sphere_uv_id);
-	glTexCoordPointer(3, GL_FLOAT, 0, NULL);
+	glTexCoordPointer(2, GL_FLOAT, 0, NULL);
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, disk_sphere_idx_id);
 	glDrawElements(GL_QUADS, disk_sphere_indices.size(), GL_UNSIGNED_INT, NULL);
@@ -167,8 +167,8 @@ void VBI_DiskSphere() {
 }
 
 //=================================
-#define CHECKERS_HEIGHT 16
-#define CHECKERS_WIDTH 16
+#define CHECKERS_HEIGHT 64
+#define CHECKERS_WIDTH 64
 #include <src/helpers/Globals.h>
 
 GLubyte checkerImage[CHECKERS_HEIGHT][CHECKERS_WIDTH][4];
@@ -214,7 +214,7 @@ void InitPrimitives() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pyramid_idx_id);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(pyramid_indices), pyramid_indices, GL_STATIC_DRAW);
 
-	GenDiskSphere(100, 100);
+	GenDiskSphere(10, 10);
 
 	InitCheckers();
 }

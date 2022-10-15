@@ -19,6 +19,7 @@ Application::Application()
 	AddModule(input);
 	
 	// Scenes
+	AddModule(ecs);
 
 	// Renderer last!
 	AddModule(renderer3D);
@@ -36,7 +37,7 @@ Application::~Application()
 
 	do {
 		--item;
-		if (*item == nullptr || (*item)->IsStaticModule())
+		if (*item == nullptr || (*item)->static_m)
 			continue;
 		delete* item;
 		*item = nullptr;
@@ -134,7 +135,7 @@ bool Application::CleanUp()
 	do {
 		--item;
 		(*item)->CleanUp();
-		if ((*item)->IsStaticModule())
+		if ((*item)->static_m)
 			continue;
 		delete* item;
 		*item = nullptr;

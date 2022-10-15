@@ -13,8 +13,6 @@ public:
 	ModuleEngineUI(bool start_updated);
 	~ModuleEngineUI();
 
-	bool IsStaticModule() { return true; }
-
 	bool Start();
 	update_status Update(float dt);
 	update_status PostUpdate(float dt);

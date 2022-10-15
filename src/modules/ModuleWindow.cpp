@@ -2,7 +2,7 @@
 #include <src/Application.h>
 #include "ModuleWindow.h"
 
-ModuleWindow::ModuleWindow(bool start_enabled) : Module("window", start_enabled)
+ModuleWindow::ModuleWindow(bool start_enabled) : Module("window")
 {
 	window = NULL;
 	screen_surface = NULL;

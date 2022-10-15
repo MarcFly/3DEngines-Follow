@@ -100,6 +100,9 @@
     <ClCompile Include="src\modules\FileSystem\Importers\FileTypes\ImporterMaterial.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.cpp" />
     <ClCompile Include="src\helpers\pcg\pcg_basic.c" />
+    <ClCompile Include="src\modules\ECS\CS_MeshRenderer\c_meshrenderer.cpp" />
+    <ClCompile Include="src\modules\ECS\CS_MeshRenderer\s_meshrenderer.cpp" />
+    <ClCompile Include="src\modules\ECS\ecs_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -215,6 +218,9 @@
     <ClInclude Include="src\modules\FileSystem\FSDataTypes.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.h" />
     <ClInclude Include="src\helpers\pcg\pcg_basic.h" />
+    <ClInclude Include="src\modules\ECS\ecs_manager.h" />
+    <ClInclude Include="src\modules\ECS\CS_MeshRenderer\cs_meshrenderer.h" />
+    <ClInclude Include="src\modules\ECS\ComponentSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\helpers\MathGeoLib\Geometry\KDTree.inl" />

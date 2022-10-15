@@ -10,10 +10,12 @@
 #include <src/modules/EngineUI/ModuleEngineUI.h>
 #include <src/modules/EventSystem/ModuleEventSystem.h>
 #include <src/modules/FileSystem/ModuleFS.h>
+#include <src/modules/ECS/ecs_manager.h>
 
 #include<list>
 #include<vector>
 
+#include <src/modules/ECS/ComponentSystem.h>
 
 class Application
 {
@@ -25,6 +27,7 @@ public:
 	ModuleEngineUI* engine_ui = &e_engine_ui;
 	ModuleEventSystem* events;
 	ModuleFS* fs;
+	ModuleECS* ecs = &_ecs;
 
 private:
 	Timer	ms_timer;

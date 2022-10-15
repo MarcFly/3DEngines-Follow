@@ -59,6 +59,9 @@
     <ClCompile Include="src\helpers\MathGeoLib\Time\Clock.cpp" />
     <ClCompile Include="src\helpers\pcg\pcg_basic.c" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\modules\ECS\CS_MeshRenderer\c_meshrenderer.cpp" />
+    <ClCompile Include="src\modules\ECS\CS_MeshRenderer\s_meshrenderer.cpp" />
+    <ClCompile Include="src\modules\ECS\ecs_manager.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_sdl.cpp" />
@@ -170,6 +173,9 @@
     <ClInclude Include="src\helpers\MathGeoLib\Math\vec2d.h" />
     <ClInclude Include="src\helpers\MathGeoLib\Time\Clock.h" />
     <ClInclude Include="src\helpers\pcg\pcg_basic.h" />
+    <ClInclude Include="src\modules\ECS\ComponentSystem.h" />
+    <ClInclude Include="src\modules\ECS\CS_MeshRenderer\cs_meshrenderer.h" />
+    <ClInclude Include="src\modules\ECS\ecs_manager.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3_loader.h" />
