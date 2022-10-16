@@ -39,3 +39,17 @@ enum update_status
 #define WIN_FULLSCREEN_DESKTOP false
 #define VSYNC true
 #define TITLE "3D Physics Playground"
+
+// XMacros
+
+#define EXPAND_AS_ENUM(a,b) a,
+#define EXPAND_AS_VALUE(a,b) b,
+// In corner cases need more than 2 values, it is pushing a bit really but it should work
+#define X3_EXPAND_1(a,b,c) a,
+#define X3_EXPAND_2(a,b,c) b,
+#define X3_EXPAND_3(a,b,c) c,
+
+#define XM_EXPAND_1(a,b,c,d) a,
+#define XM_EXPAND_2(a,b,c,d) b,
+#define XM_EXPAND_3(a,b,c,d) c,
+#define XM_EXPAND_4(a,b,c,d) d,

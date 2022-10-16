@@ -173,9 +173,11 @@
     <ClInclude Include="src\helpers\MathGeoLib\Math\vec2d.h" />
     <ClInclude Include="src\helpers\MathGeoLib\Time\Clock.h" />
     <ClInclude Include="src\helpers\pcg\pcg_basic.h" />
+    <ClInclude Include="src\modules\ECS\ComponentsIncludeAll.h" />
     <ClInclude Include="src\modules\ECS\ComponentSystem.h" />
     <ClInclude Include="src\modules\ECS\CS_MeshRenderer\cs_meshrenderer.h" />
     <ClInclude Include="src\modules\ECS\ecs_manager.h" />
+    <ClInclude Include="src\modules\ECS\ReflectHash.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3_loader.h" />
@@ -261,6 +263,7 @@
       <SDLCheck>false</SDLCheck>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

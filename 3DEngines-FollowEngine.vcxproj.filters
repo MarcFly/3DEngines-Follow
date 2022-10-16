@@ -221,6 +221,8 @@
     <ClInclude Include="src\modules\ECS\ecs_manager.h" />
     <ClInclude Include="src\modules\ECS\CS_MeshRenderer\cs_meshrenderer.h" />
     <ClInclude Include="src\modules\ECS\ComponentSystem.h" />
+    <ClInclude Include="src\modules\ECS\ComponentsIncludeAll.h" />
+    <ClInclude Include="src\modules\ECS\ReflectHash.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\helpers\MathGeoLib\Geometry\KDTree.inl" />

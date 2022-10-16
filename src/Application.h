@@ -10,7 +10,7 @@
 #include <src/modules/EngineUI/ModuleEngineUI.h>
 #include <src/modules/EventSystem/ModuleEventSystem.h>
 #include <src/modules/FileSystem/ModuleFS.h>
-#include <src/modules/ECS/ecs_manager.h>
+#include <src/modules/ECS/ModuleECS.h>
 
 #include<list>
 #include<vector>
