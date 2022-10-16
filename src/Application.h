@@ -1,7 +1,7 @@
 #pragma once
 
 #include <src/helpers/Globals.h>
-#include <src/helpers/Timer.h>
+#include <src/helpers/Timer/sque_timer.h>
 #include <src/modules/Module.h>
 #include <src/modules/ModuleWindow.h>
 #include <src/modules/ModuleInput.h>
@@ -15,8 +15,6 @@
 #include<list>
 #include<vector>
 
-#include <src/modules/ECS/ComponentSystem.h>
-
 class Application
 {
 public:
@@ -27,10 +25,10 @@ public:
 	ModuleEngineUI* engine_ui = &e_engine_ui;
 	ModuleEventSystem* events;
 	ModuleFS* fs;
-	ModuleECS* ecs = &_ecs;
+	ModuleECS* ecs; // = &_ecs;
 
 private:
-	Timer	ms_timer;
+	TSCNS_Timer	ms_timer;
 	float	dt;
 	std::list<Module*> list_modules;
 

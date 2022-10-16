@@ -11,5 +11,3 @@ public:
 		ImGui::ShowDemoWindow(&active);
 	}
 };
-
-DemoWindow demowindow;

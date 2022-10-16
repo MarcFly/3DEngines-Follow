@@ -7,6 +7,8 @@
 #include <src/modules/EventSystem/Event.h>
 #include "RendererTypes.h"
 #include "Primitives/Primitives.h"
+#include <SDL/include/SDL.h>
+
 #define MAX_LIGHTS 8
 
 void SetOpenGLState(const OpenGLState& state);
@@ -38,6 +40,8 @@ public:
 
 	GPUMat LoadMaterial(const Material* mat);
 
+	GPUFBO GenerateScreenFBO();
+
 	void SetMeshMats();
 public:
 
@@ -58,4 +62,7 @@ public:
 	std::vector<GPUMesh> meshes;
 	std::vector<GPUTex> textures;
 	std::vector<GPUMat> materials;
+	FullGroup* ecs_renderables = nullptr;
+
+	GPUFBO* hijack_framebuffer = nullptr;
 };

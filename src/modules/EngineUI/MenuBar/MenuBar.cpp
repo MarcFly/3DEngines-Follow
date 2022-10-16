@@ -1,7 +1,5 @@
 #include "MenuBar.h"
 
-MenuBar menu_bar;
-
 void MenuBar::Init()
 {
 }
@@ -53,14 +51,15 @@ void MenuBar::Update()
     ImGui::EndMainMenuBar();
 }
 
-uint32_t MenuBar::RegisterMenuItem(bool* item_active, const char* name, uint32_t sub_item)
+uint32_t MenuBar::RegisterMenuItem(bool* item_active, const char* name, const char* submenu)
 {
     MenuItem mi;
     mi.active_state = item_active;
     mi.name = name;
     items.push_back(mi);
     uint32_t ret = items.size() - 1;
-    if (sub_item == -1) base_items.push_back(ret);
-    else items[sub_item].sub_items.push_back(ret);
+    if (strcmp(submenu, "") == 0) base_items.push_back(ret);
+    else {} //items[sub_item].sub_items.push_back(ret);
+    // TODO: Find submenu and plop it there, or create it
     return ret;
 };

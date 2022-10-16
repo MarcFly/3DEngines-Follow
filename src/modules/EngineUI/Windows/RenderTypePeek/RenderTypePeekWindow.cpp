@@ -2,8 +2,6 @@
 #include <src/Application.h>
 #include <glew/include/GL/glew.h>
 
-RenderPeekWindow peek_win;
-
 
 void RenderPeekWindow::Start()
 {

@@ -38,7 +38,5 @@ public:
 
     void CleanUp() final {}
 
-    uint32_t RegisterMenuItem(bool* item_active, const char* name, uint32_t sub_item = -1);
+    uint32_t RegisterMenuItem(bool* item_active, const char* name, const char* submenu = "");
 };
-
-extern MenuBar menu_bar;

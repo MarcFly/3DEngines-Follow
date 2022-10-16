@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <src/modules/render/RendererTypes.h>
 #include <src/helpers/JSON/parson.h>
+#include <src/modules/ECS/ComponentIncludeAllTypes.h>
+
 #include <string>
 enum EventType {
 	NO_EVENT,
@@ -31,6 +33,11 @@ enum EventType {
 	LOAD_MAT_TO_GPU,
 	USER_OFFLOADED_DATA,
 	USER_UNLOADED_DATA,
+	FRAMEBUFFER_HIJACK,
+
+	ECS_RENDERABLES,
+	ECS_REQUEST_NEW_ENTITY,
+	ECS_REQUEST_DELETE_ENTITY,
 
 	EVENTTYPE_MAX
 };
@@ -49,6 +56,7 @@ struct Event {
 		OpenGLState ogl_state;
 		JSON_Object* json_object;
 		std::string bad_string;
+		void* generic_pointer;
 	};
 
 	Event(EventType _type) : type(_type) {};
@@ -79,4 +87,8 @@ struct Event {
 
 #define EV_SEND_STR(type, val) {std::shared_ptr<Event> ev = std::make_shared<Event>(type);\
 	ev->str = val; \
+	App->events->RegisterEvent(ev);}
+
+#define EV_SEND_POINTER(type, val) {std::shared_ptr<Event> ev = std::make_shared<Event>(type); \
+	ev->generic_pointer = (void*)val; \
 	App->events->RegisterEvent(ev);}

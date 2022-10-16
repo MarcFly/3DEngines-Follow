@@ -169,7 +169,12 @@ void ModuleRenderer3D::BindMaterial(const GPUMesh& m)
 
 update_status ModuleRenderer3D::PostUpdate(float dt)
 {
-
+	if (hijack_framebuffer != nullptr) {
+		glBindFramebuffer(GL_FRAMEBUFFER, hijack_framebuffer->framebuffer_id);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+	PLOG("Incomplete Framebuffer: %s", glewGetErrorString(glGetError()));
 	cum_dt += dt;
 	float4 light_position = { (float)sin(cum_dt)*5.f, 0.f, (float)cos(cum_dt)*5.f, .5f};
 	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -196,6 +201,24 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 	glRotatef(- cum_dt * 100., 0., 1., 1.);
 	glColor3f(1., 1., 1.);
 
+	if (ecs_renderables != nullptr) {
+		for (int i = 0; i < ecs_renderables->gl_state_groups->size(); ++i) {
+			const RenderGroup& g = (*ecs_renderables->gl_state_groups)[i];
+			// Setup OpenGL state
+			SetOpenGLState(default_state);
+			for (int j = 0; j < g.materialgroups.size(); ++j) {
+				const MaterialGroup& mg = g.materialgroups[j];
+				// Set Material state/shader
+				for (int k = 0; k < mg.meshes.size(); ++k) {
+					// Push Matrix
+					ecs_renderables->transforms[mg.world_matrices[k]];
+					// Draw Mesh
+					mg.meshes[k];
+				}
+			}
+		}
+	}
+
 	glEnable(GL_TEXTURE_2D);
 	for (GPUMesh& m : meshes) {
 		
@@ -220,6 +243,8 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	return UPDATE_CONTINUE;
 }
@@ -268,6 +293,14 @@ void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_ve
 				m.disk_id.uid = ev->uint64;
 				materials.push_back(m);
 				continue; }
+			case EventType::FRAMEBUFFER_HIJACK: {
+				hijack_framebuffer = (GPUFBO*)ev->generic_pointer;
+				continue;
+			}
+			case EventType::ECS_RENDERABLES: {
+				ecs_renderables = (FullGroup*)ev->generic_pointer;
+				continue;
+			}
 		}
 	}
 
@@ -275,120 +308,7 @@ void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_ve
 	SetMeshMats();
 }
 
-#define GRID_SIZE 10
 
-void ModuleRenderer3D::RenderGrid() const
-{
-	SetOpenGLState(grid_state);
-	for (int i = 0; i < GRID_SIZE * 2 + 1; i++)
-	{
-		glBegin(GL_LINES);
-		glColor3f(1.5f, 0.5f, 0.5f);
-
-		//Z
-		glVertex3i(GRID_SIZE - i, 0, GRID_SIZE);
-		glVertex3i(GRID_SIZE - i, 0, -GRID_SIZE);
-
-		//X
-		glVertex3i(-GRID_SIZE, 0, -GRID_SIZE + i);
-		glVertex3i(GRID_SIZE, 0, -GRID_SIZE + i);
-		glEnd();
-	}
-
-	SetOpenGLState(default_state);
-}
-
-void ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
-{
-	GPUMesh push;
-	push.num_vtx = mesh->vertices.size();
-	glGenBuffers(1, &push.vtx_id);
-	glBindBuffer(GL_ARRAY_BUFFER, push.vtx_id);
-	glBufferData(GL_ARRAY_BUFFER, push.num_vtx * sizeof(float3), mesh->vertices.data(), GL_STATIC_DRAW);
-	if (mesh->normals.size() > 0) {
-		glGenBuffers(1, &push.norm_id);
-		glBindBuffer(GL_ARRAY_BUFFER, push.norm_id);
-		glBufferData(GL_ARRAY_BUFFER, mesh->normals.size() * sizeof(float3), mesh->normals.data(), GL_STATIC_DRAW);
-	}
-	if (mesh->uvs.size() > 0) {
-		glGenBuffers(1, &push.uvs_id);
-		glBindBuffer(GL_ARRAY_BUFFER, push.uvs_id);
-		glBufferData(GL_ARRAY_BUFFER, mesh->uvs.size() * sizeof(float2), mesh->uvs.data(), GL_STATIC_DRAW);
-	}
-	if (mesh->indices.size() > 0) {
-		push.num_idx = mesh->indices.size();
-		glGenBuffers(1, &push.idx_id);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, push.idx_id);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, push.num_idx * sizeof(uint32_t), mesh->indices.data(), GL_STATIC_DRAW);
-	}
-
-	push.material = mesh->material;
-
-	meshes.push_back(push);
-}
-
-void ModuleRenderer3D::UnloadMesh(GPUMesh& mesh) {
-	std::vector<uint32_t> ids;
-	if (mesh.vtx_id > 0) ids.push_back(mesh.vtx_id);
-	if (mesh.norm_id > 0) ids.push_back(mesh.norm_id);
-	if (mesh.uvs_id > 0) ids.push_back(mesh.uvs_id);
-	if (mesh.idx_id > 0) ids.push_back(mesh.idx_id);
-
-	glDeleteBuffers(ids.size(), ids.data());
-
-	mesh.vtx_id = mesh.norm_id = mesh.uvs_id = mesh.idx_id = 0;
-}
-
-void ModuleRenderer3D::LoadTexture(const Texture* tex)
-{
-	GPUTex push;
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &push.img_id);
-	glBindTexture(GL_TEXTURE_2D, push.img_id);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, tex->format, tex->w, tex->h, 0, tex->format, tex->unit_type, tex->bytes);
-
-	push.w = tex->w;
-	push.h = tex->h;
-
-	textures.push_back(push);
-}
-
-void ModuleRenderer3D::UnloadTex(GPUTex& tex)
-{
-	glDeleteTextures(1, &tex.img_id);
-	tex.img_id = 0;
-}
-
-GPUMat ModuleRenderer3D::LoadMaterial(const Material* mat) {
-	GPUMat push;
-	push.mat = mat;
-
-	for (const TexRelation& tr : mat->textures) {
-		const Texture* tex = App->fs->RetrievePValue<Texture>(tr.tex_uid);
-		LoadTexture(App->fs->RetrievePValue<Texture>(tr.tex_uid));
-		TexRelation texp;
-		texp.tex_uid = textures.size()-1;
-		texp.type = tr.type; // Care about type here?
-		push.gpu_textures.push_back(texp);
-	}
-
-	return push;
-}
-
-void ModuleRenderer3D::SetMeshMats() {
-	for (GPUMesh& mesh : meshes) {
-		for (int i = 0; i < materials.size(); ++i) {
-			if (materials[i].disk_id.uid == mesh.material.uid) {
-				mesh.material.data_pos = i;
-				break;
-			}
-		}
-	}
-}
 
 void ModuleRenderer3D::OnResize(int width, int height)
 {
@@ -401,4 +321,10 @@ void ModuleRenderer3D::OnResize(int width, int height)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+	// Regen Hijacked Framebuffer just in case...
+	if (hijack_framebuffer != nullptr) {
+		glDeleteTextures(1, &hijack_framebuffer->attachment.img_id);
+		*hijack_framebuffer = GenerateScreenFBO();
+	}
 }

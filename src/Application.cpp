@@ -2,13 +2,16 @@
 
 Application::Application()
 {
+	InitTimer();
+	CalibrateTimer();
+
 	window = new ModuleWindow();
 	input = new ModuleInput();
 	renderer3D = new ModuleRenderer3D();
 	camera = new ModuleCamera3D();
 	events = new ModuleEventSystem();
 	fs = new ModuleFS();
-
+	ecs = new ModuleECS();
 	// The order of calls is very important!
 	// Modules will Init() Start() and Update in this order
 	// They will CleanUp() in reverse order
@@ -71,7 +74,8 @@ bool Application::Init()
 // ---------------------------------------------
 void Application::PrepareUpdate()
 {
-	dt = (float)ms_timer.Read() / 1000.0f;
+	dt = (float)ms_timer.ReadMilliSec() / 1000.0f;
+	PLOG("%f", dt);
 	ms_timer.Start();
 }
 

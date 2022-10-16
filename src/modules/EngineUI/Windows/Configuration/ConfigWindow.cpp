@@ -7,8 +7,6 @@
 #include <libs/glew/include/GL/glew.h>
 #include <string>
 
-ConfigWindow cfg_win;
-
 ImVec4 hw_color(1., 1., 0., 1.);
 
 // For now bad performance graph

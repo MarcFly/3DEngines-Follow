@@ -5,12 +5,18 @@
 #include <gl/GL.h>
 #include "ui_item.h"
 #include "MenuBar/MenuBar.h"
+#include "Windows/WindowsIncludeAll.h"
 
 ModuleEngineUI e_engine_ui(true);
 
 ModuleEngineUI::ModuleEngineUI(bool start_enabled) : Module("editor_ui", true)
 {
-
+    menu_bar = new MenuBar();
+    EngineUI_RegisterItem((UI_Item*)new SceneView());
+    EngineUI_RegisterItem((UI_Item*)new RenderPeekWindow());
+    EngineUI_RegisterItem((UI_Item*)new ConfigWindow());
+    EngineUI_RegisterItem((UI_Item*)new DemoWindow());
+    EngineUI_RegisterItem((UI_Item*)new EntityHierarchyWindow());
 }
 
 ModuleEngineUI::~ModuleEngineUI()
@@ -75,7 +81,7 @@ update_status ModuleEngineUI::Update(float dt)
     EngineUI_UpdateActives();
 
     // Update the main menu first
-    menu_bar.Update();
+    menu_bar->Update();
 
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
     
@@ -109,6 +115,16 @@ bool ModuleEngineUI::CleanUp()
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
 
+    for (auto it : items) {
+        it->CleanUp();
+        delete it;
+        it = nullptr;
+    }
+    items.clear();
+    menu_bar->CleanUp();
+    delete menu_bar;
+    menu_bar = nullptr;
+
 	return false;
 }
 
@@ -130,6 +146,8 @@ void ModuleEngineUI::EngineUI_RegisterItem(UI_Item* item)
     items.push_back(item);
     item->id = items.size() - 1;
     if (item->active) active_items.push_back(item->id);
+
+    menu_bar->RegisterMenuItem(&item->active, item->name.c_str(), item->submenu.c_str());
 }
 
 void ModuleEngineUI::EngineUI_UpdateActives() {
@@ -142,3 +160,11 @@ void ModuleEngineUI::EngineUI_UpdateActives() {
     require_update = false;
 }
 
+bool CheckModifiers() {
+    {
+        return ImGui::IsKeyDown(SDL_SCANCODE_LCTRL)
+            || ImGui::IsKeyDown(SDL_SCANCODE_LSHIFT)
+            || ImGui::IsKeyDown(SDL_SCANCODE_RCTRL)
+            || ImGui::IsKeyDown(SDL_SCANCODE_RSHIFT);
+    }
+}

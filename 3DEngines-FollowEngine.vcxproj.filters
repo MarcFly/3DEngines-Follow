@@ -32,7 +32,6 @@
     <ClCompile Include="src\modules\ModuleInput.cpp" />
     <ClCompile Include="src\modules\Render\ModuleRenderer3D.cpp" />
     <ClCompile Include="src\modules\ModuleWindow.cpp" />
-    <ClCompile Include="src\helpers\Timer.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_sdl.cpp" />
@@ -45,7 +44,6 @@
     <ClCompile Include="src\modules\EngineUI\DearImGUI\imgui_tables.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\imgui_widgets.cpp" />
     <ClCompile Include="src\modules\EngineUI\ModuleEngineUI.cpp" />
-    <ClCompile Include="src\modules\EngineUI\ui_item.cpp" />
     <ClCompile Include="src\modules\EngineUI\MenuBar\MenuBar.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.cpp" />
     <ClCompile Include="src\modules\EventSystem\ModuleEventSystem.cpp" />
@@ -100,9 +98,10 @@
     <ClCompile Include="src\modules\FileSystem\Importers\FileTypes\ImporterMaterial.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.cpp" />
     <ClCompile Include="src\helpers\pcg\pcg_basic.c" />
-    <ClCompile Include="src\modules\ECS\CS_MeshRenderer\c_meshrenderer.cpp" />
-    <ClCompile Include="src\modules\ECS\CS_MeshRenderer\s_meshrenderer.cpp" />
-    <ClCompile Include="src\modules\ECS\ecs_manager.cpp" />
+    <ClCompile Include="src\modules\ECS\ModuleECS.cpp" />
+    <ClCompile Include="src\modules\Render\RenderTypesCreators.cpp" />
+    <ClCompile Include="src\modules\EngineUI\Windows\View\SceneView.cpp" />
+    <ClCompile Include="src\modules\EngineUI\Windows\Entities\EntityHierarchy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -113,7 +112,6 @@
     <ClInclude Include="src\modules\ModuleInput.h" />
     <ClInclude Include="src\modules\Render\ModuleRenderer3D.h" />
     <ClInclude Include="src\modules\ModuleWindow.h" />
-    <ClInclude Include="src\helpers\Timer.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3_loader.h" />
@@ -218,11 +216,17 @@
     <ClInclude Include="src\modules\FileSystem\FSDataTypes.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.h" />
     <ClInclude Include="src\helpers\pcg\pcg_basic.h" />
-    <ClInclude Include="src\modules\ECS\ecs_manager.h" />
-    <ClInclude Include="src\modules\ECS\CS_MeshRenderer\cs_meshrenderer.h" />
-    <ClInclude Include="src\modules\ECS\ComponentSystem.h" />
+    <ClInclude Include="src\modules\ECS\ModuleECS.h" />
+    <ClInclude Include="src\modules\ECS\ComponentsRender\CSMeshRenderer.h" />
+    <ClInclude Include="src\modules\ECS\ComponentsMove\CS_Transform.h" />
     <ClInclude Include="src\modules\ECS\ComponentsIncludeAll.h" />
-    <ClInclude Include="src\modules\ECS\ReflectHash.h" />
+    <ClInclude Include="src\helpers\Timer\sque_timer.h" />
+    <ClInclude Include="src\helpers\Timer\tscns.h" />
+    <ClInclude Include="src\modules\ECS\ComponentsRender\ECS_RendererTypes.h" />
+    <ClInclude Include="src\modules\ECS\ComponentIncludeAllTypes.h" />
+    <ClInclude Include="src\modules\EngineUI\Windows\View\SceneView.h" />
+    <ClInclude Include="src\modules\EngineUI\Windows\WindowsIncludeAll.h" />
+    <ClInclude Include="src\modules\EngineUI\Windows\Entities\EntityHierachy.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\helpers\MathGeoLib\Geometry\KDTree.inl" />

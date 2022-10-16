@@ -102,3 +102,9 @@ struct GPUMat {
 	KeyPosPair disk_id;
 	std::vector<TexRelation> gpu_textures;
 };
+
+struct GPUFBO {
+	GLuint framebuffer_id;
+	GLuint renderbuffer_id;
+	GPUTex attachment;
+};

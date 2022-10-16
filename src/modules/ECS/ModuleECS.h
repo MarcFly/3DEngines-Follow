@@ -1,5 +1,6 @@
 #pragma once
 #include <src/helpers/Globals.h>
+#include <src/modules/Module.h>
 #include <vector>
 
 enum ComponentTypes {
@@ -22,10 +23,13 @@ struct Component {
 };
 
 // Entities can modify components
-
+static uint64_t default_name = 0;
 struct Entity {
 	uint64_t id = PCGRand();
+	uint64_t parent = UINT64_MAX;
 	std::vector<ComponentID> components;
+	std::vector<uint64_t> children;
+	std::string name = std::to_string(default_name++);
 	// If you want to cash them, create them per entity
 };
 
@@ -37,10 +41,14 @@ struct System {
 	System() {};
 	virtual ~System() {}; // Destroy all the components held in the system!
 
+	virtual bool Init() { return true; }
+	virtual bool Start() { return true; }
 	virtual update_status PreUpdate(float dt) { return UPDATE_CONTINUE; }
 	virtual update_status Update(float dt) { return UPDATE_CONTINUE; }
 	virtual update_status PostUpdate(float dt) {return UPDATE_CONTINUE;}
-	
+	virtual bool CleanUp() { return true; }
+
+	// Getters and Setters
 	virtual Component* AddC(const ComponentTypes ctype, const uint64_t eid) { return nullptr; }
 	// Allow ComponentID to be ref, so to update quick_ref overtime (slotmap would solve this)
 	virtual Component* GetCQuick(const uint32_t quick_ref) { return nullptr; } // Try and go directly with the id, check out of bounds
@@ -51,6 +59,74 @@ struct System {
 
 class ModuleECS : public Module {
 public:
+	ModuleECS();
+	~ModuleECS();
+
+	bool Init();
+	bool Start();
+	update_status PreUpdate(float dt);
+	update_status Update(float dt);
+	update_status PostUpdate(float dt);
+
+	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
+	bool CleanUp();
+
+
+public:
+	void AddEntity(const uint64_t par_id) {
+		entities.push_back(new Entity());
+		entities.back()->parent = par_id;
+		if (par_id == UINT64_MAX)
+			base_entities.push_back(entities.back()->id);
+		else
+			GetEntity(par_id)->children.push_back(entities.back()->id);
+	}
+
+	void DeleteEntity(const uint64_t eid) {
+		int i;
+		for (i = 0; i < entities.size(); ++i) {
+			if (entities[i]->id == eid) {
+				for (auto cid : entities[i]->children) {
+					DeleteEntity(cid);
+				}
+				// TODO: Delete Components
+
+				// Delete From Base Entities before deleting entity
+				if (entities[i]->parent == UINT64_MAX) {
+					std::vector<uint64_t> swapvec;
+					swapvec.reserve(base_entities.size());
+					for (int j = 0; j < base_entities.size(); j++) {
+						if (base_entities[j] == eid) continue;
+						swapvec.push_back(base_entities[j]);
+					}
+					base_entities.swap(swapvec);
+				}
+
+				Entity* pe = GetEntity(entities[i]->parent);
+				if (pe != nullptr) 
+				{
+					std::vector<uint64_t> swapvec;
+					swapvec.reserve(pe->children.size());
+					for (int j = 0; j < pe->children.size(); j++) {
+						if (pe->children[j] == eid) continue;
+						swapvec.push_back(pe->children[j]);
+					}
+					pe->children.swap(swapvec);
+				}
+
+				entities[i] = entities.back();
+				entities.pop_back();
+				return;
+				
+			}
+		}
+	}
+
+	Entity* GetEntity(const uint64_t eid) {
+		for (auto e : entities) if (e->id == eid) return e;
+		return nullptr;
+	}
+
 	inline System* GetSystemOfType(const ComponentTypes ctype) { for (auto it : systems) { if (it->ctype == ctype) return it; } return nullptr; }
 
 	template<class T>
@@ -79,9 +155,11 @@ public:
 		System* sys = GetSystemOfType(ctype);
 		return sys->GetCsFromEntity(eid, ctype);
 	}
-private:
 
+public:
 	std::vector<Entity*> entities;
-	std::vector<uint32_t> base_entities;
+	std::vector<uint64_t> base_entities;
 	std::vector<System*> systems;
+
+
 };

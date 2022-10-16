@@ -9,7 +9,7 @@
 class UI_Item
 {
 public:
-	UI_Item(const char* _name, uint32_t submenu = UINT32_MAX);
+	UI_Item(const char* _name, const char* _submenu = "") : name(_name), submenu(_submenu) {};
 	virtual ~UI_Item() {};
 
 	void SwitchActive() { active = !active; }
@@ -34,8 +34,8 @@ public:
 	bool active = false;
 	uint32_t id;
 
-protected:
 	std::string name;
+	std::string submenu;
 	SDL_Scancode shortcut = SDL_SCANCODE_UNKNOWN;
 };
 

@@ -6,6 +6,7 @@
 #include <vector>
 
 class UI_Item;
+class MenuBar;
 
 class ModuleEngineUI : public Module
 {
@@ -29,16 +30,16 @@ public:
 	}
 
 private:
+	MenuBar* menu_bar;
 	std::vector<UI_Item*> items;
 	std::vector<uint32_t> active_items;
 	bool require_update = false;
 
 private:
-
-	
-
 	void EngineUI_UpdateActives();
 };
+
+bool CheckModifiers();
 
 extern ModuleEngineUI e_engine_ui;
 
