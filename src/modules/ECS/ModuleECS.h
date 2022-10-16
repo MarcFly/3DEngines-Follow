@@ -25,11 +25,12 @@ struct Component {
 // Entities can modify components
 static uint64_t default_name = 0;
 struct Entity {
+	bool active = true;
 	uint64_t id = PCGRand();
 	uint64_t parent = UINT64_MAX;
 	std::vector<ComponentID> components;
 	std::vector<uint64_t> children;
-	std::string name = std::to_string(default_name++);
+	char name[32] = "";
 	// If you want to cash them, create them per entity
 };
 
@@ -76,6 +77,9 @@ public:
 	void AddEntity(const uint64_t par_id) {
 		entities.push_back(new Entity());
 		entities.back()->parent = par_id;
+		std::string temp = std::to_string(default_name++);
+		memcpy(entities.back()->name, temp.c_str(), temp.length());
+
 		if (par_id == UINT64_MAX)
 			base_entities.push_back(entities.back()->id);
 		else
@@ -135,14 +139,17 @@ public:
 		return T*(system->AddC(ctype, eid));
 	}
 
-	template<class T>
-	T* GetComponent(ComponentID& ctype) {
+	inline Component* GetComponentGeneric(ComponentID& ctype) {
 		System* sys = GetSystemOfType(ctype.ctype);
 		Component* ret = sys->GetCQuick(ctype.quick_ref);
 		if (ret == nullptr || ret->id.id != ctype.id)
 			ret = sys->GetC(ctype);
+		return ret;
+	}
 
-		return T * (ret);
+	template<class T>
+	inline T* GetComponent(ComponentID& ctype) {
+		return T * (GetComponentGeneric(ctype));
 	}
 	
 	template<class T>

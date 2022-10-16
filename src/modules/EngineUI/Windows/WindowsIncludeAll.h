@@ -5,3 +5,4 @@
 #include "RenderTypePeek/RenderTypePeekWindow.h"
 #include "View/SceneView.h"
 #include "Entities/EntityHierachy.h"
+#include "Inspector/ComponentInspector.h"

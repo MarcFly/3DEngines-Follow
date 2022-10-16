@@ -34,12 +34,12 @@ void EntityHierarchyWindow::UpdateEntry(const uint64_t eid) {
         | ((curr_e->children.size() == 0) * ImGuiTreeNodeFlags_Leaf)
         | (isselected * ImGuiTreeNodeFlags_Selected);
 
-    bool open = ImGui::TreeNodeEx(&curr_e->id, tmp_flags, curr_e->name.c_str());
+    bool open = ImGui::TreeNodeEx(&curr_e->id, tmp_flags, curr_e->name);
     if (ImGui::IsItemClicked()) {
         if (!CheckModifiers()) 
             selected.clear();
         selected.push_back(curr_e->id);
-        // TODO: Send to the inspector latest added
+        EV_SEND_UINT64(HIERARCHY_SELECTED_ENTITY, curr_e->id);
     }
 
     for (int i = 0; open && i < curr_e->children.size(); ++i)

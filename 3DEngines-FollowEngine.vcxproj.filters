@@ -102,6 +102,9 @@
     <ClCompile Include="src\modules\Render\RenderTypesCreators.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\View\SceneView.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Entities\EntityHierarchy.cpp" />
+    <ClCompile Include="src\modules\EngineUI\Windows\Inspector\ComponentInspector.cpp" />
+    <ClCompile Include="src\modules\EngineUI\Windows\Inspector\Inspectors\InspectMeshRenderer.cpp" />
+    <ClCompile Include="src\modules\EngineUI\Windows\Inspector\Inspectors\InspectorTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -227,6 +230,7 @@
     <ClInclude Include="src\modules\EngineUI\Windows\View\SceneView.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\WindowsIncludeAll.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\Entities\EntityHierachy.h" />
+    <ClInclude Include="src\modules\EngineUI\Windows\Inspector\ComponentInspector.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\helpers\MathGeoLib\Geometry\KDTree.inl" />

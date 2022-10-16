@@ -17,6 +17,7 @@ ModuleEngineUI::ModuleEngineUI(bool start_enabled) : Module("editor_ui", true)
     EngineUI_RegisterItem((UI_Item*)new ConfigWindow());
     EngineUI_RegisterItem((UI_Item*)new DemoWindow());
     EngineUI_RegisterItem((UI_Item*)new EntityHierarchyWindow());
+    EngineUI_RegisterItem((UI_Item*)new ComponentInspector());
 }
 
 ModuleEngineUI::~ModuleEngineUI()
@@ -87,7 +88,6 @@ update_status ModuleEngineUI::Update(float dt)
     
     for (uint32_t i = 0; i < active_items.size(); ++i)
         items[active_items[i]]->Update();
-
     
     if (require_update) EngineUI_UpdateActives();
 
