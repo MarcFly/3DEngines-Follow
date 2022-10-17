@@ -22,7 +22,7 @@ public:
 	bool Init();
 	update_status PreUpdate(float dt);
 
-	void BindMaterial(const GPUMesh& m);
+	void BindMaterial(const GPUMat& m);
 	update_status PostUpdate(float dt);
 	bool CleanUp();
 

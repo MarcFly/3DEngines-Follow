@@ -29,12 +29,12 @@ struct C_MeshRenderer : public Component {
 struct S_MeshRenderer : public System {
 	S_MeshRenderer() : System(CT_MeshRenderer) {};
 	std::vector<C_MeshRenderer> renderers;
-	//std::vector<float4x4> global_transform;
-
+	std::vector<ComponentID> to_delete;
 	// GL State might have multiple materials
 	// Inside each material inside each GL_State, might have multiple meshes
 	//std::vector<RenderGroup> groups;
 	FullGroup send;
+	bool recache = false;
 
 	void TestInit();
 
@@ -49,12 +49,28 @@ struct S_MeshRenderer : public System {
 
 	update_status Update(float dt);
 
+	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
+
 	Component* AddC(const ComponentTypes ctype, const uint64_t eid) {
+		
 		renderers.push_back(C_MeshRenderer());
 		C_MeshRenderer& t = renderers.back();
 		t.id.parent_id = eid;
 		t.id.quick_ref = renderers.size() - 1;
 		return (Component*)&t;
+	}
+
+	void AddToDeleteQ(const ComponentID& cid) { to_delete.push_back(cid); }
+
+	void DeleteComponent(const ComponentID& cid) {
+		ComponentID temp = cid;
+		C_MeshRenderer* cmesh = (C_MeshRenderer*)GetC(temp);
+		*cmesh = renderers[renderers.size() - 1];
+		cmesh->cached_wm = UINT32_MAX;
+		send.gl_state_groups.clear();
+		send.transforms.clear();
+		renderers.pop_back();
+		recache = true;
 	}
 
 	Component* GetCByRef(const ComponentID& cid) {

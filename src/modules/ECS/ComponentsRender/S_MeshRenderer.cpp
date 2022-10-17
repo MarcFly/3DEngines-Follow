@@ -24,13 +24,13 @@ void S_MeshRenderer::TestInit() {
 void S_MeshRenderer::CacheGroups() {
 	for (int i = 0; i < renderers.size(); ++i) {
 		const C_Transform* get = App->ecs->GetComponent<C_Transform>(renderers[i].associated_transform);
-		if (renderers[i].cached_wm == UINT32_MAX) {
+		if (recache || renderers[i].cached_wm == UINT32_MAX) {
 			send.transforms.emplace_back(get->world_mat);
 			renderers[i].cached_wm = send.transforms.size() - 1;
 		}
 		send.transforms[renderers[i].cached_wm] = get->world_mat * renderers[i].local;
 
-		if (renderers[i].cached_group) continue;
+		if (!recache && renderers[i].cached_group) continue;
 		//if (renderers[i].cached_wm == UINT32_MAX) {
 		//	// Get Transform through Parenting...
 		//	float4x4 t;
@@ -98,5 +98,19 @@ update_status S_MeshRenderer::PreUpdate(float dt) {
 update_status S_MeshRenderer::Update(float dt) {
 	EV_SEND_POINTER(ECS_RENDERABLES, (void*)&send);
 
+	if (to_delete.size() > 0) {
+		for (int i = 0; i < to_delete.size(); ++i)
+			DeleteComponent(to_delete[i]);
+
+		to_delete.clear();
+	}
 	return UPDATE_CONTINUE;
+}
+
+void S_MeshRenderer::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec) {
+	for (std::shared_ptr<Event> ev : evt_vec) {
+		switch (ev->type) {
+			
+		}
+	}
 }

@@ -156,12 +156,12 @@ update_status ModuleRenderer3D::PreUpdate(float dt)
 
 // PostUpdate present buffer to screen
 double cum_dt = 0;
-void ModuleRenderer3D::BindMaterial(const GPUMesh& m)
+void ModuleRenderer3D::BindMaterial(const GPUMat& m)
 {
 	int baset = GL_TEXTURE0;
 	glEnable(baset);	
 
-	for (TexRelation tr : materials[m.material.data_pos].gpu_textures) {
+	for (TexRelation tr :m.gpu_textures) {
 		glEnable(baset);
 		const GPUTex& t = textures[tr.tex_uid];
 		glBindTexture(GL_TEXTURE_2D, t.img_id);
@@ -211,44 +211,51 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 			for (int j = 0; j < g.materialgroups.size(); ++j) {
 				const MaterialGroup& mg = g.materialgroups[j];
 				// Set Material state/shader
+				BindMaterial(materials[mg.material]);
 				for (int k = 0; k < mg.meshes.size(); ++k) {
 					// Push Matrix
 					ecs_renderables->transforms[mg.world_matrices[k]];
 					// Draw Mesh
-					mg.meshes[k];
+					GPUMesh& m = meshes[mg.meshes[k]];
+					glEnableClientState(GL_VERTEX_ARRAY);
+					glBindBuffer(GL_ARRAY_BUFFER, m.vtx_id);
+					glVertexPointer(3, GL_FLOAT, 0, NULL);
+					if (m.norm_id != 0) {
+						glEnableClientState(GL_NORMAL_ARRAY);
+						glBindBuffer(GL_ARRAY_BUFFER, m.norm_id);
+						glNormalPointer(GL_FLOAT, 0, NULL);
+					}
+					if (m.uvs_id != 0) {
+						glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+						glBindBuffer(GL_ARRAY_BUFFER, m.uvs_id);
+						glTexCoordPointer(2, GL_FLOAT, 0, NULL);
+					}
+					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.idx_id);
+
 					const float4x4& matx = ecs_renderables->transforms[mg.world_matrices[k]];
-					glPushMatrix();
-					glMultMatrixf(matx.Transposed().ptr());
-					glPopMatrix();
+					// TODO: Repair transform tree...
+					//glPushMatrix();
+					//glMultMatrixf(matx.Transposed().ptr());
+
+					glDrawElements(GL_TRIANGLES, m.num_idx, GL_UNSIGNED_INT, nullptr);
+
+					//glPopMatrix();
 				}
 			}
 		}
 	}
 
-	glEnable(GL_TEXTURE_2D);
-	for (GPUMesh& m : meshes) {
-		
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glBindBuffer(GL_ARRAY_BUFFER, m.vtx_id);
-		glVertexPointer(3, GL_FLOAT, 0, NULL);
-		if (m.norm_id != 0) {
-			glEnableClientState(GL_NORMAL_ARRAY);
-			glBindBuffer(GL_ARRAY_BUFFER, m.norm_id);
-			glNormalPointer(GL_FLOAT, 0, NULL);
-		}
-		if (m.uvs_id != 0) {
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glBindBuffer(GL_ARRAY_BUFFER, m.uvs_id);
-			glTexCoordPointer(2, GL_FLOAT, 0, NULL);
-		}
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.idx_id);
-
-		BindMaterial(m);
-
-		glDrawElements(GL_TRIANGLES, m.num_idx, GL_UNSIGNED_INT, nullptr);
-		glDisableClientState(GL_VERTEX_ARRAY);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
+	//glEnable(GL_TEXTURE_2D);
+	//for (GPUMesh& m : meshes) {
+	//	
+	//	
+	//
+	//	
+	//
+	//	
+	//	glDisableClientState(GL_VERTEX_ARRAY);
+	//	glBindTexture(GL_TEXTURE_2D, 0);
+	//}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

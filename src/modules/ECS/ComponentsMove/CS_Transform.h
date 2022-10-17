@@ -22,6 +22,7 @@ struct C_Transform : public Component {
 struct S_Transform : public System {
 	S_Transform() : System(CT_Transform) {}
 	std::vector<C_Transform> transforms;
+	std::vector<ComponentID> to_delete;
 
 	Component* AddC(const ComponentTypes ctype, const uint64_t eid) {
 		transforms.push_back(C_Transform());
@@ -32,6 +33,15 @@ struct S_Transform : public System {
 		CreateTransformTree(t);
 
 		return (Component*)&t;
+	}
+
+	void AddToDeleteQ(const ComponentID& cid) { to_delete.push_back(cid); }
+
+	void DeleteComponent(const ComponentID& cid) {
+		ComponentID temp = cid;
+		C_Transform* ctrans = (C_Transform*)GetC(temp);
+		*ctrans = transforms[transforms.size() - 1];
+		transforms.pop_back();
 	}
 
 	Component* GetCByRef(const ComponentID& cid) {

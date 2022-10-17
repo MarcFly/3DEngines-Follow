@@ -65,6 +65,8 @@ struct System {
 	virtual Component* AddC(const ComponentTypes ctype, const uint64_t eid) { return nullptr; }
 	virtual Component* AddCopyC(std::shared_ptr<Component> c) { return nullptr; }
 	// Allow ComponentID to be ref, so to update quick_ref overtime (slotmap would solve this)
+	virtual void AddToDeleteQ(const ComponentID& cid) { assert(true); }
+	virtual void DeleteComponent(const ComponentID& cid) { assert(true /*Create the function*/); }
 	virtual Component* GetCByRef(const ComponentID& cid) { return nullptr; } // Try and go directly with the id, check out of bounds
 	virtual Component* GetC(ComponentID& cid) { return nullptr; }
 	Component* GetComponent(ComponentID& cid) { Component* ret = GetCByRef(cid); if (ret == nullptr) ret = GetC(cid); return ret; }
@@ -115,6 +117,11 @@ public:
 		return ret;
 	}
 
+	void DeleteComponent(const ComponentID& cid) {
+		System* system = GetSystemOfType(cid.ctype);
+		system->AddToDeleteQ(cid);
+	}
+	
 	void DeleteEntity(const uint64_t eid) {
 		int i;
 		for (i = 0; i < entities.size(); ++i) {
@@ -122,7 +129,9 @@ public:
 				for (auto cid : entities[i].children) {
 					DeleteEntity(cid);
 				}
-				// TODO: Delete Components
+				
+				for (ComponentID& cid : entities[i].components)
+					DeleteComponent(cid);
 
 				// Delete From Base Entities before deleting entity
 				if (entities[i].parent == UINT64_MAX) {
