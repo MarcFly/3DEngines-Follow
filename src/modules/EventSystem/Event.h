@@ -39,6 +39,7 @@ enum EventType {
 	ECS_REQUEST_NEW_ENTITY,
 	ECS_REQUEST_DELETE_ENTITY,
 	ECS_REQUEST_MODIFY_ENTITY,
+	ECS_ADD_COMPONENT,
 
 	HIERARCHY_SELECTED_ENTITY,
 
@@ -60,6 +61,9 @@ struct Event {
 		JSON_Object* json_object;
 		std::string bad_string;
 		void* generic_pointer;
+		uint64_t uint64_pair[2];
+		uint64_t uint64_trio[3];
+		
 	};
 
 	Event(EventType _type) : type(_type) {};
@@ -77,6 +81,19 @@ struct Event {
 
 #define EV_SEND_UINT64(type, val) {std::shared_ptr<Event> ev = std::make_shared<Event>(type);\
 	ev->uint64 = val;\
+	App->events->RegisterEvent(ev);}
+
+// On Multiple data type events, nomenclature should always follow
+// ID - Value1 - Value 2 - ...
+#define EV_SEND_UINT64_2(type, val1, val2) {std::shared_ptr<Event> ev = std::make_shared<Event>(type);\
+	ev->uint64_pair[0] = val1; \
+	ev->uint64_pair[1] = val2; \
+	App->events->RegisterEvent(ev);}
+
+#define EV_SEND_UINT64_3(type, val1, val2, val3) {std::shared_ptr<Event> ev = std::make_shared<Event>(type);\
+	ev->uint64_trio[0] = val1; \
+	ev->uint64_trio[1] = val2; \
+	ev->uint64_trio[2] = val3; \
 	App->events->RegisterEvent(ev);}
 
 #define EV_SEND_POINT2D(type, val1, val2) {std::shared_ptr<Event> ev = std::make_shared<Event>(type);\

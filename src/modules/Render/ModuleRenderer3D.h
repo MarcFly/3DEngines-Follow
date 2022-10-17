@@ -32,13 +32,13 @@ public:
 
 	void RenderGrid() const;
 
-	void LoadMesh(const NIMesh* mesh);
+	uint32_t LoadMesh(const NIMesh* mesh);
 	void UnloadMesh(GPUMesh& mesh);
 
-	void LoadTexture(const Texture* tex);
+	uint32_t LoadTexture(const Texture* tex);
 	void UnloadTex(GPUTex& tex);
 
-	GPUMat LoadMaterial(const Material* mat);
+	uint32_t LoadMaterial(const Material* mat);
 
 	GPUFBO GenerateScreenFBO();
 

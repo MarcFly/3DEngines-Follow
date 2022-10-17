@@ -21,7 +21,7 @@ public:
 	const PlainData& RetrieveData(uint64_t id);
 	template<class T>
 	const T* RetrievePValue(uint64_t id) {
-		
+		if (key_to_vec.find(id) == key_to_vec.end()) return nullptr;
 		WatchedData& wd = allocs[key_to_vec.at(id)];
 		//if(wd.loaded == false && wd.offload_id == UINT64_MAX)
 		// 

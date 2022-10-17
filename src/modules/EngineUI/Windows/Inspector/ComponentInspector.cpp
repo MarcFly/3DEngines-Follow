@@ -1,11 +1,6 @@
 #include "ComponentInspector.h"
 #include <src/Application.h>
 
-InspectFun* inspectors[CT_MAX] = {
-	InspectMeshRenderer,
-	InspectTransform
-};
-
 void ComponentInspector::Update() {
 	bool changes_happened = false;
 	ImGui::Begin(name.c_str(), &active);
@@ -20,10 +15,11 @@ void ComponentInspector::Update() {
 
 	ImGui::SameLine();
 	changes_happened |= ImGui::InputText("##EntityNameInspector", entity.name, sizeof(entity.name));
-
-	for (auto c : components) {		
-		// Call the function that draws each inspector
-		inspectors[c->id.ctype](c);
+	
+	for (auto c : components) {
+		ImGui::Checkbox("##Button" + c->id.id, &c->active);
+		ImGui::SameLine();		
+		c->DrawInspector();
 	}
 
 	ImGui::End();

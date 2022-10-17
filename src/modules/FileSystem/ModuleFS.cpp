@@ -122,7 +122,8 @@ void ModuleFS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 	int num_unregistered = unregistered.size();
 	for (int i = 0; i < num_unregistered; ++i){
 		const WatchedData& unreg_data = unregistered[i];
-		if(unreg_data.event_type > 0) EV_SEND_UINT64((EventType)unreg_data.event_type, unreg_data.uid);
+		// TODO: Go back to events, when FBX != scenes...
+		// if(unreg_data.event_type > 0) EV_SEND_UINT64((EventType)unreg_data.event_type, unreg_data.uid);
 		// TODO: Prepare unregistered data for being put in the alloc vector
 		key_to_vec.insert(std::pair<uint64_t, uint64_t>( unreg_data.uid, num_registered + i));
 	}

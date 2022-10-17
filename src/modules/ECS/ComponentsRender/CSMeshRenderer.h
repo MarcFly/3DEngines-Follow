@@ -15,121 +15,63 @@ struct C_MeshRenderer : public Component {
 	uint32_t material;
 	bool cached_group = false;
 
+	float4x4 local;
 	ComponentID associated_transform;
 	uint32_t cached_wm = UINT32_MAX;
+
+	void DrawInspector();
 };
 
-#define NUM_TEST_MESHES 500000
-#define NUM_MATERIALS 10000
+#define NUM_TEST_MESHES 1000000
+#define NUM_MATERIALS 1000
 #define NUM_GL_STATES 100
 
 struct S_MeshRenderer : public System {
-	ComponentTypes ctype = CT_MeshRenderer;
+	S_MeshRenderer() : System(CT_MeshRenderer) {};
 	std::vector<C_MeshRenderer> renderers;
-	std::vector<float4x4> global_transform;
+	//std::vector<float4x4> global_transform;
 
 	// GL State might have multiple materials
 	// Inside each material inside each GL_State, might have multiple meshes
-	std::vector<RenderGroup> groups;
+	//std::vector<RenderGroup> groups;
 	FullGroup send;
 
-	void TestInit() {
-		// Cost Test
-		renderers.resize(NUM_TEST_MESHES);
-		global_transform.resize(NUM_TEST_MESHES);
-		for (int i = 0; i < NUM_TEST_MESHES; ++i) {
-			C_MeshRenderer& curr = renderers[i];
-			curr.cached_wm = i;
-			global_transform.emplace_back(float4x4::identity);
-			// Worst case scenario in cpu and GPU then
-			curr.gl_state = NUM_GL_STATES * (PCGRand() / (double)UINT64_MAX);// State per mesh
-			curr.material = NUM_MATERIALS * (PCGRand() / (double)UINT64_MAX); // Material per mesh
-			curr.mesh = PCGRand(); // All different meshes	
-		}
-		
-		groups.reserve(NUM_GL_STATES);
-		for (int i = 0; i < groups.size(); ++i) {
-			groups[i].materialgroups.reserve(NUM_MATERIALS);
-		}
-		CacheGroups();
-	}
+	void TestInit();
 
-	S_MeshRenderer() {
-		//TestInit();
-		send.gl_state_groups = &groups;
-		send.transforms = &global_transform;
-	}
-	inline void CacheGroups() {
-		for (int i = 0; i < renderers.size(); ++i) {
-			if (renderers[i].cached_group) continue;
-			//if (renderers[i].cached_wm == UINT32_MAX) {
-			//	// Get Transform through Parenting...
-			//	float4x4 t;
-			//	global_transform.emplace_back(t);
-			//	renderers[i].cached_wm = global_transform.size() - 1;
-			//}
-			for (int j = 0; j < groups.size(); ++j) {
-				if (groups[j].gl_state == renderers[i].gl_state) {
-					SetMat(groups[j], renderers[i]);
-					continue;
-				}
-			}
-			if (renderers[i].cached_group) continue;
-			groups.emplace_back(RenderGroup());
-			RenderGroup& g = groups.back();
-			g.gl_state = renderers[i].gl_state;
-			SetMat(g, renderers[i]);
-		}
-	}
+	inline void CacheGroups();
 
-	inline void SetMeshTransf(MaterialGroup& mg, C_MeshRenderer& cr) {
-		for (int i = 0; i < mg.meshes.size(); ++i)
-			if (mg.meshes[i] == cr.mesh) {
-				mg.world_matrices[i] = cr.cached_wm;
-				cr.cached_group = true;
-				return;
-			}
-		
-		mg.material = cr.material;
-		mg.meshes.emplace_back(cr.mesh);
-		// Get Transform through Parenting...
-		//float4x4 t;
-		//global_transform.emplace_back(t);
-		mg.world_matrices.push_back(cr.cached_wm);
-		cr.cached_group = true;
-		//cr.cached_wm = global_transform.size() - 1;
-	}
+	inline void SetMeshTransf(MaterialGroup& mg, C_MeshRenderer& cr);
 
-	inline void SetMat(RenderGroup& g, C_MeshRenderer& cr) {
-		for (int i = 0; i < g.materialgroups.size(); ++i)
-			if (g.materialgroups[i].material == cr.material) {
-				SetMeshTransf(g.materialgroups[i], cr);
-				return;
-			}
-		g.materialgroups.emplace_back(MaterialGroup());
-		MaterialGroup& mg = g.materialgroups.back();
-		mg.material = cr.material;
-		//mg.meshes.emplace_back(cr.mesh);
-
-		SetMeshTransf(mg, cr);
-	}
+	inline void SetMat(RenderGroup& g, C_MeshRenderer& cr);
 	
 
-	update_status PreUpdate(float dt) {
-		// Recreate rendergroups each frame
-		// Reasons: Invalidation of data, not ideal
-		
-		// TODO: Change this to be recreated only when there are changes		
-		// Should not be called per frame, only push and pop operations!
-		CacheGroups(); 
+	update_status PreUpdate(float dt);
 
-		return UPDATE_CONTINUE;
+	update_status Update(float dt);
+
+	Component* AddC(const ComponentTypes ctype, const uint64_t eid) {
+		renderers.push_back(C_MeshRenderer());
+		C_MeshRenderer& t = renderers.back();
+		t.id.parent_id = eid;
+		t.id.quick_ref = renderers.size() - 1;
+		return (Component*)&t;
 	}
 
-	update_status Update(float dt) {
-		EV_SEND_POINTER(ECS_RENDERABLES, (void*)& send);
+	Component* GetCByRef(const ComponentID& cid) {
+		Component* ret = nullptr;
+		if (cid.quick_ref > renderers.size() - 1 || renderers[cid.quick_ref].id.id != cid.id)
+			return nullptr;
 
-		return UPDATE_CONTINUE;
+		return (Component*)&renderers[cid.quick_ref];
+	}
+	Component* GetC(ComponentID& cid) {
+		Component* ret = nullptr;
+		for (int i = 0; i < renderers.size(); ++i)
+			if (renderers[i].id.id == cid.id) {
+				cid.quick_ref = i;
+				return &renderers[i];
+			}
+		return ret;
 	}
 
 };

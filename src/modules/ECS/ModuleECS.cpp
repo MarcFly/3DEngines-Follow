@@ -6,6 +6,7 @@ ModuleECS::ModuleECS() : Module("ECS") {
 	InitTimer();
 	CalibrateTimer();
 	systems.push_back(new S_MeshRenderer());
+	systems.push_back(new S_Transform());
 }
 
 ModuleECS::~ModuleECS() {
@@ -57,18 +58,28 @@ void ModuleECS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 {
 	for (std::shared_ptr<Event> ev : evt_vec) {
 		switch (ev->type) {
-		case ECS_REQUEST_NEW_ENTITY:
-			AddEntity(ev->uint64);
+		case ECS_REQUEST_NEW_ENTITY: {
+			Entity* e = AddEntity(ev->uint64);
+			Component* c = AddComponent<C_Transform>(e->id, CT_Transform);
+			e->AddComponent(c->id);
 			continue;
+		}
 		case ECS_REQUEST_DELETE_ENTITY:
 			DeleteEntity(ev->uint64);
 			continue;
-		case ECS_REQUEST_MODIFY_ENTITY:
+		case ECS_REQUEST_MODIFY_ENTITY: {
 			Entity* cpy = (Entity*)ev->generic_pointer;
 			Entity* get = GetEntity(cpy->id);
 			if (get == nullptr) { EV_SEND_UINT64(ECS_REQUEST_DELETE_ENTITY, cpy->id); }
 			else { *GetEntity(cpy->id) = *cpy; }
 			continue;
+		}
+		case ECS_ADD_COMPONENT: {
+			Entity* e = GetEntity(ev->uint64_pair[0]);
+			Component* c = AddComponent<Component>(e->id, (ComponentTypes)ev->uint64_pair[1]);
+			e->AddComponent(c->id);
+			continue;
+		}
 		}
 	}
 }

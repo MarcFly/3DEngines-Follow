@@ -19,7 +19,10 @@ struct ComponentID {
 
 struct Component {
 	ComponentID id;
+	bool active = true;
 	uint32_t version = 0;
+
+	virtual void DrawInspector() {};
 };
 
 // Entities can modify components
@@ -32,30 +35,43 @@ struct Entity {
 	std::vector<uint64_t> children;
 	char name[32] = "";
 	// If you want to cash them, create them per entity
+	void AddComponent(const ComponentID& cid) { components.push_back(cid); }
+
+	ComponentID GetComponent(ComponentTypes type) {
+		ComponentID ret;
+		ret.id = UINT64_MAX;
+		for (ComponentID& c : components) if (c.ctype == type) return c;
+		return ret;
+	}
 };
 
 // Systems don't care about init and close time
 // Only Runtime
 struct System {
 	ComponentTypes ctype;
-
-	System() {};
+	virtual const std::vector<ComponentTypes> GetVecCTYPES() { return std::vector<ComponentTypes>(); }
+	
+	System(const ComponentTypes _ctype) :ctype(_ctype) {};
 	virtual ~System() {}; // Destroy all the components held in the system!
 
 	virtual bool Init() { return true; }
 	virtual bool Start() { return true; }
 	virtual update_status PreUpdate(float dt) { return UPDATE_CONTINUE; }
 	virtual update_status Update(float dt) { return UPDATE_CONTINUE; }
-	virtual update_status PostUpdate(float dt) {return UPDATE_CONTINUE;}
+	virtual update_status PostUpdate(float dt) { return UPDATE_CONTINUE; }
 	virtual bool CleanUp() { return true; }
 
 	// Getters and Setters
 	virtual Component* AddC(const ComponentTypes ctype, const uint64_t eid) { return nullptr; }
+	virtual Component* AddCopyC(std::shared_ptr<Component> c) { return nullptr; }
 	// Allow ComponentID to be ref, so to update quick_ref overtime (slotmap would solve this)
-	virtual Component* GetCQuick(const uint32_t quick_ref) { return nullptr; } // Try and go directly with the id, check out of bounds
-	virtual Component* GetC(ComponentID& ctype) { return nullptr; }
+	virtual Component* GetCByRef(const ComponentID& cid) { return nullptr; } // Try and go directly with the id, check out of bounds
+	virtual Component* GetC(ComponentID& cid) { return nullptr; }
+	Component* GetComponent(ComponentID& cid) { Component* ret = GetCByRef(cid); if (ret == nullptr) ret = GetC(cid); return ret; }
 	virtual std::vector<Component*> GetCs(const ComponentTypes ctype) { return std::vector<Component*>(); }
 	virtual std::vector<Component*> GetCsFromEntity(const uint64_t eid, const ComponentTypes ctype) { return std::vector<Component*>(); }
+	
+	
 };
 
 class ModuleECS : public Module {
@@ -74,29 +90,42 @@ public:
 
 
 public:
-	void AddEntity(const uint64_t par_id) {
-		entities.push_back(new Entity());
-		entities.back()->parent = par_id;
+
+	void ReserveEntities(const uint64_t num_reserve) { entities.reserve(entities.capacity() + num_reserve); }
+
+	Entity* AddEntity(const uint64_t par_id) {
+		entities.push_back(Entity());
+		Entity& entity = entities.back();
+		entity.parent = par_id;
 		std::string temp = std::to_string(default_name++);
-		memcpy(entities.back()->name, temp.c_str(), temp.length());
+		memcpy(entity.name, temp.c_str(), temp.length());
 
 		if (par_id == UINT64_MAX)
-			base_entities.push_back(entities.back()->id);
-		else
-			GetEntity(par_id)->children.push_back(entities.back()->id);
+			base_entities.push_back(entities.back().id);
+		else {
+			Entity* p_entity = GetEntity(par_id);
+			p_entity->children.push_back(entity.id);
+		}
+		return &entity;
+	}
+
+	Entity* AddEntityCopy(const Entity e) {
+		Entity* ret = AddEntity(e.parent);
+		*ret = e;
+		return ret;
 	}
 
 	void DeleteEntity(const uint64_t eid) {
 		int i;
 		for (i = 0; i < entities.size(); ++i) {
-			if (entities[i]->id == eid) {
-				for (auto cid : entities[i]->children) {
+			if (entities[i].id == eid) {
+				for (auto cid : entities[i].children) {
 					DeleteEntity(cid);
 				}
 				// TODO: Delete Components
 
 				// Delete From Base Entities before deleting entity
-				if (entities[i]->parent == UINT64_MAX) {
+				if (entities[i].parent == UINT64_MAX) {
 					std::vector<uint64_t> swapvec;
 					swapvec.reserve(base_entities.size());
 					for (int j = 0; j < base_entities.size(); j++) {
@@ -106,7 +135,7 @@ public:
 					base_entities.swap(swapvec);
 				}
 
-				Entity* pe = GetEntity(entities[i]->parent);
+				Entity* pe = GetEntity(entities[i].parent);
 				if (pe != nullptr) 
 				{
 					std::vector<uint64_t> swapvec;
@@ -127,29 +156,50 @@ public:
 	}
 
 	Entity* GetEntity(const uint64_t eid) {
-		for (auto e : entities) if (e->id == eid) return e;
+		for (auto& e : entities) if (e.id == eid) return &e;
 		return nullptr;
 	}
 
-	inline System* GetSystemOfType(const ComponentTypes ctype) { for (auto it : systems) { if (it->ctype == ctype) return it; } return nullptr; }
+	inline System* GetSystemOfType(const ComponentTypes ctype) { 
+		for (auto it : systems) {
+			// First check main component
+			if (it->ctype == ctype)
+				return it;
+
+			// If the system holds multiple components...
+			const std::vector<ComponentTypes> ctypes = it->GetVecCTYPES();
+			for(ComponentTypes ct : ctypes)
+				if (ct == ctype) return it; 
+			
+		} 
+		return nullptr; 
+	}
 
 	template<class T>
 	T* AddComponent(const uint64_t eid, const ComponentTypes ctype) {
-		System* GetSystemOfType(ctype);
-		return T*(system->AddC(ctype, eid));
+		System* system = GetSystemOfType(ctype);
+		Component* ret = system->AddC(ctype, eid);
+		GetEntity(eid)->components.push_back(ret->id);
+		return (T*)ret;
+	}
+
+	Component* AddCopyComponent(const uint64_t eid, std::shared_ptr<Component> c) {
+		System* system = GetSystemOfType(c->id.ctype);
+		c->id.parent_id = eid;
+		Component* ret = system->AddCopyC(c);
+		GetEntity(eid)->components.push_back(ret->id);
+		return ret;
 	}
 
 	inline Component* GetComponentGeneric(ComponentID& ctype) {
 		System* sys = GetSystemOfType(ctype.ctype);
-		Component* ret = sys->GetCQuick(ctype.quick_ref);
-		if (ret == nullptr || ret->id.id != ctype.id)
-			ret = sys->GetC(ctype);
+		Component* ret = sys->GetComponent(ctype);
 		return ret;
 	}
 
 	template<class T>
 	inline T* GetComponent(ComponentID& ctype) {
-		return T * (GetComponentGeneric(ctype));
+		return (T*)GetComponentGeneric(ctype);
 	}
 	
 	template<class T>
@@ -164,7 +214,7 @@ public:
 	}
 
 public:
-	std::vector<Entity*> entities;
+	std::vector<Entity> entities;
 	std::vector<uint64_t> base_entities;
 	std::vector<System*> systems;
 

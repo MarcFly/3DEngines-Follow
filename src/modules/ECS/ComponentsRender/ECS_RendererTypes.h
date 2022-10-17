@@ -14,6 +14,6 @@ struct RenderGroup {
 };
 
 struct FullGroup {
-	std::vector<RenderGroup>* gl_state_groups;
-	std::vector<float4x4>* transforms;
+	std::vector<RenderGroup> gl_state_groups;
+	std::vector<float4x4> transforms;
 };

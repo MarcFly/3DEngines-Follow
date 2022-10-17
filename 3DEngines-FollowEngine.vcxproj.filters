@@ -103,8 +103,9 @@
     <ClCompile Include="src\modules\EngineUI\Windows\View\SceneView.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Entities\EntityHierarchy.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Inspector\ComponentInspector.cpp" />
-    <ClCompile Include="src\modules\EngineUI\Windows\Inspector\Inspectors\InspectMeshRenderer.cpp" />
-    <ClCompile Include="src\modules\EngineUI\Windows\Inspector\Inspectors\InspectorTransform.cpp" />
+    <ClCompile Include="src\modules\ECS\ComponentsRender\C_MeshRenderer.cpp" />
+    <ClCompile Include="src\modules\ECS\ComponentsMove\CTransform.cpp" />
+    <ClCompile Include="src\modules\ECS\ComponentsRender\S_MeshRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />

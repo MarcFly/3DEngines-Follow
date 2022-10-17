@@ -31,7 +31,7 @@ void ModuleRenderer3D::RenderGrid() const
 	SetOpenGLState(default_state);
 }
 
-void ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
+uint32_t ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
 {
 	GPUMesh push;
 	push.num_vtx = mesh->vertices.size();
@@ -58,6 +58,8 @@ void ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
 	push.material = mesh->material;
 
 	meshes.push_back(push);
+
+	return meshes.size() - 1;
 }
 
 void ModuleRenderer3D::UnloadMesh(GPUMesh& mesh) {
@@ -72,7 +74,7 @@ void ModuleRenderer3D::UnloadMesh(GPUMesh& mesh) {
 	mesh.vtx_id = mesh.norm_id = mesh.uvs_id = mesh.idx_id = 0;
 }
 
-void ModuleRenderer3D::LoadTexture(const Texture* tex)
+uint32_t ModuleRenderer3D::LoadTexture(const Texture* tex)
 {
 	GPUTex push;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -88,6 +90,7 @@ void ModuleRenderer3D::LoadTexture(const Texture* tex)
 	push.h = tex->h;
 
 	textures.push_back(push);
+	return textures.size() - 1;
 }
 
 void ModuleRenderer3D::UnloadTex(GPUTex& tex)
@@ -96,12 +99,13 @@ void ModuleRenderer3D::UnloadTex(GPUTex& tex)
 	tex.img_id = 0;
 }
 
-GPUMat ModuleRenderer3D::LoadMaterial(const Material* mat) {
+uint32_t ModuleRenderer3D::LoadMaterial(const Material* mat) {
 	GPUMat push;
 	push.mat = mat;
 
 	for (const TexRelation& tr : mat->textures) {
 		const Texture* tex = App->fs->RetrievePValue<Texture>(tr.tex_uid);
+		if (tex == nullptr) continue; // Assume direct load...
 		LoadTexture(App->fs->RetrievePValue<Texture>(tr.tex_uid));
 		TexRelation texp;
 		texp.tex_uid = textures.size() - 1;
@@ -109,7 +113,8 @@ GPUMat ModuleRenderer3D::LoadMaterial(const Material* mat) {
 		push.gpu_textures.push_back(texp);
 	}
 
-	return push;
+	materials.push_back(push);
+	return materials.size() - 1;
 }
 
 void ModuleRenderer3D::SetMeshMats() {

@@ -35,6 +35,8 @@ void SetOpenGLState(const OpenGLState& state) {
 ModuleRenderer3D::ModuleRenderer3D(bool start_enabled) : Module("renderer")
 {
 	grid_state.lighting = false;
+	states.push_back(default_state);
+	states.push_back(grid_state);
 }
 
 // Destructor
@@ -202,8 +204,8 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 	glColor3f(1., 1., 1.);
 
 	if (ecs_renderables != nullptr) {
-		for (int i = 0; i < ecs_renderables->gl_state_groups->size(); ++i) {
-			const RenderGroup& g = (*ecs_renderables->gl_state_groups)[i];
+		for (int i = 0; i < ecs_renderables->gl_state_groups.size(); ++i) {
+			const RenderGroup& g = ecs_renderables->gl_state_groups[i];
 			// Setup OpenGL state
 			SetOpenGLState(default_state);
 			for (int j = 0; j < g.materialgroups.size(); ++j) {
@@ -214,6 +216,10 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 					ecs_renderables->transforms[mg.world_matrices[k]];
 					// Draw Mesh
 					mg.meshes[k];
+					const float4x4& matx = ecs_renderables->transforms[mg.world_matrices[k]];
+					glPushMatrix();
+					glMultMatrixf(matx.Transposed().ptr());
+					glPopMatrix();
 				}
 			}
 		}
@@ -289,9 +295,8 @@ void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_ve
 				continue; }
 			case EventType::LOAD_MAT_TO_GPU: {
 				const Material* mat = App->fs->RetrievePValue<Material>(ev->uint64);
-				GPUMat m = LoadMaterial(mat);
+				GPUMat& m = materials[LoadMaterial(mat)];
 				m.disk_id.uid = ev->uint64;
-				materials.push_back(m);
 				continue; }
 			case EventType::FRAMEBUFFER_HIJACK: {
 				hijack_framebuffer = (GPUFBO*)ev->generic_pointer;

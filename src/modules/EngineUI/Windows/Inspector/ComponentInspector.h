@@ -18,8 +18,3 @@ struct ComponentInspector : UI_Item {
 	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
 	
 };
-
-bool InspectMeshRenderer(Component* c);
-bool InspectTransform(Component* c);
-
-typedef bool(InspectFun)(Component*);
