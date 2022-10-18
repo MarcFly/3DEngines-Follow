@@ -1,6 +1,8 @@
 #include "ComponentInspector.h"
 #include <src/Application.h>
 
+
+
 void ComponentInspector::Update() {
 	bool changes_happened = false;
 	ImGui::Begin(name.c_str(), &active);
@@ -16,8 +18,10 @@ void ComponentInspector::Update() {
 	ImGui::SameLine();
 	changes_happened |= ImGui::InputText("##EntityNameInspector", entity.name, sizeof(entity.name));
 	
+	static char button_id[64];
 	for (auto c : components) {
-		ImGui::Checkbox("##Button" + c->id.id, &c->active);
+		sprintf(button_id, "##Button%llu", c->id.id);
+		ImGui::Checkbox(button_id, &c->active);
 		ImGui::SameLine();		
 		c->DrawInspector();
 	}

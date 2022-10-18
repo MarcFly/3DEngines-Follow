@@ -44,7 +44,7 @@ void TraverseAiNodes(const aiScene* scene, const aiNode* node, const uint64_t pa
 	ctrans->local_mat.FromQuat(ctrans->rot);
 	ctrans->local_mat.Translate(ctrans->pos);
 	ctrans->local_mat.Scale(ctrans->scale);
-	
+	ctrans->valid_tree = false;
 	// Pointer is invalidated on a reserve...
 	// Can't multithread this...
 

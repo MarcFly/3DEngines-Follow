@@ -234,12 +234,12 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 
 					const float4x4& matx = ecs_renderables->transforms[mg.world_matrices[k]];
 					// TODO: Repair transform tree...
-					//glPushMatrix();
-					//glMultMatrixf(matx.Transposed().ptr());
+					glPushMatrix();
+					glMultMatrixf(matx.Transposed().ptr());
 
 					glDrawElements(GL_TRIANGLES, m.num_idx, GL_UNSIGNED_INT, nullptr);
 
-					//glPopMatrix();
+					glPopMatrix();
 				}
 			}
 		}

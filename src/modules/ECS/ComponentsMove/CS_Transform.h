@@ -67,32 +67,33 @@ struct S_Transform : public System {
 		std::vector<float4x4> cache;
 		while ((e = App->ecs->GetEntity(t.id.parent_id)) != nullptr) {
 			const C_Transform* cid = (C_Transform*)GetComponent(e->GetComponent(CT_Transform));
-			if (cid != nullptr) { 
+			if (cid != nullptr) {
 				t.transform_tree.push_back(cid->id.quick_ref);
 				cache.push_back(cid->local_mat);
 			}
 		}
-		if (cache.size() != 0) {
-			t.world_mat = cache[cache.size() - 1];
-			for (int i = cache.size() - 2; i > -1; --i)
-				t.world_mat = t.world_mat * cache[i];
-			t.world_mat = t.world_mat * t.local_mat;
-		}
+		
+		t.world_mat = t.local_mat;
+		for (int i = 0; i < cache.size(); ++i)
+			t.world_mat = cache[i].Mul(t.world_mat);
+		
 		t.valid_tree = true;
 	}
 
 	update_status PreUpdate(float dt) {
 		std::vector<float4x4> cache;
 		for (C_Transform& t : transforms) {
+			if (!t.valid_tree) {
+				CreateTransformTree(t);
+				continue;
+			}
+
 			cache.clear();
 			for (uint32_t ref : t.transform_tree) cache.push_back(transforms[ref].local_mat);
 
-			while (cache.size() > 0) {
-				t.world_mat = cache[cache.size() - 1];
-				for (int i = cache.size() - 2; i > -1; --i)
-					t.world_mat = t.world_mat * cache[i];
-				t.world_mat = t.world_mat * t.local_mat;
-			}
+			t.world_mat = t.local_mat;
+			for (int i = 0; i < cache.size(); ++i)
+				t.world_mat = cache[i].Mul( t.world_mat);
 		}
 
 

@@ -89,6 +89,8 @@ update_status S_MeshRenderer::PreUpdate(float dt) {
 
 	// TODO: Change this to be recreated only when there are changes		
 	// Should not be called per frame, only push and pop operations!
+	send.transforms.clear();
+	recache = true;
 	CacheGroups();
 
 	return UPDATE_CONTINUE;

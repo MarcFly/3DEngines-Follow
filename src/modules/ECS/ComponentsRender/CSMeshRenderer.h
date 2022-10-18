@@ -15,7 +15,7 @@ struct C_MeshRenderer : public Component {
 	uint32_t material;
 	bool cached_group = false;
 
-	float4x4 local;
+	float4x4 local = float4x4::identity;
 	ComponentID associated_transform;
 	uint32_t cached_wm = UINT32_MAX;
 
