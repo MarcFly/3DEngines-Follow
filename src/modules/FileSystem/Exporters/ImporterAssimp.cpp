@@ -71,10 +71,6 @@ std::vector<WatchedData> ImportAssimpScene(const TempIfStream& file) {
 		curr.load_event_type = LOAD_MESH_TO_GPU;
 		curr.uid = PCGRand();
 		meshes.push_back(curr);
-
-		// Temporarly load it
-		uint32_t mesh_ref = App->renderer3D->LoadMesh(m);
-		mesh_refs.push_back(mesh_ref);
 	}
 
 	// This will not be created directly in thend, will create prefab that you can instantiate
