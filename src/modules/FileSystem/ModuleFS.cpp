@@ -1,4 +1,5 @@
 #include "ModuleFS.h"
+#include "Importers.h"
 #include <src/Application.h>
 
 #include <DevIL/include/IL/il.h>
@@ -8,7 +9,7 @@
 
 bool ModuleFS::Init()
 {
-	AssimpInit();
+	InitImporters();
 
 	jsons.push_back(json_parse_file("config.json"));
 	if (jsons[0] == NULL)
@@ -67,7 +68,7 @@ bool ModuleFS::CleanUp() {
 		data.pd.data = nullptr;
 	}
 
-	AssimpCleanUp();
+	CleanUpImporters();
 
 	return true;
 }
@@ -77,15 +78,20 @@ bool ModuleFS::CleanUp() {
 // TODO: Send the base filepath from which a scene/mesh was loaded!
 // That is so that subdata that depends on knowing that can be loaded
 
-#include "Exporters.h"
-std::vector<WatchedData> TryLoadFromDisk(const char* path) {
+#include "Importers.h"
+std::vector<WatchedData> TryLoadFromDisk(const char* path, const char* parent_path) {
 	std::vector<WatchedData> ret;
 	TempIfStream file(path);
-	if (file.GetData().size == 0) return ret;
+	if (file.GetData().size == 0) {
+		if (parent_path == nullptr) return ret;
+		// Try finding the file base path, find data in that base path
+		
+		return ret;
+	}
 
 	ret = TryImport(file, path);
-	if(ret.size == 0)
-		ret = TryExport(file, path);
+	//if(ret.size() == 0)
+	//	ret = TryExport(file, path);
 		
 	return ret;
 }

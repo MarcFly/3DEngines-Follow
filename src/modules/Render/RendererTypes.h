@@ -52,6 +52,7 @@ struct GPUMesh {
 struct Texture {
 	char* bytes;
 	uint32_t size;
+	uint32_t disksize;
 	uint32_t w, h;
 	uint32_t format;
 	uint32_t unit_size;

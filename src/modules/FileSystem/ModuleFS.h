@@ -41,5 +41,5 @@ private:
 	std::vector<WatchedData> allocs;
 };
 
-std::vector<WatchedData> TryLoadFromDisk(const char* path);
+std::vector<WatchedData> TryLoadFromDisk(const char* path, const char* parent_path = nullptr);
 bool WriteToDisk(const char* file_path, char* data, uint64_t size);

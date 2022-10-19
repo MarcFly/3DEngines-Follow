@@ -1,4 +1,4 @@
-#include "../Exporters.h"
+#include "../Importers.h"
 #include <libs/assimp/cimport.h>
 #include <libs/assimp/postprocess.h>
 #include <libs/assimp/scene.h>
@@ -7,10 +7,10 @@
 #include <src/modules/Render/RendererTypes.h>
 #include <src/Application.h>
 
-// Components for the importers, not exporters
+// Components for the exporters, not importers
 #include <src/modules/ECS/ComponentsIncludeAll.h>
-std::vector<uint32_t> mesh_refs;
-std::vector<uint32_t> material_refs;
+std::vector<uint64_t> mesh_refs;
+std::vector<uint64_t> material_refs;
 
 void TraverseAiNodes(const aiScene* scene, const aiNode* node, const uint64_t parent_id) {
 	Entity* get = App->ecs->AddEntity(parent_id);
@@ -34,36 +34,30 @@ void TraverseAiNodes(const aiScene* scene, const aiNode* node, const uint64_t pa
 		cmesh->gl_state = 0; // Set Default
 		cmesh->associated_transform = ctrans->id;
 	}
-	const uint64_t eid = get->id; // Avoid fucking up the pointers...
+	const uint64_t eid = get->id;
 	for (int i = 0; i < node->mNumChildren; ++i)
 		TraverseAiNodes(scene, node->mChildren[i], eid);
 }
 
-std::vector<WatchedData> ExportAssimpScene(const PlainData& data) {
+std::vector<WatchedData> ImportAssimpScene(const TempIfStream& file) {
 	std::vector<WatchedData> ret;
 
+	const PlainData& data = file.GetData();
 	const aiScene* aiscene = aiImportFileFromMemory(data.data, data.size, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_Triangulate, nullptr);
 	
+	const char* parent_path_fw = strrchr(file.path.c_str(), '/');
+	const char* parent_path_bw = strrchr(file.path.c_str(), '\\');
+	const char* parent_path = (parent_path_fw == nullptr) ? parent_path_bw : parent_path_fw;
+
 	WatchedData curr;
 	
 	std::vector<WatchedData> mats;
 	std::vector<uint64_t> mats_uids;
 	for (int i = 0; i < aiscene->mNumMaterials; ++i) {
 		const aiMaterial* aimat = aiscene->mMaterials[i];
-		std::vector<WatchedData> mat_texs = ExportAssimpMaterial(aimat);
+		std::vector<WatchedData> mat_texs = ImportAssimpMaterial(aimat, parent_path);
 		mats_uids.push_back(mat_texs.back().uid);
-		std::vector<uint32_t> texrefs;
-		for (int i = 0; i < mat_texs.size() - 1; ++i)
-			texrefs.push_back(App->renderer3D->LoadTexture((Texture*)mat_texs[i].pd.data));
-		uint32_t mat_ref = App->renderer3D->LoadMaterial((Material*)mat_texs[mat_texs.size() - 1].pd.data);
-		for (int i = 0; i < texrefs.size(); ++i) {
-			TexRelation rel;
-			rel.tex_uid = texrefs[i];
-			App->renderer3D->materials[mat_ref].gpu_textures.push_back(rel);
-		}
-		material_refs.push_back(mat_ref);
 		AppendVec(mats, mat_texs);
-
 	}
 	
 	std::vector<Entity*> entities;
@@ -71,10 +65,10 @@ std::vector<WatchedData> ExportAssimpScene(const PlainData& data) {
 	
 	for (int i = 0; i < aiscene->mNumMeshes; ++i) {
 		const aiMesh* aimesh = aiscene->mMeshes[i];
-		curr.pd = ExportAssimpMesh(aimesh);
+		curr.pd = ImportAssimpMesh(aimesh);
 		NIMesh* m = (NIMesh*)curr.pd.data;
 		m->material.uid = mats_uids[m->material.uid];
-		curr.event_type = LOAD_MESH_TO_GPU;
+		curr.load_event_type = LOAD_MESH_TO_GPU;
 		curr.uid = PCGRand();
 		meshes.push_back(curr);
 

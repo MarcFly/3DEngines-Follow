@@ -1,4 +1,4 @@
-#include "Exporters.h"
+#include "Importers.h"
 
 // Assimp
 #include <libs/assimp/cimport.h>
@@ -9,33 +9,27 @@
 
 struct aiLogStream stream;
 
-bool InitExporters() {
+bool InitImporters() {
 	stream = aiGetPredefinedLogStream(aiDefaultLogStream_DEBUGGER, nullptr);
 	aiAttachLogStream(&stream);
 
 	return true;
 }
 
-bool CleanUpExporters() {
+bool CleanUpImporters() {
 	aiDetachAllLogStreams();
-
+	return true;
 }
 
-std::vector<WatchedData> TryExport(TempIfStream& file, const char* path) {
+std::vector<WatchedData> TryImport(TempIfStream& file, const char* path) {
 	std::vector<WatchedData> ret;
 	const char* ext = strrchr(path, '.');
 
 	uint32_t tex_type = 0;
 	if (strcmp(ext, ".fbx") == 0 || strcmp(ext, ".FBX") == 0)
-		ret = ExportAssimpScene(file.GetData()); // Assimp Scene never saved to memory
-	else if ((tex_type = ExtensionToDevILType(ext)) != 0)
-	{
-		ret.push_back(WatchedData());
-		WatchedData& curr = ret.back();
-		curr.pd = ImportDevILTexture(file.GetData(), tex_type);
-		curr.event_type = LOAD_TEX_TO_GPU;
-		curr.uid = PCGRand();
-	}
+		ret = ImportAssimpScene(file); // Assimp Scene never saved to memory
+	else 
+		ret.push_back(TryImportTexture(path));
 
 	return ret;
 }

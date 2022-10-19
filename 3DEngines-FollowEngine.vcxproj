@@ -82,10 +82,10 @@
     <ClCompile Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\View\SceneView.cpp" />
     <ClCompile Include="src\modules\EventSystem\ModuleEventSystem.cpp" />
-    <ClCompile Include="src\modules\FileSystem\Exporters.cpp" />
-    <ClCompile Include="src\modules\FileSystem\Exporters\ExporterMesh.cpp" />
-    <ClCompile Include="src\modules\FileSystem\Exporters\ExporterAssimp.cpp" />
-    <ClCompile Include="src\modules\FileSystem\Exporters\ExporterMaterial.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Importers.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Exporters\ImporterMesh.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Exporters\ImporterAssimp.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Exporters\ImporterMaterial.cpp" />
     <ClCompile Include="src\modules\FileSystem\ModuleFS.cpp" />
     <ClCompile Include="src\modules\ModuleCamera3D.cpp" />
     <ClCompile Include="src\modules\ModuleInput.cpp" />
@@ -211,7 +211,6 @@
     <ClInclude Include="src\modules\EventSystem\Event.h" />
     <ClInclude Include="src\modules\EventSystem\ModuleEventSystem.h" />
     <ClInclude Include="src\modules\FileSystem\FSDataTypes.h" />
-    <ClInclude Include="src\modules\FileSystem\Exporters.h" />
     <ClInclude Include="src\modules\FileSystem\Importers.h" />
     <ClInclude Include="src\modules\FileSystem\ModuleFS.h" />
     <ClInclude Include="src\modules\Module.h" />

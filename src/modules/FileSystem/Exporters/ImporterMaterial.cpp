@@ -1,8 +1,8 @@
-#include "..\..\Importers.h"
+#include "../Importers.h"
 #include <DevIL/include/IL/il.h>
 #include <DevIL/include/IL/ilu.h>
 #include <src/modules/Render/RendererTypes.h>
-#include "../../ModuleFS.h"
+#include "../ModuleFS.h"
 
 uint32_t ExtensionToDevILType(const char* ext) {
 	uint32_t ret = 0;
@@ -18,16 +18,32 @@ uint32_t ExtensionToDevILType(const char* ext) {
 	return ret;
 }
 
+WatchedData TryImportTexture(const TempIfStream& file) {
+	WatchedData ret;
+	const char* ext = strrchr(file.path.c_str(), '.');
+	
+	ILenum tex_type = ExtensionToDevILType(ext);
+	if ( tex_type != 0) {
+		ret.pd = ImportDevILTexture(file.GetData(), tex_type);
+		ret.uid = PCGRand();
+		ret.str_len = file.path.length();
+		ret.path = new char[ret.str_len];
+		memcpy(ret.path, file.path.c_str(), ret.str_len);
+	}
+}
+
 PlainData ImportDevILTexture(const PlainData& pd, uint32_t tex_type) {
 	PlainData ret;
-
-	Texture* tex = new Texture();
-	SetPlainData(ret, tex, sizeof(Texture));
-
+	
 	ILuint id_img = ilGenImage();
 	ilBindImage(id_img);
 	bool success = ilLoadL(tex_type, pd.data, pd.size);
+	
 	if (success && ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE)) {
+		
+		Texture* tex = new Texture();
+		SetPlainData(ret, tex, sizeof(Texture));
+		
 		ILinfo info;
 		iluGetImageInfo(&info);
 		//if (info.Origin != IL_ORIGIN_UPPER_LEFT) 
@@ -39,8 +55,9 @@ PlainData ImportDevILTexture(const PlainData& pd, uint32_t tex_type) {
 		tex->bytes = new char[tex->size];
 		
 		tex->w = info.Width;
-		tex->h = info.Height;
-		memcpy(tex->bytes, ilGetData(), tex->size);
+		tex->h = info.Height;		
+
+		tex->disksize = ilSaveL(IL_DDS, tex->bytes, tex->size);
 	}
 
 	ilDeleteImage(id_img);
@@ -48,7 +65,7 @@ PlainData ImportDevILTexture(const PlainData& pd, uint32_t tex_type) {
 	return ret;
 }
 
-std::vector<WatchedData> ExportAssimpMaterial(const aiMaterial* aimat) {
+std::vector<WatchedData> ImportAssimpMaterial(const aiMaterial* aimat, const char* parent_path) {
 	std::vector<WatchedData> ret;
 	Material* mat = new Material();
 
@@ -57,9 +74,9 @@ std::vector<WatchedData> ExportAssimpMaterial(const aiMaterial* aimat) {
 		aiString path;
 		aimat->GetTexture(aiTextureType_DIFFUSE, i, &path);
 		// TODO: Set the path to the relative path of the scene!
-		AppendVec(ret, TryLoadFromDisk(path.C_Str()));
+		AppendVec(ret, TryLoadFromDisk(path.C_Str(), parent_path));
 		ret.back().uid = PCGRand();
-		ret.back().event_type = 0; // UNSET eventtype, so Material asks to load textures
+		ret.back().load_event_type = 0; // UNSET eventtype, so Material asks to load textures
 		mat->textures.push_back(TexRelation());
 		mat->textures.back().tex_uid = ret.back().uid;
 		mat->textures.back().type = aiTextureType_DIFFUSE;

@@ -1,6 +1,13 @@
 #pragma once
 #include <stdint.h>
 
+struct DiskFile {
+	virtual PlainData LoadPlainData(const TempIfStream& file) = 0;
+	virtual uint64_t LoadMem(const PlainData& data) = 0;
+	virtual bool UnloadMem(uint64_t ) = 0;
+	virtual PlainData WritableFile() = 0;
+};
+
 struct PlainData {
 	char* data = nullptr;
 	uint64_t size = 0;	
@@ -33,7 +40,8 @@ struct WatchedData {
 	uint16_t str_len;
 	char* path;
 
-	uint32_t event_type = 0; // No Event
+	uint32_t load_event_type = 0; // No Event
+	uint32_t unload_event_type = 0;
 };
 
 struct KeyPosPair {
@@ -44,7 +52,8 @@ struct KeyPosPair {
 #include <fstream>
 class TempIfStream {
 public:
-	TempIfStream(const char* path) {
+	TempIfStream(const char* _path) {
+		path = std::string(_path);
 		if(pd.data != nullptr) this->~TempIfStream();
 		stream.open(path, std::ifstream::binary);
 		if (!stream.fail()) {
@@ -54,11 +63,14 @@ public:
 			pd.data = new char[pd.size + 1];
 			stream.read((char*)pd.data, pd.size);
 		}
+		
 	};
 	~TempIfStream() { stream.close(); delete[] pd.data; pd.data = nullptr; }
 	
 	const PlainData& GetData() const { return pd; }
+	
+	std::string path;
 private:
 	std::ifstream stream;
-	PlainData pd;
+	PlainData pd;	
 };

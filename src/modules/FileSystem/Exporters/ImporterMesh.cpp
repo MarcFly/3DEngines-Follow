@@ -1,6 +1,8 @@
-#include "../../Importers.h"
+#include "../Importers.h"
 
-PlainData ExportAssimpMesh(const aiMesh* aimesh) {
+// 
+
+PlainData ImportAssimpMesh(const aiMesh* aimesh) {
 	PlainData ret;
 	NIMesh* mesh = new NIMesh();
 
