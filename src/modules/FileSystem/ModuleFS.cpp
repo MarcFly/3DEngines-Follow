@@ -77,23 +77,16 @@ bool ModuleFS::CleanUp() {
 // TODO: Send the base filepath from which a scene/mesh was loaded!
 // That is so that subdata that depends on knowing that can be loaded
 
+#include "Exporters.h"
 std::vector<WatchedData> TryLoadFromDisk(const char* path) {
 	std::vector<WatchedData> ret;
 	TempIfStream file(path);
 	if (file.GetData().size == 0) return ret;
 
-	const char* ext = strrchr(path, '.');
-	uint32_t tex_type = 0;
-	if (strcmp(ext, ".fbx") == 0 || strcmp(ext, ".FBX") == 0)
-		ret = ExportAssimpScene(file.GetData()); // Assimp Scene never saved to memory
-	if ((tex_type = ExtensionToDevILType(ext)) != 0)
-	{
-		ret.push_back(WatchedData());
-		WatchedData& curr = ret.back();
-		curr.pd = ImportDevILTexture(file.GetData(), tex_type);
-		curr.event_type = LOAD_TEX_TO_GPU;
-		curr.uid = PCGRand();
-	}
+	ret = TryImport(file, path);
+	if(ret.size == 0)
+		ret = TryExport(file, path);
+		
 	return ret;
 }
 

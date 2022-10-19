@@ -1,31 +1,14 @@
-#include "../Importers.h"
+#include "../Exporters.h"
 #include <libs/assimp/cimport.h>
 #include <libs/assimp/postprocess.h>
 #include <libs/assimp/scene.h>
-#include <libs/assimp/LogStream.hpp>
-
-#pragma comment(lib, "libs/Assimp/libx86/assimp-vc142-mt.lib")
-
-struct aiLogStream stream;
-
-bool AssimpInit() {
-	stream = aiGetPredefinedLogStream(aiDefaultLogStream_DEBUGGER, nullptr);
-	aiAttachLogStream(&stream);
-
-	return true;
-}
-
-bool AssimpCleanUp() {
-	aiDetachAllLogStreams();
-	return true;
-}
 
 #include <fstream>
-#include <src/helpers/pcg/pcg_basic.h>
 #include <src/modules/Render/RendererTypes.h>
 #include <src/Application.h>
-#include <src/modules/ECS/ComponentsIncludeAll.h>
 
+// Components for the importers, not exporters
+#include <src/modules/ECS/ComponentsIncludeAll.h>
 std::vector<uint32_t> mesh_refs;
 std::vector<uint32_t> material_refs;
 
@@ -41,12 +24,8 @@ void TraverseAiNodes(const aiScene* scene, const aiNode* node, const uint64_t pa
 	ctrans->rot = Quat(r.x, r.y, r.z, r.w);
 	ctrans->scale = float3(s.x, s.y, s.z);
 	ctrans->pos = float3(t.x, t.y, t.z);
-	ctrans->local_mat.FromQuat(ctrans->rot);
-	ctrans->local_mat.Translate(ctrans->pos);
-	ctrans->local_mat.Scale(ctrans->scale);
+	ctrans->local_mat = float4x4::FromTRS(ctrans->pos, ctrans->rot, ctrans->scale);
 	ctrans->valid_tree = false;
-	// Pointer is invalidated on a reserve...
-	// Can't multithread this...
 
 	for (int i = 0; i < node->mNumMeshes; ++i) {
 		C_MeshRenderer* cmesh = App->ecs->AddComponent<C_MeshRenderer>(get->id, CT_MeshRenderer);
