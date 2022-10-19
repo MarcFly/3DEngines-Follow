@@ -25,10 +25,10 @@ void S_MeshRenderer::CacheGroups() {
 	for (int i = 0; i < renderers.size(); ++i) {
 		const C_Transform* get = App->ecs->GetComponent<C_Transform>(renderers[i].associated_transform);
 		if (recache || renderers[i].cached_wm == UINT32_MAX) {
-			send.transforms.emplace_back(get->world_mat);
+			send.transforms.emplace_back(get->world_mat * get->local_mat);
 			renderers[i].cached_wm = send.transforms.size() - 1;
 		}
-		send.transforms[renderers[i].cached_wm] = get->world_mat * renderers[i].local;
+		send.transforms[renderers[i].cached_wm] = send.transforms[renderers[i].cached_wm] * renderers[i].local;
 
 		if (!recache && renderers[i].cached_group) continue;
 		//if (renderers[i].cached_wm == UINT32_MAX) {

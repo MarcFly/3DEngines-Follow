@@ -60,8 +60,7 @@ void ModuleECS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 		switch (ev->type) {
 		case ECS_REQUEST_NEW_ENTITY: {
 			Entity* e = AddEntity(ev->uint64);
-			Component* c = AddComponent<C_Transform>(e->id, CT_Transform);
-			e->AddComponent(c->id);
+			AddComponent<C_Transform>(e->id, CT_Transform);
 			continue;
 		}
 		case ECS_REQUEST_DELETE_ENTITY:

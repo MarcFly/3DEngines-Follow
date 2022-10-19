@@ -51,8 +51,10 @@ void EntityHierarchyWindow::UpdateEntry(const uint64_t eid) {
 void EntityHierarchyWindow::Update() {
 	
 	ImGui::Begin(name.c_str(), &active);
-    if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !CheckModifiers())
+    if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !CheckModifiers()) {
         selected.clear();
+        EV_SEND_UINT64(HIERARCHY_SELECTED_ENTITY, UINT64_MAX);
+    }
 
     for (auto eid : App->ecs->base_entities)
         UpdateEntry(eid);

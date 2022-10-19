@@ -18,6 +18,7 @@ void ComponentInspector::Update() {
 	ImGui::SameLine();
 	changes_happened |= ImGui::InputText("##EntityNameInspector", entity.name, sizeof(entity.name));
 	
+	GetComponentsFromEntity();
 	static char button_id[64];
 	for (auto c : components) {
 		sprintf(button_id, "##Button%llu", c->id.id);
@@ -38,9 +39,11 @@ void ComponentInspector::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_
 		switch (ev->type) {
 		case HIERARCHY_SELECTED_ENTITY: {
 			check_entity = ev->uint64;
-			entity = *App->ecs->GetEntity(check_entity);
-			GetComponentsFromEntity();
-			entity_id_str = "##" + std::to_string(check_entity);
+			Entity* e = App->ecs->GetEntity(check_entity);
+			if (e != nullptr) {
+				entity = *e;
+				entity_id_str = "##" + std::to_string(check_entity);
+			}
 			continue;
 		}
 		case ECS_REQUEST_DELETE_ENTITY: {

@@ -6,14 +6,15 @@
 
 struct C_Transform : public Component {
 	C_Transform() { id.ctype = CT_Transform; id.id = PCGRand(); }
-	float4x4 world_mat;
-	float4x4 local_mat;
+	bool is_static = false;
+	float4x4 world_mat = float4x4::identity;
+	float4x4 local_mat = float4x4::identity;
 
 	float3 pos;
 	float3 scale;
 	Quat rot;
 
-	std::vector<uint32_t> transform_tree;
+	std::vector<ComponentID> transform_tree;
 	bool valid_tree = false;
 
 	void DrawInspector();
@@ -35,10 +36,23 @@ struct S_Transform : public System {
 		return (Component*)&t;
 	}
 
-	void AddToDeleteQ(const ComponentID& cid) { to_delete.push_back(cid); }
+	void AddToDeleteQ(const ComponentID& cid) { 
+		to_delete.push_back(cid); 
+	}
+
+	inline void InvalidateChildren(const uint64_t invalid_id) {
+		for (C_Transform& t : transforms) {
+			for (ComponentID& id : t.transform_tree)
+				if (id.id == invalid_id){
+					t.valid_tree = false;
+					break;
+				}
+		}
+	}
 
 	void DeleteComponent(const ComponentID& cid) {
 		ComponentID temp = cid;
+		InvalidateChildren(cid.id);
 		C_Transform* ctrans = (C_Transform*)GetC(temp);
 		*ctrans = transforms[transforms.size() - 1];
 		transforms.pop_back();
@@ -62,18 +76,20 @@ struct S_Transform : public System {
 	}
 
 	void CreateTransformTree(C_Transform& t) {
-		Entity* e = nullptr;
+		Entity* e = App->ecs->GetEntity(t.id.parent_id);
 		t.world_mat = float4x4::identity;
 		std::vector<float4x4> cache;
-		while ((e = App->ecs->GetEntity(t.id.parent_id)) != nullptr) {
+		uint64_t next_pid = e->parent;
+		while ((e = App->ecs->GetEntity(next_pid)) != nullptr) {
 			const C_Transform* cid = (C_Transform*)GetComponent(e->GetComponent(CT_Transform));
 			if (cid != nullptr) {
-				t.transform_tree.push_back(cid->id.quick_ref);
+				t.transform_tree.push_back(cid->id);
 				cache.push_back(cid->local_mat);
+				next_pid = e->parent;
 			}
 		}
 		
-		t.world_mat = t.local_mat;
+		t.world_mat = float4x4::identity;
 		for (int i = 0; i < cache.size(); ++i)
 			t.world_mat = cache[i].Mul(t.world_mat);
 		
@@ -83,17 +99,23 @@ struct S_Transform : public System {
 	update_status PreUpdate(float dt) {
 		std::vector<float4x4> cache;
 		for (C_Transform& t : transforms) {
+			if (t.is_static) continue;
 			if (!t.valid_tree) {
 				CreateTransformTree(t);
 				continue;
 			}
 
 			cache.clear();
-			for (uint32_t ref : t.transform_tree) cache.push_back(transforms[ref].local_mat);
+			C_Transform* curr = nullptr;
+			for (ComponentID ref : t.transform_tree) {
+				curr = (C_Transform*)GetComponent(ref);
+				if (curr == nullptr) to_delete.push_back(ref);
+				else cache.push_back(curr->local_mat);
+			}
 
-			t.world_mat = t.local_mat;
+			t.world_mat = float4x4::identity;
 			for (int i = 0; i < cache.size(); ++i)
-				t.world_mat = cache[i].Mul( t.world_mat);
+				t.world_mat = cache[i].Mul(t.world_mat);
 		}
 
 

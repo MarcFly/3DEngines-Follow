@@ -13,7 +13,7 @@ enum ComponentTypes {
 struct ComponentID {
 	ComponentTypes ctype;
 	uint64_t id = PCGRand();
-	uint32_t parent_id = UINT32_MAX;
+	uint64_t parent_id = UINT64_MAX;
 	uint32_t quick_ref = UINT32_MAX;
 };
 
