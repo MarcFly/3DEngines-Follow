@@ -47,7 +47,6 @@
     <ClCompile Include="src\modules\EngineUI\MenuBar\MenuBar.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.cpp" />
     <ClCompile Include="src\modules\EventSystem\ModuleEventSystem.cpp" />
-    <ClCompile Include="src\modules\FileSystem\ModuleFS.cpp" />
     <ClCompile Include="src\helpers\JSON\parson.c" />
     <ClCompile Include="src\helpers\MathGeoLib\Algorithm\Random\LCG.cpp" />
     <ClCompile Include="src\helpers\MathGeoLib\Algorithm\GJK.cpp" />
@@ -107,6 +106,7 @@
     <ClCompile Include="src\modules\ECS\ComponentsMove\CTransform.cpp" />
     <ClCompile Include="src\modules\ECS\ComponentsRender\S_MeshRenderer.cpp" />
     <ClCompile Include="src\modules\FileSystem\Importers.cpp" />
+    <ClCompile Include="src\modules\FileSystem\ModuleFS.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -217,7 +217,6 @@
     <ClInclude Include="src\helpers\MathGeoLib\MathGeoLib.h" />
     <ClInclude Include="src\helpers\MathGeoLib\MathGeoLibFwd.h" />
     <ClInclude Include="src\modules\Render\Primitives\Primitives.h" />
-    <ClInclude Include="src\modules\FileSystem\Importers.h" />
     <ClInclude Include="src\modules\FileSystem\FSDataTypes.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.h" />
     <ClInclude Include="src\helpers\pcg\pcg_basic.h" />
@@ -233,6 +232,7 @@
     <ClInclude Include="src\modules\EngineUI\Windows\WindowsIncludeAll.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\Entities\EntityHierachy.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\Inspector\ComponentInspector.h" />
+    <ClInclude Include="src\modules\FileSystem\Importers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\helpers\MathGeoLib\Geometry\KDTree.inl" />

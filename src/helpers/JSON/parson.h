@@ -54,7 +54,8 @@ enum json_value_type {
     JSONNumber  = 3,
     JSONObject  = 4,
     JSONArray   = 5,
-    JSONBoolean = 6
+    JSONBoolean = 6,
+    JSONU64 = 7
 };
 typedef int JSON_Value_Type;
 
@@ -166,6 +167,7 @@ JSON_Status json_object_set_value(JSON_Object *object, const char *name, JSON_Va
 JSON_Status json_object_set_string(JSON_Object *object, const char *name, const char *string);
 JSON_Status json_object_set_string_with_len(JSON_Object *object, const char *name, const char *string, size_t len);  /* length shouldn't include last null character */
 JSON_Status json_object_set_number(JSON_Object *object, const char *name, double number);
+JSON_Status json_object_set_u64(JSON_Object* object, const char* name, unsigned long long number);
 JSON_Status json_object_set_boolean(JSON_Object *object, const char *name, int boolean);
 JSON_Status json_object_set_null(JSON_Object *object, const char *name);
 
@@ -222,6 +224,7 @@ JSON_Status json_array_clear(JSON_Array *array);
 JSON_Status json_array_append_value(JSON_Array *array, JSON_Value *value);
 JSON_Status json_array_append_string(JSON_Array *array, const char *string);
 JSON_Status json_array_append_string_with_len(JSON_Array *array, const char *string, size_t len); /* length shouldn't include last null character */
+JSON_Status json_array_append_u64(JSON_Array* array, unsigned long long number);
 JSON_Status json_array_append_number(JSON_Array *array, double number);
 JSON_Status json_array_append_boolean(JSON_Array *array, int boolean);
 JSON_Status json_array_append_null(JSON_Array *array);
@@ -245,6 +248,7 @@ JSON_Array  *   json_value_get_array  (const JSON_Value *value);
 const char  *   json_value_get_string (const JSON_Value *value);
 size_t          json_value_get_string_len(const JSON_Value *value); /* doesn't account for last null character */
 double          json_value_get_number (const JSON_Value *value);
+unsigned long long json_value_get_u64(const JSON_Value* value);
 int             json_value_get_boolean(const JSON_Value *value);
 JSON_Value  *   json_value_get_parent (const JSON_Value *value);
 

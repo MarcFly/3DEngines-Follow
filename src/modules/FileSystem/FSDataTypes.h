@@ -1,13 +1,6 @@
 #pragma once
 #include <stdint.h>
 
-struct DiskFile {
-	virtual PlainData LoadPlainData(const TempIfStream& file) = 0;
-	virtual uint64_t LoadMem(const PlainData& data) = 0;
-	virtual bool UnloadMem(uint64_t ) = 0;
-	virtual PlainData WritableFile() = 0;
-};
-
 struct PlainData {
 	char* data = nullptr;
 	uint64_t size = 0;	
@@ -26,8 +19,9 @@ inline void AppendVec(std::vector<T>& vec_receiver, std::vector<T>& vec_append) 
 	vec_append.clear();
 }
 
+#include <src/helpers/Globals.h>
 struct WatchedData {
-	uint64_t uid = UINT64_MAX;
+	uint64_t uid = PCGRand();
 	PlainData pd;
 	uint32_t users = 0;
 	bool loaded = false;
@@ -38,7 +32,7 @@ struct WatchedData {
 
 	double last_check_ts = 0;
 	uint16_t str_len;
-	char* path;
+	char* path = nullptr;
 
 	uint32_t load_event_type = 0; // No Event
 	uint32_t unload_event_type = 0;
@@ -50,11 +44,17 @@ struct KeyPosPair {
 };
 
 #include <fstream>
+#include <string>
 class TempIfStream {
 public:
 	TempIfStream(const char* _path) {
+		TryLoad(_path);		
+	};
+	~TempIfStream() { stream.close(); delete[] pd.data; pd.data = nullptr; }
+	
+	void TryLoad(const char* _path) {
 		path = std::string(_path);
-		if(pd.data != nullptr) this->~TempIfStream();
+		if (pd.data != nullptr) this->~TempIfStream();
 		stream.open(path, std::ifstream::binary);
 		if (!stream.fail()) {
 			stream.seekg(0, std::ios::end);
@@ -63,14 +63,20 @@ public:
 			pd.data = new char[pd.size + 1];
 			stream.read((char*)pd.data, pd.size);
 		}
-		
-	};
-	~TempIfStream() { stream.close(); delete[] pd.data; pd.data = nullptr; }
-	
+	}
+
 	const PlainData& GetData() const { return pd; }
 	
 	std::string path;
 private:
 	std::ifstream stream;
 	PlainData pd;	
+};
+
+
+struct DiskFile {
+	virtual PlainData LoadPlainData(const TempIfStream& file) { return PlainData(); }
+	virtual uint64_t LoadMem(const PlainData& data) { return UINT64_MAX; };
+	virtual bool UnloadMem(uint64_t) { return false; };
+	virtual PlainData WritableFile() { return PlainData(); };
 };

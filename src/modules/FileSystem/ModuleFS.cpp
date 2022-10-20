@@ -1,14 +1,33 @@
 #include "ModuleFS.h"
-#include "Importers.h"
 #include <src/Application.h>
+
+#include "Importers.h"
 
 #include <DevIL/include/IL/il.h>
 #include <DevIL/include/IL/ilu.h>
 #pragma comment(lib, "DevIL/libx86/DevIL.lib")
 #pragma comment(lib, "DevIL/libx86/ILU.lib")
 
+static char execpath[512];
+static size_t execpath_len;
+
+const char* ModuleFS::GetExecPath() { return execpath; }
+
 bool ModuleFS::Init()
 {
+	execpath_len = GetCurrentDirectory(512, execpath);
+	(*strrchr(execpath, '\\')) = '\0';
+
+	char temp[1024];
+	sprintf(temp, "mkdir -p %s\\Game\\Assets\\Prefabs", execpath);
+	system(temp);
+	sprintf(temp, "mkdir -p %s\\Game\\Assets\\Materials", execpath);
+	system(temp);
+	sprintf(temp, "mkdir -p %s\\Game\\Assets\\Textures", execpath);
+	system(temp);
+	sprintf(temp, "mkdir -p %s\\Game\\Assets\\Meshes", execpath);
+	system(temp);
+
 	InitImporters();
 
 	jsons.push_back(json_parse_file("config.json"));
@@ -78,18 +97,24 @@ bool ModuleFS::CleanUp() {
 // TODO: Send the base filepath from which a scene/mesh was loaded!
 // That is so that subdata that depends on knowing that can be loaded
 
-#include "Importers.h"
 std::vector<WatchedData> TryLoadFromDisk(const char* path, const char* parent_path) {
 	std::vector<WatchedData> ret;
 	TempIfStream file(path);
 	if (file.GetData().size == 0) {
 		if (parent_path == nullptr) return ret;
 		// Try finding the file base path, find data in that base path
-		
-		return ret;
+
+		file.path = parent_path + std::string(FileName(path));
+		file.TryLoad(file.path.c_str());
+		if(file.GetData().size == 0) return ret;
 	}
 
 	ret = TryImport(file, path);
+	if (ret.size() > 0) {
+		for (const WatchedData& imported : ret) {
+			WriteToDisk(imported.path, imported.pd.data, imported.pd.size);
+		}
+	}
 	//if(ret.size() == 0)
 	//	ret = TryExport(file, path);
 		
@@ -131,5 +156,3 @@ void ModuleFS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 	//unregistered.erase(unregistered.begin(), unregistered.end());
 	//unregistered.clear();
 }
-
-

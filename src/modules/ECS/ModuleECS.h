@@ -49,7 +49,7 @@ struct Entity {
 // Only Runtime
 struct System {
 	ComponentTypes ctype;
-	virtual const std::vector<ComponentTypes> GetVecCTYPES() { return std::vector<ComponentTypes>(); }
+	virtual const std::vector<ComponentTypes> GetVecCTYPES() const { std::vector<ComponentTypes> ret = { ctype }; return ret; }
 	
 	System(const ComponentTypes _ctype) :ctype(_ctype) {};
 	virtual ~System() {}; // Destroy all the components held in the system!
@@ -62,18 +62,19 @@ struct System {
 	virtual bool CleanUp() { return true; }
 
 	// Getters and Setters
+	virtual Component* CreateC(const ComponentTypes ctype) { assert(false); return nullptr; }
 	virtual Component* AddC(const ComponentTypes ctype, const uint64_t eid) { return nullptr; }
 	virtual Component* AddCopyC(std::shared_ptr<Component> c) { return nullptr; }
 	// Allow ComponentID to be ref, so to update quick_ref overtime (slotmap would solve this)
-	virtual void AddToDeleteQ(const ComponentID& cid) { assert(true); }
-	virtual void DeleteComponent(const ComponentID& cid) { assert(true /*Create the function*/); }
+	virtual void AddToDeleteQ(const ComponentID& cid) { assert(false); }
+	virtual void DeleteComponent(const ComponentID& cid) { assert(false /*Create the function*/); }
 	virtual Component* GetCByRef(const ComponentID& cid) { return nullptr; } // Try and go directly with the id, check out of bounds
 	virtual Component* GetC(ComponentID& cid) { return nullptr; }
 	Component* GetComponent(ComponentID& cid) { Component* ret = GetCByRef(cid); if (ret == nullptr) ret = GetC(cid); return ret; }
 	virtual std::vector<Component*> GetCs(const ComponentTypes ctype) { return std::vector<Component*>(); }
 	virtual std::vector<Component*> GetCsFromEntity(const uint64_t eid, const ComponentTypes ctype) { return std::vector<Component*>(); }
-	
-	
+	//PlainData SerializeComponent(Component* c) { assert(true); return PlainData(); }
+	void JSONSerializeComponents(JSON_Object* sys_obj) { assert(false); }
 };
 
 class ModuleECS : public Module {
@@ -185,6 +186,13 @@ public:
 	}
 
 	template<class T>
+	T* CreateComponent(const ComponentTypes ctype) {
+		System* system = GetSystemOfType(ctype);
+		Component* ret = System->CreateC(ctype);
+		return (T*)ret;
+	}
+
+	template<class T>
 	T* AddComponent(const uint64_t eid, const ComponentTypes ctype) {
 		System* system = GetSystemOfType(ctype);
 		Component* ret = system->AddC(ctype, eid);
@@ -221,6 +229,13 @@ public:
 		System* sys = GetSystemOfType(ctype);
 		return sys->GetCsFromEntity(eid, ctype);
 	}
+
+	JSON_Value* SerializePrefab(const uint64_t eid = UINT64_MAX);
+
+	//PlainData SerializeComponent(Component* c) {
+	//	System* sys = GetSystemOfType(c->id.ctype);
+	//	return sys->JSONSerializeComponent(c);
+	//}
 
 public:
 	std::vector<Entity> entities;

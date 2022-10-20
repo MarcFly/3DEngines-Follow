@@ -110,6 +110,7 @@ typedef struct json_string {
 typedef union json_value_value {
     JSON_String  string;
     double       number;
+    unsigned long long u64;
     JSON_Object *object;
     JSON_Array  *array;
     int          boolean;
@@ -1113,6 +1114,7 @@ static int json_serialize_to_buffer_r(const JSON_Value *value, char *buf, int le
     JSON_Object *object = NULL;
     size_t i = 0, count = 0;
     double num = 0.0;
+    unsigned long long u64 = 0;
     int written = -1, written_total = 0;
     size_t len = 0;
 
@@ -1230,6 +1232,20 @@ static int json_serialize_to_buffer_r(const JSON_Value *value, char *buf, int le
             } else {
                 written = sprintf(num_buf, PARSON_DEFAULT_FLOAT_FORMAT, num);
             }
+            if (written < 0) {
+                return -1;
+            }
+            if (buf != NULL) {
+                buf += written;
+            }
+            written_total += written;
+            return written_total;
+        case JSONU64:
+            u64 = json_value_get_u64(value);
+            if (buf != NULL) {
+                num_buf = buf;
+            }
+            written = sprintf(num_buf, "%llu", u64);
             if (written < 0) {
                 return -1;
             }
@@ -1561,6 +1577,10 @@ size_t json_value_get_string_len(const JSON_Value *value) {
     return str ? str->length : 0;
 }
 
+unsigned long long json_value_get_u64(const JSON_Value* value) {
+    return json_value_get_type(value) == JSONU64 ? value->value.u64 : 0;
+}
+
 double json_value_get_number(const JSON_Value *value) {
     return json_value_get_type(value) == JSONNumber ? value->value.number : 0;
 }
@@ -1645,6 +1665,18 @@ JSON_Value * json_value_init_string_with_len(const char *string, size_t length) 
         parson_free(copy);
     }
     return value;
+}
+
+JSON_Value* json_value_init_u64(unsigned long long number) {
+    JSON_Value* new_value = NULL;
+    new_value = (JSON_Value*)parson_malloc(sizeof(JSON_Value));
+    if (new_value == NULL) {
+        return NULL;
+    }
+    new_value->parent = NULL;
+    new_value->type = JSONU64;
+    new_value->value.u64 = number;
+    return new_value;
 }
 
 JSON_Value * json_value_init_number(double number) {
@@ -2022,6 +2054,18 @@ JSON_Status json_array_append_string_with_len(JSON_Array *array, const char *str
     return JSONSuccess;
 }
 
+JSON_Status json_array_append_u64(JSON_Array* array, unsigned long long number) {
+    JSON_Value* value = json_value_init_u64(number);
+    if (value == NULL) {
+        return JSONFailure;
+    }
+    if (json_array_append_value(array, value) != JSONSuccess) {
+        json_value_free(value);
+        return JSONFailure;
+    }
+    return JSONSuccess;
+}
+
 JSON_Status json_array_append_number(JSON_Array *array, double number) {
     JSON_Value *value = json_value_init_number(number);
     if (value == NULL) {
@@ -2116,6 +2160,13 @@ JSON_Status json_object_set_string_with_len(JSON_Object *object, const char *nam
     if (status != JSONSuccess) {
         json_value_free(value);
     }
+    return status;
+}
+
+JSON_Status json_object_set_u64(JSON_Object* object, const char* name, unsigned long long number) {
+    JSON_Value* value = json_value_init_u64(number);
+    JSON_Status status = json_object_set_value(object, name, value);
+    if (status != JSONSuccess) json_value_free(value);
     return status;
 }
 
@@ -2394,6 +2445,8 @@ int json_value_equals(const JSON_Value *a, const JSON_Value *b) {
             return json_value_get_boolean(a) == json_value_get_boolean(b);
         case JSONNumber:
             return fabs(json_value_get_number(a) - json_value_get_number(b)) < 0.000001; /* EPSILON */
+        case JSONU64:
+            return json_value_get_u64(a) - json_value_get_u64(b);
         case JSONError:
             return PARSON_TRUE;
         case JSONNull:

@@ -1,0 +1,52 @@
+{
+    "num_entities": 3,
+    "entities": [
+        {
+            "id": 15915911758200438784,
+            "pid": 18446744073709551615,
+            "name_len": 8,
+            "name": "RootNode",
+            "num_components": 1,
+            "components": [
+                1,
+                5720896189163896832
+            ],
+            "num_children": 2,
+            "children": [
+                1015372243489783808,
+                1703043829529051136
+            ]
+        },
+        {
+            "id": 1015372243489783808,
+            "pid": 15915911758200438784,
+            "name_len": 7,
+            "name": "Chimney",
+            "num_components": 2,
+            "components": [
+                1,
+                3920763898059292672,
+                0,
+                6688568822217048064
+            ],
+            "num_children": 0,
+            "children": []
+        },
+        {
+            "id": 1703043829529051136,
+            "pid": 15915911758200438784,
+            "name_len": 11,
+            "name": "Baker_house",
+            "num_components": 2,
+            "components": [
+                1,
+                7960655126459318272,
+                0,
+                12500126324980973568
+            ],
+            "num_children": 0,
+            "children": []
+        }
+    ],
+    "num_systems": 2
+}

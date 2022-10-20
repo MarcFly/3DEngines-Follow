@@ -22,14 +22,19 @@ WatchedData TryImportTexture(const TempIfStream& file) {
 	WatchedData ret;
 	const char* ext = strrchr(file.path.c_str(), '.');
 	
+	const char* filename = FileName(file.path.c_str());
+	size_t filename_len = strlen(filename);
+
 	ILenum tex_type = ExtensionToDevILType(ext);
 	if ( tex_type != 0) {
 		ret.pd = ImportDevILTexture(file.GetData(), tex_type);
 		ret.uid = PCGRand();
-		ret.str_len = file.path.length();
-		ret.path = new char[ret.str_len];
-		memcpy(ret.path, file.path.c_str(), ret.str_len);
+
+		ret.str_len = FitString(ret.path, "Assets/Textures/%s.dds", std::string(filename).substr(0, filename_len - 4).c_str());
+		ret.loaded = true;
 	}
+
+	return ret;
 }
 
 PlainData ImportDevILTexture(const PlainData& pd, uint32_t tex_type) {
@@ -80,6 +85,7 @@ std::vector<WatchedData> ImportAssimpMaterial(const aiMaterial* aimat, const cha
 		mat->textures.push_back(TexRelation());
 		mat->textures.back().tex_uid = ret.back().uid;
 		mat->textures.back().type = aiTextureType_DIFFUSE;
+
 	}
 
 	// Add Material at the back of WatchedData vec to make sure textures are
@@ -89,7 +95,7 @@ std::vector<WatchedData> ImportAssimpMaterial(const aiMaterial* aimat, const cha
 	WatchedData& mat_wd = ret.back();
 	
 	SetPlainData(mat_wd.pd, mat, sizeof(Material));
-	mat_wd.event_type = LOAD_MAT_TO_GPU;
+	mat_wd.load_event_type = LOAD_MAT_TO_GPU;
 
 	aimat->Get(AI_MATKEY_NAME, mat->name);
 	aimat->Get(AI_MATKEY_COLOR_DIFFUSE, mat->diffuse);
@@ -104,5 +110,9 @@ std::vector<WatchedData> ImportAssimpMaterial(const aiMaterial* aimat, const cha
 	aimat->Get(AI_MATKEY_SHININESS_STRENGTH, mat->shine_strength);
 	aimat->Get(AI_MATKEY_REFRACTI, mat->refractiveness);
 
+	std::string temp_path = "Assets/Materials/" + std::string(aimat->GetName().C_Str()) + std::string(".material");
+	mat_wd.str_len = FitString(mat_wd.path, "Assets/Materials/%s.material", aimat->GetName().C_Str());
+	mat_wd.loaded = true;
+	
 	return ret;
 }

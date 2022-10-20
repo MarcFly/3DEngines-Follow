@@ -31,7 +31,7 @@ struct S_Transform : public System {
 		t.id.parent_id = eid;
 		t.id.quick_ref = transforms.size() - 1;
 
-		CreateTransformTree(t);
+		//CreateTransformTree(t);
 
 		return (Component*)&t;
 	}

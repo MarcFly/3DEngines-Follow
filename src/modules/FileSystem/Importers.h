@@ -7,12 +7,13 @@
 #include <src/modules/Module.h>
 #include <libs/assimp/scene.h>
 #include "FSDataTypes.h"
-#include <src/modules/Render/RendererTypes.h>
+
+std::vector<WatchedData> TryImport(const TempIfStream& file, const char* path = nullptr);
 
 bool InitImporters();
 bool CleanUpImporters();
 
-std::vector<WatchedData> TryImport(const TempIfStream& file, const char* path);
+
 
 bool AssimpInit();
 bool AssimpCleanUp();

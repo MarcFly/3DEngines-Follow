@@ -34,6 +34,7 @@ public:
 	
 
 	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
+	const char* GetExecPath();
 
 private:
 
