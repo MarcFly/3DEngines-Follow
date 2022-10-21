@@ -92,9 +92,9 @@
     <ClCompile Include="src\helpers\MathGeoLib\Time\Clock.cpp" />
     <ClCompile Include="src\modules\Render\Primitives\DirectDrawPrimitives.cpp" />
     <ClCompile Include="src\modules\Render\Primitives\BufferedPrimitives.cpp" />
-    <ClCompile Include="src\modules\FileSystem\Exporters\ImporterAssimp.cpp" />
-    <ClCompile Include="src\modules\FileSystem\Exporters\ImporterMesh.cpp" />
-    <ClCompile Include="src\modules\FileSystem\Exporters\ImporterMaterial.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Converters\ConverterAssimp.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Converters\ConverterMesh.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Converters\ConverterMaterial.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.cpp" />
     <ClCompile Include="src\helpers\pcg\pcg_basic.c" />
     <ClCompile Include="src\modules\ECS\ModuleECS.cpp" />
@@ -105,7 +105,7 @@
     <ClCompile Include="src\modules\ECS\ComponentsRender\C_MeshRenderer.cpp" />
     <ClCompile Include="src\modules\ECS\ComponentsMove\CTransform.cpp" />
     <ClCompile Include="src\modules\ECS\ComponentsRender\S_MeshRenderer.cpp" />
-    <ClCompile Include="src\modules\FileSystem\Importers.cpp" />
+    <ClCompile Include="src\modules\FileSystem\Converters.cpp" />
     <ClCompile Include="src\modules\FileSystem\ModuleFS.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -232,7 +232,7 @@
     <ClInclude Include="src\modules\EngineUI\Windows\WindowsIncludeAll.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\Entities\EntityHierachy.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\Inspector\ComponentInspector.h" />
-    <ClInclude Include="src\modules\FileSystem\Importers.h" />
+    <ClInclude Include="src\modules\FileSystem\Converters.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\helpers\MathGeoLib\Geometry\KDTree.inl" />

@@ -1,4 +1,4 @@
-#include "../Importers.h"
+#include "../Converters.h"
 #include <libs/assimp/cimport.h>
 #include <libs/assimp/postprocess.h>
 #include <libs/assimp/scene.h>
@@ -7,7 +7,7 @@
 #include <src/modules/Render/RendererTypes.h>
 #include <src/Application.h>
 
-// Components for the exporters, not importers
+// Components for the exporters, not Converters
 #include <src/modules/ECS/ComponentsIncludeAll.h>
 
 struct NodeRefs {
@@ -51,7 +51,7 @@ void TraverseAiNodes(const aiScene* scene, const aiNode* node, const uint64_t pa
 		TraverseAiNodes(scene, node->mChildren[i], eid, refs, temp_ecs);
 }
 
-std::vector<WatchedData> ImportAssimpScene(const TempIfStream& file) {
+std::vector<WatchedData> ConvertAssimpScene(const TempIfStream& file) {
 	ModuleECS local_ecs;
 	local_ecs.Init();
 
@@ -69,7 +69,7 @@ std::vector<WatchedData> ImportAssimpScene(const TempIfStream& file) {
 	std::vector<WatchedData> mats;
 	for (int i = 0; i < aiscene->mNumMaterials; ++i) {
 		const aiMaterial* aimat = aiscene->mMaterials[i];
-		std::vector<WatchedData> mat_texs = ImportAssimpMaterial(aimat, parent_path.c_str());
+		std::vector<WatchedData> mat_texs = ConvertAssimpMaterial(aimat, parent_path.c_str());
 		refs.material_refs.push_back(mat_texs.back().uid);
 		AppendVec(mats, mat_texs);
 	}
@@ -81,7 +81,7 @@ std::vector<WatchedData> ImportAssimpScene(const TempIfStream& file) {
 	for (int i = 0; i < aiscene->mNumMeshes; ++i) {
 		WatchedData curr;
 		const aiMesh* aimesh = aiscene->mMeshes[i];
-		curr.pd = ImportAssimpMesh(aimesh);
+		curr.pd = ConvertAssimpMesh(aimesh);
 		NIMesh* m = (NIMesh*)curr.pd.data;
 		m->material.uid = refs.material_refs[m->material.uid];
 		curr.load_event_type = LOAD_MESH_TO_GPU;

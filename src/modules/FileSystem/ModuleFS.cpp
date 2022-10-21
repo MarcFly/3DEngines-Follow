@@ -1,7 +1,7 @@
 #include "ModuleFS.h"
 #include <src/Application.h>
 
-#include "Importers.h"
+#include "Converters.h"
 
 #include <DevIL/include/IL/il.h>
 #include <DevIL/include/IL/ilu.h>
@@ -28,7 +28,7 @@ bool ModuleFS::Init()
 	sprintf(temp, "mkdir -p %s\\Game\\Assets\\Meshes", execpath);
 	system(temp);
 
-	InitImporters();
+	InitConverters();
 
 	jsons.push_back(json_parse_file("config.json"));
 	if (jsons[0] == NULL)
@@ -87,7 +87,7 @@ bool ModuleFS::CleanUp() {
 		data.pd.data = nullptr;
 	}
 
-	CleanUpImporters();
+	CleanUpConverters();
 
 	return true;
 }
@@ -109,10 +109,10 @@ std::vector<WatchedData> TryLoadFromDisk(const char* path, const char* parent_pa
 		if(file.GetData().size == 0) return ret;
 	}
 
-	ret = TryImport(file, path);
+	ret = TryConvert(file, path);
 	if (ret.size() > 0) {
-		for (const WatchedData& imported : ret) {
-			WriteToDisk(imported.path, imported.pd.data, imported.pd.size);
+		for (const WatchedData& converted : ret) {
+			WriteToDisk(converted.path, converted.pd.data, converted.pd.size);
 		}
 	}
 	//if(ret.size() == 0)

@@ -1,8 +1,8 @@
-#include "../Importers.h"
+#include "../Converters.h"
 
 // 
 
-PlainData ImportAssimpMesh(const aiMesh* aimesh) {
+PlainData ConvertAssimpMesh(const aiMesh* aimesh) {
 	PlainData ret;
 	NIMesh* mesh = new NIMesh();
 
