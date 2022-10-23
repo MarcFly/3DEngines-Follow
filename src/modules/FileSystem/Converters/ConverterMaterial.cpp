@@ -43,6 +43,25 @@ WatchedData TryConvertTexture(const TempIfStream& file) {
 	return ret;
 }
 
+WatchedData TryImportTexture(const TempIfStream& file) {
+	WatchedData ret;
+	const char* ext = strrchr(file.path.c_str(), '.');
+
+	const char* filename = FileName(file.path.c_str());
+	size_t filename_len = strlen(filename);
+
+	ILenum tex_type = ExtensionToDevILType_Import(ext);
+	if (tex_type != 0) {
+		ret.pd = ImportDevILTexture(file.GetData(), tex_type);
+		ret.uid = PCGRand();
+
+		ret.str_len = FitString(ret.path, "%s", file.path.c_str());
+		ret.loaded = true;
+	}
+
+	return ret;
+}
+
 PlainData ConvertDevILTexture(const PlainData& pd, uint32_t tex_type) {
 	PlainData ret;
 	
@@ -77,6 +96,42 @@ PlainData ConvertDevILTexture(const PlainData& pd, uint32_t tex_type) {
 
 	return ret;
 }
+
+PlainData ImportDevILTexture(const PlainData& pd, uint32_t tex_type) {
+	PlainData ret;
+
+	ILuint id_img = ilGenImage();
+	ilBindImage(id_img);
+	bool success = ilLoadL(tex_type, pd.data, pd.size);
+	Texture* tex = nullptr;
+
+	if (success && ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE)) {
+
+		tex = new Texture();
+		SetPlainData(ret, tex, sizeof(Texture));
+
+		ILinfo info;
+		iluGetImageInfo(&info);
+		// Only use info for size, other is when loading it!
+		if (info.Origin != IL_ORIGIN_UPPER_LEFT) 
+			iluFlipImage();
+		tex->format = GL_RGBA;
+		tex->unit_size = 1;
+		tex->unit_type = GL_UNSIGNED_BYTE;
+		tex->size = info.SizeOfData;
+		tex->bytes.resize(tex->size);
+
+		tex->w = info.Width;
+		tex->h = info.Height;
+		memcpy(tex->bytes.data(), ilGetData(), tex->size);
+	}
+
+	ilDeleteImage(id_img);
+
+	return ret;
+}
+
+// =====================================================================================================
 
 std::vector<WatchedData> ConvertAssimpMaterial(const aiMaterial* aimat, const char* parent_path) {
 	std::vector<WatchedData> ret;

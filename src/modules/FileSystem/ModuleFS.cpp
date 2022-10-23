@@ -68,7 +68,7 @@ const PlainData& ModuleFS::RetrieveData(uint64_t id)
 bool WriteToDisk(const char* file_path, char* data, uint64_t size)
 {
 	std::ofstream write_file;
-	write_file.open(file_path, std::ofstream::binary);
+	write_file.open(file_path, std::ios::binary);
 	write_file.write(data, size);
 	write_file.close();
 
@@ -81,7 +81,8 @@ bool ModuleFS::CleanUp() {
 		json_value_free(json);
 	}
 
-	for (WatchedData& data : allocs) {
+	for (auto& it : allocs) {
+		WatchedData& data = it.second;
 		if (data.pd.data != nullptr)
 			delete data.pd.data;
 		data.pd.data = nullptr;
@@ -115,8 +116,8 @@ std::vector<WatchedData> TryLoadFromDisk(const char* path, const char* parent_pa
 			WriteToDisk(converted.path, converted.pd.data, converted.pd.size);
 		}
 	}
-	//if(ret.size() == 0)
-	//	ret = TryExport(file, path);
+	if(ret.size() == 0)
+		ret = TryImport(file, path);
 		
 	return ret;
 }
@@ -132,9 +133,6 @@ void ModuleFS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 		case EventType::FILE_DROPPED:
 			data = TryLoadFromDisk(ev->str);
 			AppendVec(unregistered, data);
-			//unregistered.insert(unregistered.end(), std::make_move_iterator(data.begin()), std::make_move_iterator( data.end()));
-			//data.erase(data.begin(), data.end());
-			//data.clear();
 			continue;
 		case EventType::USER_UNLOADED_DATA:
 			--allocs[ev->uint64].users;
@@ -146,13 +144,8 @@ void ModuleFS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 	int num_unregistered = unregistered.size();
 	for (int i = 0; i < num_unregistered; ++i){
 		const WatchedData& unreg_data = unregistered[i];
-		// TODO: Go back to events, when FBX != scenes...
-		// if(unreg_data.event_type > 0) EV_SEND_UINT64((EventType)unreg_data.event_type, unreg_data.uid);
-		// TODO: Prepare unregistered data for being put in the alloc vector
-		key_to_vec.insert(std::pair<uint64_t, uint64_t>( unreg_data.uid, num_registered + i));
+		allocs.insert(allocpair(unregistered[i].uid, unregistered[i]));
 	}
-	AppendVec(allocs, unregistered);
-	//allocs.insert(allocs.end(), std::make_move_iterator(unregistered.begin()), std::make_move_iterator(unregistered.end()));
-	//unregistered.erase(unregistered.begin(), unregistered.end());
-	//unregistered.clear();
+
+	unregistered.clear();
 }

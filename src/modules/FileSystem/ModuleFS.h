@@ -20,8 +20,8 @@ public:
 	const PlainData& RetrieveData(uint64_t id);
 	template<class T>
 	const T* RetrievePValue(uint64_t id) {
-		if (key_to_vec.find(id) == key_to_vec.end()) return nullptr;
-		WatchedData& wd = allocs[key_to_vec.at(id)];
+		if (allocs.find(id)->first != id) return nullptr;
+		WatchedData& wd = allocs.at(id);
 		//if(wd.loaded == false && wd.offload_id == UINT64_MAX)
 		// 
 
@@ -37,9 +37,8 @@ public:
 	const char* GetExecPath();
 
 private:
-
-	std::unordered_map<uint64_t, uint64_t> key_to_vec;
-	std::vector<WatchedData> allocs;
+	typedef std::pair<uint64_t, WatchedData> allocpair;
+	std::unordered_map<uint64_t, WatchedData> allocs;
 };
 
 std::vector<WatchedData> TryLoadFromDisk(const char* path, const char* parent_path = nullptr);

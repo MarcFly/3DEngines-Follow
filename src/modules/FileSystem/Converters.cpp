@@ -16,11 +16,26 @@ std::vector<WatchedData> TryConvert(const TempIfStream& file, const char* path) 
 	uint32_t tex_type = 0;
 	if (strcmp(ext, ".fbx") == 0 || strcmp(ext, ".FBX") == 0)
 		ret = ConvertAssimpScene(file); // Assimp Scene never saved to memory
+	else {
+		WatchedData tex_try = TryConvertTexture(file);
+		if (tex_try.pd.size != 0) ret.push_back(tex_try);
+	}
+	return ret;
+}
+
+std::vector<WatchedData> TryImport(TempIfStream& file, const char* path) {
+	std::vector<WatchedData> ret;
+	const char* ext = strrchr(path, '.');
+
+	uint32_t tex_type = 0;
+	if (strcmp(ext, ".jsonscene") == 0)
+		ret.push_back(ImportJsonScene(file)); // Assimp Scene never saved to memory
 	else
-		ret.push_back(TryConvertTexture(file));
+		ret.push_back(TryImportTexture(file));
 
 	return ret;
 }
+
 
 bool InitConverters() {
 	stream = aiGetPredefinedLogStream(aiDefaultLogStream_DEBUGGER, nullptr);

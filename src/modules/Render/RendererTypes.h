@@ -50,7 +50,7 @@ struct GPUMesh {
 };
 
 struct Texture {
-	char* bytes;
+	std::vector<char> bytes;
 	uint32_t size;
 	uint32_t disksize;
 	uint32_t w, h;

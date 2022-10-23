@@ -102,7 +102,7 @@ std::vector<WatchedData> ConvertAssimpScene(const TempIfStream& file) {
 	ret.push_back(WatchedData());
 	WatchedData& scene_json = ret.back();
 	scene_json.loaded = true;
-	scene_json.str_len = FitString(scene_json.path, "Assets/Prefabs/%s.json",  std::string(filename).substr(0, filename_len - 4).c_str());
+	scene_json.str_len = FitString(scene_json.path, "Assets/Prefabs/%s.jsonscene",  std::string(filename).substr(0, filename_len - 4).c_str());
 	scene_json.pd.data = json_serialize_to_string_pretty(scene_prefab);
 	scene_json.pd.size = strlen(scene_json.pd.data); // bad
 	json_value_free(scene_prefab);
@@ -113,5 +113,13 @@ std::vector<WatchedData> ConvertAssimpScene(const TempIfStream& file) {
 
 	local_ecs.CleanUp();
 
+	return ret;
+}
+
+WatchedData ImportJsonScene(TempIfStream& file)
+{
+	WatchedData ret;
+	ret.pd = file.AcquireData();
+	EV_SEND_UINT64(ECS_LOAD_JSONPREFAB, ret.uid);
 	return ret;
 }

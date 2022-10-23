@@ -50,12 +50,12 @@ public:
 	TempIfStream(const char* _path) {
 		TryLoad(_path);		
 	};
-	~TempIfStream() { stream.close(); delete[] pd.data; pd.data = nullptr; }
-	
+	~TempIfStream() { CleanUp(); }
+	void CleanUp() { if (stream.is_open()) stream.close(); if (pd.data != nullptr) delete[] pd.data; pd.data = nullptr; }
 	void TryLoad(const char* _path) {
+		CleanUp();
 		path = std::string(_path);
-		if (pd.data != nullptr) this->~TempIfStream();
-		stream.open(path, std::ifstream::binary);
+		stream.open(path, std::ios::binary);
 		if (!stream.fail()) {
 			stream.seekg(0, std::ios::end);
 			pd.size = stream.tellg();
@@ -66,7 +66,8 @@ public:
 	}
 
 	const PlainData& GetData() const { return pd; }
-	
+	PlainData AcquireData() { PlainData ret = pd; pd.data = nullptr; pd.size = 0; return ret; }
+
 	std::string path;
 private:
 	std::ifstream stream;

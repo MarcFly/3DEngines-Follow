@@ -84,7 +84,7 @@ uint32_t ModuleRenderer3D::LoadTexture(const Texture* tex)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, tex->format, tex->w, tex->h, 0, tex->format, tex->unit_type, tex->bytes);
+	glTexImage2D(GL_TEXTURE_2D, 0, tex->format, tex->w, tex->h, 0, tex->format, tex->unit_type, tex->bytes.data());
 
 	push.w = tex->w;
 	push.h = tex->h;
