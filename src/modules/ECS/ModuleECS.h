@@ -75,6 +75,7 @@ struct System {
 	virtual std::vector<Component*> GetCsFromEntity(const uint64_t eid, const ComponentTypes ctype) { return std::vector<Component*>(); }
 	//PlainData SerializeComponent(Component* c) { assert(true); return PlainData(); }
 	void JSONSerializeComponents(JSON_Object* sys_obj) { assert(false); }
+	void JSONDeserializeComponents(const JSON_Object* sys_obj) { assert(false); }
 };
 
 class ModuleECS : public Module {
@@ -113,9 +114,16 @@ public:
 	}
 
 	Entity* AddEntityCopy(const Entity e) {
-		Entity* ret = AddEntity(e.parent);
-		*ret = e;
-		return ret;
+		entities.push_back(Entity());
+		Entity& entity = entities.back();
+		entity = e;
+		if (e.parent == UINT64_MAX)
+			base_entities.push_back(entities.back().id);
+		else {
+			Entity* p_entity = GetEntity(e.parent);
+			p_entity->children.push_back(entity.id);
+		}
+		return &entity;
 	}
 
 	void DeleteComponent(const ComponentID& cid) {
@@ -167,6 +175,19 @@ public:
 
 	Entity* GetEntity(const uint64_t eid) {
 		for (auto& e : entities) if (e.id == eid) return &e;
+		return nullptr;
+	}
+
+	inline System* GetSystemOfTypes(const std::vector<ComponentTypes>& ctypes) {
+		for (auto it : systems) {
+			const std::vector<ComponentTypes> sys_ctypes = it->GetVecCTYPES();
+
+			for (ComponentTypes ct : sys_ctypes)
+				for (ComponentTypes ct_check : ctypes)
+					if (ct_check == ct)
+						return it;
+		}
+
 		return nullptr;
 	}
 
@@ -231,7 +252,9 @@ public:
 	}
 
 	JSON_Value* SerializePrefab(const uint64_t eid = UINT64_MAX);
-
+	void DeserializePrefab(const uint64_t json_prefab_uid);
+	
+	
 	//PlainData SerializeComponent(Component* c) {
 	//	System* sys = GetSystemOfType(c->id.ctype);
 	//	return sys->JSONSerializeComponent(c);

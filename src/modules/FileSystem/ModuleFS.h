@@ -19,7 +19,7 @@ public:
 	//uint64_t RegisterFile(WatchedData& data);
 	const PlainData& RetrieveData(uint64_t id);
 	template<class T>
-	const T* RetrievePValue(uint64_t id) {
+	T* RetrievePValue(uint64_t id) {
 		if (allocs.find(id)->first != id) return nullptr;
 		WatchedData& wd = allocs.at(id);
 		//if(wd.loaded == false && wd.offload_id == UINT64_MAX)

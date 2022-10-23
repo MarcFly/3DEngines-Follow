@@ -132,6 +132,7 @@ const char  * json_object_get_string (const JSON_Object *object, const char *nam
 size_t        json_object_get_string_len(const JSON_Object *object, const char *name); /* doesn't account for last null character */
 JSON_Object * json_object_get_object (const JSON_Object *object, const char *name);
 JSON_Array  * json_object_get_array  (const JSON_Object *object, const char *name);
+unsigned long long json_object_get_u64(const JSON_Object* object, const char* name);
 double        json_object_get_number (const JSON_Object *object, const char *name); /* returns 0 on fail */
 int           json_object_get_boolean(const JSON_Object *object, const char *name); /* returns -1 on fail */
 
@@ -197,6 +198,7 @@ const char  * json_array_get_string (const JSON_Array *array, size_t index);
 size_t        json_array_get_string_len(const JSON_Array *array, size_t index); /* doesn't account for last null character */
 JSON_Object * json_array_get_object (const JSON_Array *array, size_t index);
 JSON_Array  * json_array_get_array  (const JSON_Array *array, size_t index);
+unsigned long long json_array_get_u64(const JSON_Array* array, size_t index);
 double        json_array_get_number (const JSON_Array *array, size_t index); /* returns 0 on fail */
 int           json_array_get_boolean(const JSON_Array *array, size_t index); /* returns -1 on fail */
 size_t        json_array_get_count  (const JSON_Array *array);
@@ -236,6 +238,7 @@ JSON_Value * json_value_init_object (void);
 JSON_Value * json_value_init_array  (void);
 JSON_Value * json_value_init_string (const char *string); /* copies passed string */
 JSON_Value * json_value_init_string_with_len(const char *string, size_t length); /* copies passed string, length shouldn't include last null character */
+JSON_Value* json_value_init_u64(unsigned long long number);
 JSON_Value * json_value_init_number (double number);
 JSON_Value * json_value_init_boolean(int boolean);
 JSON_Value * json_value_init_null   (void);

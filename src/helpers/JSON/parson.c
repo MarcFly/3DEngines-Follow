@@ -186,6 +186,7 @@ static JSON_Value *  parse_object_value(const char **string, size_t nesting);
 static JSON_Value *  parse_array_value(const char **string, size_t nesting);
 static JSON_Value *  parse_string_value(const char **string);
 static JSON_Value *  parse_boolean_value(const char **string);
+static JSON_Value *  parse_u64_value(const char** string);
 static JSON_Value *  parse_number_value(const char **string);
 static JSON_Value *  parse_null_value(const char **string);
 static JSON_Value *  parse_value(const char **string, size_t nesting);
@@ -910,6 +911,8 @@ static JSON_Value * parse_value(const char **string, size_t nesting) {
             return parse_string_value(string);
         case 'f': case 't':
             return parse_boolean_value(string);
+        case 'd':
+            return parse_u64_value(string);
         case '-':
         case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
@@ -1069,6 +1072,18 @@ static JSON_Value * parse_boolean_value(const char **string) {
         return json_value_init_boolean(0);
     }
     return NULL;
+}
+
+static JSON_Value* parse_u64_value(const char** string) {
+    char* end;
+    unsigned long long number = 0;
+    errno = 0;
+    number = strtoull((*string)+1, &end, 0);
+    if ((errno && errno != ERANGE) || !is_decimal(*string, end - *string)) {
+        return NULL;
+    }
+    *string = end;
+    return json_value_init_u64(number);
 }
 
 static JSON_Value * parse_number_value(const char **string) {
@@ -1245,7 +1260,7 @@ static int json_serialize_to_buffer_r(const JSON_Value *value, char *buf, int le
             if (buf != NULL) {
                 num_buf = buf;
             }
-            written = sprintf(num_buf, "%llu", u64);
+            written = sprintf(num_buf, "\d%llu", u64);
             if (written < 0) {
                 return -1;
             }
@@ -1415,6 +1430,10 @@ size_t json_object_get_string_len(const JSON_Object *object, const char *name) {
     return json_value_get_string_len(json_object_get_value(object, name));
 }
 
+unsigned long long json_object_get_u64(const JSON_Object* object, const char* name) {
+    return json_value_get_u64(json_object_get_value(object, name));
+}
+
 double json_object_get_number(const JSON_Object *object, const char *name) {
     return json_value_get_number(json_object_get_value(object, name));
 }
@@ -1521,6 +1540,10 @@ const char * json_array_get_string(const JSON_Array *array, size_t index) {
 
 size_t json_array_get_string_len(const JSON_Array *array, size_t index) {
     return json_value_get_string_len(json_array_get_value(array, index));
+}
+
+unsigned long long json_array_get_u64(const JSON_Array* array, size_t index) {
+    return json_value_get_u64(json_array_get_value(array, index));
 }
 
 double json_array_get_number(const JSON_Array *array, size_t index) {

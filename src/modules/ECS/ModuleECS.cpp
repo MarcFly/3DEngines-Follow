@@ -79,6 +79,10 @@ void ModuleECS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 			e->AddComponent(c->id);
 			continue;
 		}
+		case ECS_LOAD_JSONPREFAB: {
+			DeserializePrefab(ev->uint64);
+			continue;
+		}
 		}
 	}
 }
@@ -95,6 +99,59 @@ bool ModuleECS::CleanUp()
 	base_entities.clear();
 
 	return true;
+}
+
+void ModuleECS::DeserializePrefab(const uint64_t json_prefab_id) {
+	const JSONVWrapper* jvw = App->fs->RetrievePValue<JSONVWrapper>(json_prefab_id);
+	const JSON_Value* prefab_v = jvw->value;
+	if (prefab_v == nullptr) return;
+	const JSON_Object* prefab = json_object(prefab_v);
+	// (prefab, )
+	uint64_t num_entities = json_object_get_u64(prefab, "num_entities");
+	entities.reserve(entities.size() + num_entities);
+	const JSON_Array* entity_arr = json_object_get_array(prefab, "entities");
+	for (int i = 0; i < num_entities; ++i) {
+		const JSON_Object* e_obj = json_array_get_object(entity_arr, i);
+		Entity e;
+		e.id = json_object_get_u64(e_obj, "id");
+		e.parent = json_object_get_u64(e_obj, "pid");
+		memcpy(e.name, json_object_get_string(e_obj, "name"), json_object_get_u64(e_obj, "name_len"));
+		
+		e.children.reserve(json_object_get_u64(e_obj, "num_children"));
+		//const JSON_Array* child_arr = json_object_get_array(e_obj, "children");		
+		//for (int j = 0; j < e.children.size(); ++j) {
+		//	e.children[j] = json_array_get_u64(child_arr, j);
+		//}
+
+		e.components.resize(json_object_get_u64(e_obj, "num_components"));
+		const JSON_Array* comp_arr = json_object_get_array(e_obj, "components");
+		for (int j = 0; j < e.components.size(); ++j) {
+			ComponentID& c = e.components[j];
+
+			c.ctype = (ComponentTypes)json_array_get_u64(comp_arr, j * 2);
+			c.id = json_array_get_u64(comp_arr, j * 2 + 1);
+		}
+
+		AddEntityCopy(e);
+	}
+	
+	// Here systems should always be already initialized...
+	uint64_t num_systems = json_object_get_u64(prefab, "num_systems");
+	const JSON_Array* systems = json_object_get_array(prefab, "systems");
+	for (int i = 0; systems != nullptr && i < num_systems; ++i) {
+		const JSON_Object* sys_obj = json_array_get_object(systems, i);
+		std::vector<ComponentTypes> ctype; 
+		ctype.resize(json_object_get_u64(sys_obj, "num_component_types"));
+		const JSON_Array* ctypes_arr = json_object_get_array(sys_obj, "component_types");
+		for (int j = 0; j < ctype.size(); ++j)
+			ctype[j] = (ComponentTypes)json_array_get_u64(ctypes_arr, j);
+
+		System* curr_sys = GetSystemOfTypes(ctype);
+		if (curr_sys != nullptr)
+			curr_sys->JSONDeserializeComponents(sys_obj);
+	}
+	
+
 }
 
 JSON_Value* ModuleECS::SerializePrefab(const uint64_t eid) {

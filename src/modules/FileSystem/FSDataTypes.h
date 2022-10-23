@@ -81,3 +81,10 @@ struct DiskFile {
 	virtual bool UnloadMem(uint64_t) { return false; };
 	virtual PlainData WritableFile() { return PlainData(); };
 };
+
+#include <src/helpers/JSON/parson.h>
+
+struct JSONVWrapper {
+	JSON_Value* value;
+	~JSONVWrapper() { json_value_free(value); }
+};

@@ -119,7 +119,11 @@ std::vector<WatchedData> ConvertAssimpScene(const TempIfStream& file) {
 WatchedData ImportJsonScene(TempIfStream& file)
 {
 	WatchedData ret;
-	ret.pd = file.AcquireData();
+	JSONVWrapper* jv = new JSONVWrapper();
+	jv->value = json_parse_string(file.GetData().data);
+	ret.pd.data = (char*)jv;
+	ret.pd.size = sizeof(JSONVWrapper*);
+
 	EV_SEND_UINT64(ECS_LOAD_JSONPREFAB, ret.uid);
 	return ret;
 }

@@ -13,6 +13,7 @@ enum EventType {
 	// UINT32 
 	// POINT 2D
 	FILE_DROPPED,
+	FS_JSON_PARSED,
 
 	SAVE_CONFIG,
 	LOAD_CONFIG,
