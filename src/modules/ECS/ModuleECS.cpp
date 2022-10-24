@@ -147,8 +147,9 @@ void ModuleECS::DeserializePrefab(const uint64_t json_prefab_id) {
 			ctype[j] = (ComponentTypes)json_array_get_u64(ctypes_arr, j);
 
 		System* curr_sys = GetSystemOfTypes(ctype);
-		if (curr_sys != nullptr)
-			curr_sys->JSONDeserializeComponents(sys_obj);
+		if (curr_sys != nullptr) {
+			curr_sys->JSONDeserializeComponents(json_object_get_object(sys_obj, "system_data"));
+		}
 	}
 	
 
@@ -215,11 +216,15 @@ JSON_Value* ModuleECS::SerializePrefab(const uint64_t eid) {
 		JSON_Value* components_value = json_value_init_object();
 		sys->JSONSerializeComponents(json_object(components_value));
 
+		json_object_set_value(sys_obj, "system_data", components_value);
+
 		sys_values.push_back(curr_sys);
 	}
 	
 	for (JSON_Value* v : sys_values)
 		json_array_append_value(sys_arr, v);
+
+	json_object_set_value(json_object(ret), "systems", sys_arr_val);
 
 	return ret;
 }

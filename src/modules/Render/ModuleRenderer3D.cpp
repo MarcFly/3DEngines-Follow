@@ -267,8 +267,8 @@ bool ModuleRenderer3D::CleanUp()
 {
 	PLOG("Destroying 3D Renderer");
 	CleanUpPrimitives();
-	for (GPUMesh& mesh : meshes)
-		UnloadMesh(mesh);
+	for (auto& mesh : meshes)
+		UnloadMesh(mesh.second);
 
 	SDL_GL_DeleteContext(context);
 
@@ -294,16 +294,15 @@ void ModuleRenderer3D::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_ve
 				continue;
 			case EventType::LOAD_MESH_TO_GPU:{
 				const NIMesh* mesh = App->fs->RetrievePValue<NIMesh>(ev->uint64);
-				LoadMesh(mesh);
+				meshes.insert(std::pair<uint64_t, GPUMesh>(ev->uint64, LoadMesh(mesh)));
 				continue; }
 			case EventType::LOAD_TEX_TO_GPU: {
 				const Texture* tex = App->fs->RetrievePValue<Texture>(ev->uint64);
-				LoadTexture(tex);
+				textures.insert(std::pair<uint64_t, GPUTex>(ev->uint64, LoadTexture(tex)));
 				continue; }
 			case EventType::LOAD_MAT_TO_GPU: {
 				const Material* mat = App->fs->RetrievePValue<Material>(ev->uint64);
-				GPUMat& m = materials[LoadMaterial(mat)];
-				m.disk_id.uid = ev->uint64;
+				materials.insert(std::pair<uint64_t, GPUMat>(ev->uint64,LoadMaterial(mat)));
 				continue; }
 			case EventType::FRAMEBUFFER_HIJACK: {
 				hijack_framebuffer = (GPUFBO*)ev->generic_pointer;

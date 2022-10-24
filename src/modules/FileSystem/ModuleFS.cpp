@@ -114,10 +114,35 @@ std::vector<WatchedData> TryLoadFromDisk(const char* path, const char* parent_pa
 	if (ret.size() > 0) {
 		for (const WatchedData& converted : ret) {
 			WriteToDisk(converted.path, converted.pd.data, converted.pd.size);
+			
+			JSON_Value* meta = json_value_init_object();
+			JSON_Object* meta_obj = json_object(meta);
+			json_object_set_u64(meta_obj, "uid", converted.uid);
+			// More data for watching? Types? ...
+			// Ideally part of the whole diskdata thingy
+
+			char* meta_buf = json_serialize_to_string_pretty(meta);
+			std::string metapath(converted.path);
+			metapath = metapath.substr(0, metapath.length() - strlen(strrchr(converted.path, '.'))) + std::string(".jsonmeta");
+			WriteToDisk(metapath.c_str(), meta_buf, strlen(meta_buf));
+			json_value_free(meta);
 		}
 	}
-	if(ret.size() == 0)
+	else {
 		ret = TryImport(file, path);
+
+		uint64_t num_registered = App->fs->allocs.size();
+		int num_unregistered = ret.size();
+		for (int i = 0; i < num_unregistered; ++i) {
+			WatchedData& unreg_data = ret[i];
+			std::string metapath = unreg_data.path;
+			metapath = metapath.substr(0, metapath.length() - strlen(strrchr(unreg_data.path, '.'))) + std::string(".jsonmeta");
+			JSON_Value* metav = json_parse_file(metapath.c_str());
+			unreg_data.uid = json_object_get_u64(json_object(metav), "uid");
+			json_value_free(metav);
+			App->fs->allocs.insert(allocpair(ret[i].uid, ret[i]));
+		}
+	}
 		
 	return ret;
 }
@@ -132,20 +157,18 @@ void ModuleFS::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
 		switch (ev->type) {
 		case EventType::FILE_DROPPED:
 			data = TryLoadFromDisk(ev->str);
-			AppendVec(unregistered, data);
 			continue;
 		case EventType::USER_UNLOADED_DATA:
 			--allocs[ev->uint64].users;
 			continue;
 		}
-	}
 
-	uint64_t num_registered = allocs.size();
-	int num_unregistered = unregistered.size();
-	for (int i = 0; i < num_unregistered; ++i){
-		const WatchedData& unreg_data = unregistered[i];
-		allocs.insert(allocpair(unregistered[i].uid, unregistered[i]));
+		// Technically all imported will be loaded and inserted
+		for (WatchedData& d : data)
+		{
+			delete d.pd.data;
+			delete d.path;
+		}
 	}
-
-	unregistered.clear();
+	
 }

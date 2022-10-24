@@ -60,6 +60,7 @@
     <ClCompile Include="src\helpers\pcg\pcg_basic.c" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\modules\ECS\ComponentsMove\CTransform.cpp" />
+    <ClCompile Include="src\modules\ECS\ComponentsMove\S_Transform.cpp" />
     <ClCompile Include="src\modules\ECS\ComponentsRender\C_MeshRenderer.cpp" />
     <ClCompile Include="src\modules\ECS\ComponentsRender\S_MeshRenderer.cpp" />
     <ClCompile Include="src\modules\ECS\ModuleECS.cpp" />

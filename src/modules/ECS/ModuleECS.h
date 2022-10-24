@@ -74,8 +74,8 @@ struct System {
 	virtual std::vector<Component*> GetCs(const ComponentTypes ctype) { return std::vector<Component*>(); }
 	virtual std::vector<Component*> GetCsFromEntity(const uint64_t eid, const ComponentTypes ctype) { return std::vector<Component*>(); }
 	//PlainData SerializeComponent(Component* c) { assert(true); return PlainData(); }
-	void JSONSerializeComponents(JSON_Object* sys_obj) { assert(false); }
-	void JSONDeserializeComponents(const JSON_Object* sys_obj) { assert(false); }
+	virtual void JSONSerializeComponents(JSON_Object* sys_obj) { assert(false); }
+	virtual void JSONDeserializeComponents(const JSON_Object* sys_obj) { assert(false); }
 };
 
 class ModuleECS : public Module {

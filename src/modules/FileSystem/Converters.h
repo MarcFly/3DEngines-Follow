@@ -22,11 +22,11 @@ std::vector<WatchedData> ConvertAssimpScene(const TempIfStream& file);
 WatchedData ImportJsonScene(TempIfStream& file);
 // Meshes
 PlainData ConvertAssimpMesh(const aiMesh* aimesh);
-
+PlainData ImportMesh(const TempIfStream& file);
 
 // Materials
 std::vector<WatchedData> ConvertAssimpMaterial(const aiMaterial* aimat, const char* parent_path);
-
+PlainData ImportMaterial(const TempIfStream& file);
 
 // Textures
 uint32_t ExtensionToDevILType_Convert(const char* ext);

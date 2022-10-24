@@ -4,6 +4,7 @@
 #include <src/helpers/MathGeoLib/MathGeoLib.h>
 #include <src/helpers/glmath.h>
 #include <vector>
+#include <unordered_map>
 #include <src/modules/EventSystem/Event.h>
 #include "RendererTypes.h"
 #include "Primitives/Primitives.h"
@@ -32,13 +33,16 @@ public:
 
 	void RenderGrid() const;
 
-	uint32_t LoadMesh(const NIMesh* mesh);
+	bool EnsureMesh(const uint64_t id);
+	GPUMesh LoadMesh(const NIMesh* mesh);
 	void UnloadMesh(GPUMesh& mesh);
 
-	uint32_t LoadTexture(const Texture* tex);
+	bool EnsureTexture(const uint64_t id);
+	GPUTex LoadTexture(const Texture* tex);
 	void UnloadTex(GPUTex& tex);
 
-	uint32_t LoadMaterial(const Material* mat);
+	bool EnsureMaterial(const uint64_t id);
+	GPUMat LoadMaterial(const Material* mat);
 
 	GPUFBO GenerateScreenFBO();
 
@@ -59,9 +63,9 @@ public:
 	uint32_t example_fun = 0;
 	bool draw_example_primitive = false;
 
-	std::vector<GPUMesh> meshes;
-	std::vector<GPUTex> textures;
-	std::vector<GPUMat> materials;
+	std::unordered_map<uint64_t, GPUMesh> meshes;
+	std::unordered_map<uint64_t, GPUTex> textures;
+	std::unordered_map<uint64_t, GPUMat> materials;
 	FullGroup* ecs_renderables = nullptr;
 
 	GPUFBO* hijack_framebuffer = nullptr;

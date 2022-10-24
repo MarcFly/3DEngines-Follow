@@ -12,6 +12,7 @@ Application::Application()
 	events = new ModuleEventSystem();
 	fs = new ModuleFS();
 	ecs = new ModuleECS();
+	engine_ui = new ModuleEngineUI();
 	// The order of calls is very important!
 	// Modules will Init() Start() and Update in this order
 	// They will CleanUp() in reverse order
@@ -28,7 +29,7 @@ Application::Application()
 	AddModule(renderer3D);
 
 	// UI Even further last!
-	AddModule(this->engine_ui);
+	AddModule(engine_ui);
 
 	AddModule(fs);
 	AddModule(events);

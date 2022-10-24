@@ -11,7 +11,7 @@ class MenuBar;
 class ModuleEngineUI : public Module
 {
 public:
-	ModuleEngineUI(bool start_updated);
+	ModuleEngineUI();
 	~ModuleEngineUI();
 
 	bool Start();
@@ -40,7 +40,5 @@ private:
 };
 
 bool CheckModifiers();
-
-extern ModuleEngineUI e_engine_ui;
 
 

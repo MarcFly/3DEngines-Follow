@@ -107,6 +107,7 @@
     <ClCompile Include="src\modules\ECS\ComponentsRender\S_MeshRenderer.cpp" />
     <ClCompile Include="src\modules\FileSystem\Converters.cpp" />
     <ClCompile Include="src\modules\FileSystem\ModuleFS.cpp" />
+    <ClCompile Include="src\modules\ECS\ComponentsMove\S_Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />

@@ -25,16 +25,10 @@ struct S_Transform : public System {
 	std::vector<C_Transform> transforms;
 	std::vector<ComponentID> to_delete;
 
-	Component* AddC(const ComponentTypes ctype, const uint64_t eid) {
-		transforms.push_back(C_Transform());
-		C_Transform& t = transforms.back();
-		t.id.parent_id = eid;
-		t.id.quick_ref = transforms.size() - 1;
+	void JSONSerializeComponents(JSON_Object* sys_obj);
+	void JSONDeserializeComponents(const JSON_Object* sys_obj);
 
-		//CreateTransformTree(t);
-
-		return (Component*)&t;
-	}
+	Component* AddC(const ComponentTypes ctype, const uint64_t eid);
 
 	void AddToDeleteQ(const ComponentID& cid) { 
 		to_delete.push_back(cid); 
@@ -50,75 +44,12 @@ struct S_Transform : public System {
 		}
 	}
 
-	void DeleteComponent(const ComponentID& cid) {
-		ComponentID temp = cid;
-		InvalidateChildren(cid.id);
-		C_Transform* ctrans = (C_Transform*)GetC(temp);
-		*ctrans = transforms[transforms.size() - 1];
-		transforms.pop_back();
-	}
+	void DeleteComponent(const ComponentID& cid);
+	Component* GetCByRef(const ComponentID& cid);
 
-	Component* GetCByRef(const ComponentID& cid) {
-		Component* ret = nullptr;
-		if (cid.quick_ref > transforms.size() - 1 || transforms[cid.quick_ref].id.id != cid.id) 
-			return nullptr;
+	Component* GetC(ComponentID& cid);
 
-		return (Component*)&transforms[cid.quick_ref];
-	}
-	Component* GetC(ComponentID& cid) {
-		Component* ret = nullptr;
-		for(int i = 0; i < transforms.size(); ++i)
-			if (transforms[i].id.id == cid.id) {
-				cid.quick_ref = i;
-				return &transforms[i];
-			}
-		return ret;
-	}
+	void CreateTransformTree(C_Transform& t);
 
-	void CreateTransformTree(C_Transform& t) {
-		Entity* e = App->ecs->GetEntity(t.id.parent_id);
-		t.world_mat = float4x4::identity;
-		std::vector<float4x4> cache;
-		uint64_t next_pid = e->parent;
-		while ((e = App->ecs->GetEntity(next_pid)) != nullptr) {
-			const C_Transform* cid = (C_Transform*)GetComponent(e->GetComponent(CT_Transform));
-			if (cid != nullptr) {
-				t.transform_tree.push_back(cid->id);
-				cache.push_back(cid->local_mat);
-				next_pid = e->parent;
-			}
-		}
-		
-		t.world_mat = float4x4::identity;
-		for (int i = 0; i < cache.size(); ++i)
-			t.world_mat = cache[i].Mul(t.world_mat);
-		
-		t.valid_tree = true;
-	}
-
-	update_status PreUpdate(float dt) {
-		std::vector<float4x4> cache;
-		for (C_Transform& t : transforms) {
-			if (t.is_static) continue;
-			if (!t.valid_tree) {
-				CreateTransformTree(t);
-				continue;
-			}
-
-			cache.clear();
-			C_Transform* curr = nullptr;
-			for (ComponentID ref : t.transform_tree) {
-				curr = (C_Transform*)GetComponent(ref);
-				if (curr == nullptr) to_delete.push_back(ref);
-				else cache.push_back(curr->local_mat);
-			}
-
-			t.world_mat = float4x4::identity;
-			for (int i = 0; i < cache.size(); ++i)
-				t.world_mat = cache[i].Mul(t.world_mat);
-		}
-
-
-		return UPDATE_CONTINUE;
-	}
+	update_status PreUpdate(float dt);
 };

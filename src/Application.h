@@ -22,7 +22,7 @@ public:
 	ModuleInput* input;
 	ModuleRenderer3D* renderer3D;
 	ModuleCamera3D* camera;
-	ModuleEngineUI* engine_ui = &e_engine_ui;
+	ModuleEngineUI* engine_ui;
 	ModuleEventSystem* events;
 	ModuleFS* fs;
 	ModuleECS* ecs; // = &_ecs;

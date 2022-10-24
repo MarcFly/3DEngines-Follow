@@ -4,6 +4,8 @@
 #include <src/helpers/JSON/parson.h>
 #include "FSDataTypes.h"
 #include <unordered_map>
+typedef std::pair<uint64_t, WatchedData> allocpair;
+
 
 class ModuleFS : public Module {
 	std::vector<JSON_Value*> jsons;
@@ -36,8 +38,7 @@ public:
 	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
 	const char* GetExecPath();
 
-private:
-	typedef std::pair<uint64_t, WatchedData> allocpair;
+	
 	std::unordered_map<uint64_t, WatchedData> allocs;
 };
 

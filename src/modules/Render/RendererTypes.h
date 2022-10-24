@@ -31,9 +31,6 @@ struct NIMesh {
 	std::vector<uint32_t> indices;
 	std::vector<uint16_t> h_indices; // in case it has halfsized indices
 
-	GLenum draw_mode;
-	GLenum polytype;
-
 	KeyPosPair material;
 };
 

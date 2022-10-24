@@ -10,9 +10,9 @@
 
 struct C_MeshRenderer : public Component {
 	C_MeshRenderer() { id.ctype = CT_MeshRenderer; }
-	uint32_t gl_state;
-	uint32_t mesh;
-	uint32_t material;
+	uint64_t gl_state;
+	uint64_t mesh;
+	uint64_t material;
 	bool cached_group = false;
 
 	float4x4 local = float4x4::identity;
@@ -89,5 +89,8 @@ struct S_MeshRenderer : public System {
 			}
 		return ret;
 	}
+
+	void JSONSerializeComponents(JSON_Object* sys_obj);
+	void JSONDeserializeComponents(const JSON_Object* sys_obj);
 
 };

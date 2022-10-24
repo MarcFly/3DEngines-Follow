@@ -82,8 +82,8 @@ std::vector<WatchedData> ConvertAssimpScene(const TempIfStream& file) {
 		WatchedData curr;
 		const aiMesh* aimesh = aiscene->mMeshes[i];
 		curr.pd = ConvertAssimpMesh(aimesh);
-		NIMesh* m = (NIMesh*)curr.pd.data;
-		m->material.uid = refs.material_refs[m->material.uid];
+		//NIMesh* m = (NIMesh*)curr.pd.data;
+		////m->material.uid = refs.material_refs[m->material.uid];
 		curr.load_event_type = LOAD_MESH_TO_GPU;
 		curr.uid = PCGRand();
 		refs.mesh_refs.push_back(curr.uid);
@@ -124,6 +124,5 @@ WatchedData ImportJsonScene(TempIfStream& file)
 	ret.pd.data = (char*)jv;
 	ret.pd.size = sizeof(JSONVWrapper*);
 
-	EV_SEND_UINT64(ECS_LOAD_JSONPREFAB, ret.uid);
 	return ret;
 }

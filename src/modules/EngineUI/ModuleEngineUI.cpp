@@ -7,9 +7,7 @@
 #include "MenuBar/MenuBar.h"
 #include "Windows/WindowsIncludeAll.h"
 
-ModuleEngineUI e_engine_ui(true);
-
-ModuleEngineUI::ModuleEngineUI(bool start_enabled) : Module("editor_ui", true)
+ModuleEngineUI::ModuleEngineUI() : Module("editor_ui", true)
 {
     menu_bar = new MenuBar();
     EngineUI_RegisterItem((UI_Item*)new SceneView());

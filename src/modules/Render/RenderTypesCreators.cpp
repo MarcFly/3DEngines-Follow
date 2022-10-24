@@ -31,35 +31,45 @@ void ModuleRenderer3D::RenderGrid() const
 	SetOpenGLState(default_state);
 }
 
-uint32_t ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
+// ==========================================================================================
+
+bool ModuleRenderer3D::EnsureMesh(const uint64_t id) {
+	if (meshes.find(id) == meshes.end()) {
+		const NIMesh* mesh = App->fs->RetrievePValue<NIMesh>(id);
+		if (mesh == nullptr) return false;
+		meshes.insert(std::pair<uint64_t, GPUMesh>(id, LoadMesh(mesh)));
+	}
+
+	return true;
+}
+
+GPUMesh ModuleRenderer3D::LoadMesh(const NIMesh* mesh)
 {
-	GPUMesh push;
-	push.num_vtx = mesh->vertices.size();
-	glGenBuffers(1, &push.vtx_id);
-	glBindBuffer(GL_ARRAY_BUFFER, push.vtx_id);
-	glBufferData(GL_ARRAY_BUFFER, push.num_vtx * sizeof(float3), mesh->vertices.data(), GL_STATIC_DRAW);
+	GPUMesh ret;
+	ret.num_vtx = mesh->vertices.size();
+	glGenBuffers(1, &ret.vtx_id);
+	glBindBuffer(GL_ARRAY_BUFFER, ret.vtx_id);
+	glBufferData(GL_ARRAY_BUFFER, ret.num_vtx * sizeof(float3), mesh->vertices.data(), GL_STATIC_DRAW);
 	if (mesh->normals.size() > 0) {
-		glGenBuffers(1, &push.norm_id);
-		glBindBuffer(GL_ARRAY_BUFFER, push.norm_id);
+		glGenBuffers(1, &ret.norm_id);
+		glBindBuffer(GL_ARRAY_BUFFER, ret.norm_id);
 		glBufferData(GL_ARRAY_BUFFER, mesh->normals.size() * sizeof(float3), mesh->normals.data(), GL_STATIC_DRAW);
 	}
 	if (mesh->uvs.size() > 0) {
-		glGenBuffers(1, &push.uvs_id);
-		glBindBuffer(GL_ARRAY_BUFFER, push.uvs_id);
+		glGenBuffers(1, &ret.uvs_id);
+		glBindBuffer(GL_ARRAY_BUFFER, ret.uvs_id);
 		glBufferData(GL_ARRAY_BUFFER, mesh->uvs.size() * sizeof(float2), mesh->uvs.data(), GL_STATIC_DRAW);
 	}
 	if (mesh->indices.size() > 0) {
-		push.num_idx = mesh->indices.size();
-		glGenBuffers(1, &push.idx_id);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, push.idx_id);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, push.num_idx * sizeof(uint32_t), mesh->indices.data(), GL_STATIC_DRAW);
+		ret.num_idx = mesh->indices.size();
+		glGenBuffers(1, &ret.idx_id);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ret.idx_id);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, ret.num_idx * sizeof(uint32_t), mesh->indices.data(), GL_STATIC_DRAW);
 	}
 
-	push.material = mesh->material;
+	ret.material = mesh->material;
 
-	meshes.push_back(push);
-
-	return meshes.size() - 1;
+	return ret;
 }
 
 void ModuleRenderer3D::UnloadMesh(GPUMesh& mesh) {
@@ -74,23 +84,34 @@ void ModuleRenderer3D::UnloadMesh(GPUMesh& mesh) {
 	mesh.vtx_id = mesh.norm_id = mesh.uvs_id = mesh.idx_id = 0;
 }
 
-uint32_t ModuleRenderer3D::LoadTexture(const Texture* tex)
+// ==========================================================================================
+
+bool ModuleRenderer3D::EnsureTexture(const uint64_t id) {
+	if (textures.find(id) == textures.end()) {
+		const Texture* tex = App->fs->RetrievePValue<Texture>(id);
+		if (tex == nullptr) return false;
+		textures.insert(std::pair<uint64_t, GPUTex>(id, LoadTexture(tex)));
+	}
+
+	return true;
+}
+
+GPUTex ModuleRenderer3D::LoadTexture(const Texture* tex)
 {
-	GPUTex push;
+	GPUTex ret;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &push.img_id);
-	glBindTexture(GL_TEXTURE_2D, push.img_id);
+	glGenTextures(1, &ret.img_id);
+	glBindTexture(GL_TEXTURE_2D, ret.img_id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, tex->format, tex->w, tex->h, 0, tex->format, tex->unit_type, tex->bytes.data());
 
-	push.w = tex->w;
-	push.h = tex->h;
+	ret.w = tex->w;
+	ret.h = tex->h;
 
-	textures.push_back(push);
-	return textures.size() - 1;
+	return ret;
 }
 
 void ModuleRenderer3D::UnloadTex(GPUTex& tex)
@@ -99,9 +120,21 @@ void ModuleRenderer3D::UnloadTex(GPUTex& tex)
 	tex.img_id = 0;
 }
 
-uint32_t ModuleRenderer3D::LoadMaterial(const Material* mat) {
-	GPUMat push;
-	push.mat = mat;
+// ==========================================================================================
+
+bool ModuleRenderer3D::EnsureMaterial(const uint64_t id) {
+	if (materials.find(id) == materials.end()) {
+		const Material* mat = App->fs->RetrievePValue<Material>(id);
+		if (mat == nullptr) return false;
+		materials.insert(std::pair<uint64_t, GPUMat>(id, LoadMaterial(mat)));
+	}
+
+	return true;
+}
+
+GPUMat ModuleRenderer3D::LoadMaterial(const Material* mat) {
+	GPUMat ret;
+	ret.mat = mat;
 
 	for (const TexRelation& tr : mat->textures) {
 		const Texture* tex = App->fs->RetrievePValue<Texture>(tr.tex_uid);
@@ -110,15 +143,15 @@ uint32_t ModuleRenderer3D::LoadMaterial(const Material* mat) {
 		TexRelation texp;
 		texp.tex_uid = textures.size() - 1;
 		texp.type = tr.type; // Care about type here?
-		push.gpu_textures.push_back(texp);
+		ret.gpu_textures.push_back(texp);
 	}
 
-	materials.push_back(push);
-	return materials.size() - 1;
+	return ret;
 }
 
 void ModuleRenderer3D::SetMeshMats() {
-	for (GPUMesh& mesh : meshes) {
+	for (auto& mesh_it : meshes) {
+		GPUMesh& mesh = mesh_it.second;
 		for (int i = 0; i < materials.size(); ++i) {
 			if (materials[i].disk_id.uid == mesh.material.uid) {
 				mesh.material.data_pos = i;
