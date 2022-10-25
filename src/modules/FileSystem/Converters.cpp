@@ -45,7 +45,7 @@ std::vector<WatchedData> TryImport(TempIfStream& file, const char* path) {
 		ret.push_back(ImportJsonScene(file)); // Assimp Scene never saved to memory
 		WatchedData& push_data = ret.back();
 		PrepFromFile(push_data, file);
-		EV_SEND_UINT64(ECS_LOAD_JSONPREFAB, push_data.uid);
+		push_data.load_event_type = ECS_LOAD_JSONPREFAB;
 	}
 	else if (strcmp(ext, ".mesh") == 0)
 	{
@@ -53,17 +53,20 @@ std::vector<WatchedData> TryImport(TempIfStream& file, const char* path) {
 		WatchedData& push_data = ret.back();
 		PrepFromFile(push_data, file);
 		push_data.pd = ImportMesh(file);
+		push_data.load_event_type = LOAD_MESH_TO_GPU;
 	}
 	else if (strcmp(ext, ".material") == 0) {
 		ret.push_back(WatchedData());
 		WatchedData& push_data = ret.back();
 		PrepFromFile(push_data, file);
 		push_data.pd = ImportMaterial(file);
+		push_data.load_event_type = LOAD_MAT_TO_GPU;
 	}
 	else if (ExtensionToDevILType_Import(ext) != 0) {
 		ret.push_back(TryImportTexture(file));
 		WatchedData& push_data = ret.back();
 		PrepFromFile(push_data, file);
+		push_data.load_event_type = LOAD_TEX_TO_GPU;
 	}
 		
 

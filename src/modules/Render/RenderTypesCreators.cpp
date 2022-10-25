@@ -127,6 +127,8 @@ bool ModuleRenderer3D::EnsureMaterial(const uint64_t id) {
 		const Material* mat = App->fs->RetrievePValue<Material>(id);
 		if (mat == nullptr) return false;
 		materials.insert(std::pair<uint64_t, GPUMat>(id, LoadMaterial(mat)));
+		for (const TexRelation& tr : mat->textures)
+			EnsureTexture(tr.tex_uid);
 	}
 
 	return true;
@@ -137,13 +139,8 @@ GPUMat ModuleRenderer3D::LoadMaterial(const Material* mat) {
 	ret.mat = mat;
 
 	for (const TexRelation& tr : mat->textures) {
-		const Texture* tex = App->fs->RetrievePValue<Texture>(tr.tex_uid);
-		if (tex == nullptr) continue; // Assume direct load...
-		LoadTexture(App->fs->RetrievePValue<Texture>(tr.tex_uid));
-		TexRelation texp;
-		texp.tex_uid = textures.size() - 1;
-		texp.type = tr.type; // Care about type here?
-		ret.gpu_textures.push_back(texp);
+		ret.gpu_textures.push_back(tr);
+		EnsureTexture(tr.tex_uid);
 	}
 
 	return ret;

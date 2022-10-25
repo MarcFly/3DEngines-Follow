@@ -86,9 +86,9 @@ void S_MeshRenderer::SetMat(RenderGroup& g, C_MeshRenderer& cr) {
 update_status S_MeshRenderer::PreUpdate(float dt) {
 	// Recreate rendergroups each frame
 	// Reasons: Invalidation of data, not ideal
-
 	// TODO: Change this to be recreated only when there are changes		
 	// Should not be called per frame, only push and pop operations!
+	
 	send.transforms.clear();
 	recache = true;
 	CacheGroups();

@@ -77,8 +77,8 @@ bool ModuleRenderer3D::Init()
 	if(ret == true)
 	{
 		//Use Vsync
-		if(VSYNC && SDL_GL_SetSwapInterval(1) < 0)
-			PLOG("Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
+		//if(VSYNC && SDL_GL_SetSwapInterval(1) < 0)
+			//PLOG("Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
 
 		//Initialize Projection Matrix
 		glMatrixMode(GL_PROJECTION);
@@ -161,10 +161,12 @@ void ModuleRenderer3D::BindMaterial(const GPUMat& m)
 	int baset = GL_TEXTURE0;
 	glEnable(baset);	
 
-	for (TexRelation tr :m.gpu_textures) {
-		glEnable(baset);
-		const GPUTex& t = textures[tr.tex_uid];
-		glBindTexture(GL_TEXTURE_2D, t.img_id);
+	for (TexRelation tr : m.gpu_textures) {
+		if (EnsureTexture(tr.tex_uid)) {
+			glEnable(baset);
+			const GPUTex& t = textures[tr.tex_uid];
+			glBindTexture(GL_TEXTURE_2D, t.img_id);
+		}
 		++baset;
 	}
 }
@@ -211,11 +213,11 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 			for (int j = 0; j < g.materialgroups.size(); ++j) {
 				const MaterialGroup& mg = g.materialgroups[j];
 				// Set Material state/shader
+				if (!EnsureMaterial(mg.material)) continue;
 				BindMaterial(materials[mg.material]);
 				for (int k = 0; k < mg.meshes.size(); ++k) {
 					// Push Matrix
-					ecs_renderables->transforms[mg.world_matrices[k]];
-					// Draw Mesh
+					if(!EnsureMesh(mg.meshes[k])) continue;
 					GPUMesh& m = meshes[mg.meshes[k]];
 					glEnableClientState(GL_VERTEX_ARRAY);
 					glBindBuffer(GL_ARRAY_BUFFER, m.vtx_id);

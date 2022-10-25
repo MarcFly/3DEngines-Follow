@@ -77,17 +77,9 @@ PlainData ConvertDevILTexture(const PlainData& pd, uint32_t tex_type) {
 		
 		ILinfo info;
 		iluGetImageInfo(&info);
-		// Only use info for size, other is when loading it!
-		//if (info.Origin != IL_ORIGIN_UPPER_LEFT) 
-			//iluFlipImage();
-		//tex->format = GL_RGBA;
-		//tex->unit_size = 1;
-		//tex->unit_type = GL_UNSIGNED_BYTE;
-		//tex->size = info.SizeOfData;
-		//tex->bytes = new char[tex->size];
-		
-		//tex->w = info.Width;
-		//tex->h = info.Height;		
+		if (info.Origin != IL_ORIGIN_LOWER_LEFT)
+			iluFlipImage();
+
 		ret.data = new char[info.SizeOfData]; // Way bigger than needed, raw texture...
 		ret.size = ilSaveL(IL_DDS, ret.data, info.SizeOfData);
 	}
@@ -113,8 +105,7 @@ PlainData ImportDevILTexture(const PlainData& pd, uint32_t tex_type) {
 		ILinfo info;
 		iluGetImageInfo(&info);
 		// Only use info for size, other is when loading it!
-		if (info.Origin != IL_ORIGIN_UPPER_LEFT) 
-			iluFlipImage();
+		
 		tex->format = GL_RGBA;
 		tex->unit_size = 1;
 		tex->unit_type = GL_UNSIGNED_BYTE;
@@ -139,7 +130,7 @@ PlainData ImportMaterial(const TempIfStream& file) {
 	SetPlainData(ret, mat, sizeof(Material));
 	PlainData read_pd = file.GetData();
 	ReadStream read;
-	read.SetData(read_pd.data, read_pd.size);
+	read.SetData((byte*)read_pd.data, read_pd.size);
 
 	//uint32_t namelen;
 	//read.Get(&namelen);
@@ -198,7 +189,7 @@ PlainData SerializeMaterial(const Material& mat) {
 	out.AddArr(mat.textures.data(), num_texs);
 
 	datapair out_data = out.GetOwnership();
-	ret.data = out_data.first;
+	ret.data = (char*)out_data.first;
 	ret.size = out_data.second;
 
 	return ret;

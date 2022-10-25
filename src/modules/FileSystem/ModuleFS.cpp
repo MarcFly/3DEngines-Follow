@@ -141,6 +141,7 @@ std::vector<WatchedData> TryLoadFromDisk(const char* path, const char* parent_pa
 			unreg_data.uid = json_object_get_u64(json_object(metav), "uid");
 			json_value_free(metav);
 			App->fs->allocs.insert(allocpair(ret[i].uid, ret[i]));
+			EV_SEND_UINT64((EventType)unreg_data.load_event_type, unreg_data.uid);
 		}
 	}
 		

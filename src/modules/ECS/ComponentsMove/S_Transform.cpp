@@ -59,6 +59,7 @@ void S_Transform::CreateTransformTree(C_Transform& t) {
 }
 
 update_status S_Transform::PreUpdate(float dt) {
+	
 	std::vector<float4x4> cache;
 	for (C_Transform& t : transforms) {
 		if (t.is_static) continue;

@@ -22,7 +22,7 @@ public:
 	const PlainData& RetrieveData(uint64_t id);
 	template<class T>
 	T* RetrievePValue(uint64_t id) {
-		if (allocs.find(id)->first != id) return nullptr;
+		if (allocs.find(id) == allocs.end()) return nullptr;
 		WatchedData& wd = allocs.at(id);
 		//if(wd.loaded == false && wd.offload_id == UINT64_MAX)
 		// 

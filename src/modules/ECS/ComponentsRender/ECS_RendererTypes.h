@@ -4,12 +4,12 @@
 #include <src/helpers/MathGeoLib/MathGeoLib.h>
 
 struct MaterialGroup {
-	uint32_t material;
-	std::vector<uint32_t> meshes;
-	std::vector<uint32_t> world_matrices;
+	uint64_t material;
+	std::vector<uint64_t> meshes;
+	std::vector<uint64_t> world_matrices;
 };
 struct RenderGroup {
-	uint32_t gl_state;
+	uint64_t gl_state;
 	std::vector<MaterialGroup> materialgroups;
 };
 

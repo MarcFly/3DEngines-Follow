@@ -1,6 +1,8 @@
 #pragma once
 #include <stdint.h>
 
+typedef unsigned char byte;
+
 struct PlainData {
 	char* data = nullptr;
 	uint64_t size = 0;	
@@ -9,14 +11,14 @@ struct PlainData {
 // Read Stream does not take ownership and should not be used
 // to handle memory, it is a utility to read alongside;
 struct ReadStream {
-	char* stream = nullptr;
+	byte* stream = nullptr;
 	uint64_t size = 0;
-	char* pointer = stream;
+	byte* pointer = stream;
 	uint64_t curr_pos = 0;
 
 	std::vector<uint64_t> reads;
 
-	void SetData(char* _data, uint64_t _size) {
+	void SetData(byte* _data, uint64_t _size) {
 		pointer = stream = _data;
 		size = _size;
 		curr_pos = 0;
@@ -52,18 +54,18 @@ struct ReadStream {
 	}
 };
 
-typedef std::pair<char*, uint64_t> datapair;
+typedef std::pair<byte*, uint64_t> datapair;
 struct WriteStream {
-	char* stream = nullptr;
+	byte* stream = nullptr;
 	uint64_t size = 0;
 	uint64_t capacity = 0;
-	char* pointer = stream;
+	byte* pointer = stream;
 	uint64_t curr_pos = 0;
 
 	std::vector<uint64_t> writes;
 	void Realloc(uint64_t newcap) {
 		if (newcap <= capacity) newcap = capacity * 2;
-		char* new_stream = new char[newcap];
+		byte* new_stream = new byte[newcap];
 		memcpy(new_stream, stream, size);
 		if(stream != nullptr) delete stream;
 		stream = new_stream;
@@ -74,7 +76,7 @@ struct WriteStream {
 	void Trim() {
 		if (size == capacity || size == 0) return;
 
-		char* trimmed = new char[size];
+		byte* trimmed = new byte[size];
 		memcpy(trimmed, stream, size);
 
 		if (stream != nullptr) delete stream;
@@ -89,6 +91,8 @@ struct WriteStream {
 		if (writes.back() + size > capacity) Realloc(writes.back() + size);
 		memcpy(pointer, data, writes.back());
 		
+		T test = *(T*)pointer;
+
 		pointer += writes.back();
 		curr_pos += writes.back();
 		size += writes.back();
@@ -106,7 +110,7 @@ struct WriteStream {
 
 	datapair GetOwnership() {
 		Trim();
-		char* ret = stream;
+		byte* ret = stream;
 		uint64_t retsize = size;
 		size = capacity = curr_pos = 0;
 		stream = pointer = nullptr;

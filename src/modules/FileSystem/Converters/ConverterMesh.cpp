@@ -7,7 +7,7 @@ PlainData ImportMesh(const TempIfStream& file) {
 	SetPlainData(ret, mesh, sizeof(NIMesh));
 	PlainData read_pd = file.GetData();
 	ReadStream read;
-	read.SetData(read_pd.data, read_pd.size);
+	read.SetData((byte*)read_pd.data, read_pd.size);
 
 	uint32_t num_vertices, num_normals, num_uvs, num_indices;
 	bool half;
@@ -57,10 +57,11 @@ PlainData SerializeNIMesh(const NIMesh& nimesh) {
 	out.AddArr(nimesh.vertices.data(), num_vertices);
 	out.AddArr(nimesh.normals.data(), num_normals);
 	out.AddArr(nimesh.uvs.data(), num_uvs);
-	out.AddArr((half) ? (char*)nimesh.h_indices.data() : (char*)nimesh.indices.data(), num_indices);
+	if (half) out.AddArr(nimesh.h_indices.data(), num_indices);
+	else out.AddArr(nimesh.indices.data(), num_indices);
 
 	datapair out_data = out.GetOwnership();
-	ret.data = out_data.first;
+	ret.data = (char*)out_data.first;
 	ret.size = out_data.second;
 
 	return ret;
