@@ -173,11 +173,6 @@ void ModuleRenderer3D::BindMaterial(const GPUMat& m)
 
 update_status ModuleRenderer3D::PostUpdate(float dt)
 {
-	if (hijack_framebuffer != nullptr) {
-		glBindFramebuffer(GL_FRAMEBUFFER, hijack_framebuffer->framebuffer_id);
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
 	PLOG("Incomplete Framebuffer: %s", glewGetErrorString(glGetError()));
 	cum_dt += dt;
 	float4 light_position = { (float)sin(cum_dt)*5.f, 0.f, (float)cos(cum_dt)*5.f, .5f};
@@ -258,8 +253,6 @@ update_status ModuleRenderer3D::PostUpdate(float dt)
 	//	glDisableClientState(GL_VERTEX_ARRAY);
 	//	glBindTexture(GL_TEXTURE_2D, 0);
 	//}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	return UPDATE_CONTINUE;
 }

@@ -94,6 +94,10 @@ update_status ModuleEngineUI::Update(float dt)
 
 update_status ModuleEngineUI::PostUpdate(float dt)
 {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     // Rendering
     ImGui::Render();
     //glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
@@ -103,6 +107,12 @@ update_status ModuleEngineUI::PostUpdate(float dt)
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();
     SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+
+    if (App->renderer3D->hijack_framebuffer != nullptr) {
+        glBindFramebuffer(GL_FRAMEBUFFER, App->renderer3D->hijack_framebuffer->framebuffer_id);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
 
     return update_status::UPDATE_CONTINUE;
 }
