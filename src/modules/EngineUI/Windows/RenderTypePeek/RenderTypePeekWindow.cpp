@@ -32,7 +32,3 @@ void RenderPeekWindow::Update()
 
 	ImGui::End();
 }
-
-void RenderPeekWindow::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
-{
-}

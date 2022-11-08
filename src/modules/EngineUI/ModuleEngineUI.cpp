@@ -136,11 +136,13 @@ bool ModuleEngineUI::CleanUp()
 	return false;
 }
 
-void ModuleEngineUI::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
-{
-    for (UI_Item* item : items) {
-        item->ReceiveEvents(evt_vec);
-    }
+UI_Item* ModuleEngineUI::GetItem(const char* name) {
+    if (!strcmp(name, "")) return nullptr;
+
+    for (int i = 0; i < items.size(); ++i)
+        if (!items[i]->name.compare(name)) return items[i];
+
+    return nullptr;
 }
 
 bool ModuleEngineUI::GetEvent(SDL_Event* e)

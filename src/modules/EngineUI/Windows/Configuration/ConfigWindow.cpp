@@ -1,6 +1,5 @@
 #include "ConfigWindow.h"
 #include <src/modules/Render/RendererTypes.h>
-#include <src/modules/EventSystem/Event.h>
 #include <src/Application.h>
 
 #include <SDL.h>
@@ -45,19 +44,13 @@ bool fullscreen, resizable, borderless, full_desktop;
 void ConfigWindow::WindowOptions()
 {
 	bool ret = false;
-	if (ImGui::Checkbox("Fullscreen", &fullscreen)) 
-		EV_SEND_BOOL(EventType::WINDOW_SET_FULLSCREEN, fullscreen);
-	if (ImGui::Checkbox("Borderless", &borderless))
-		EV_SEND_BOOL(EventType::WINDOW_SET_BORDERLESS, borderless);
-	if (ImGui::Checkbox("Resizable", &resizable))
-		EV_SEND_BOOL(EventType::WINDOW_SET_RESIZABLE, resizable);
-	if (ImGui::Checkbox("Full Desktop", &full_desktop))
-		EV_SEND_BOOL(EventType::WINDOW_SET_FULL_DESKTOP, full_desktop);
+	ImGui::Checkbox("Fullscreen", &App->window->fullscreen); 
+	ImGui::Checkbox("Borderless", &App->window->borderless);
+	ImGui::Checkbox("Resizable", &App->window->resizable);
+	ImGui::Checkbox("Full Desktop", &App->window->full_desktop);
 
-	ImGui::SliderInt("Width", &w, 100, 1920);
-	ImGui::SliderInt("Height", &h, 100, 1080);
-	if(ImGui::Button("ChangeSize"))
-		EV_SEND_POINT2D(EventType::WINDOW_RESIZE, w, h)
+	ImGui::SliderInt("Width", &App->window->w, 100, 1920);
+	ImGui::SliderInt("Height", &App->window->h, 100, 1080);
 }
 
 
@@ -172,19 +165,16 @@ void ConfigWindow::RenderOptions()
 		state.dst_blend = blend_vals[curr_dst_blend];
 		state.poly_mode = polymode_vals[curr_polymode];
 		state.poly_fill = polyfill_vals[curr_polyfill];
+		
 
-		std::shared_ptr<Event> ev = std::make_shared<Event>(CHANGED_DEFAULT_OPENGL_STATE);
-		ev->ogl_state = state;
-		App->events->RegisterEvent(ev);
+		App->renderer3D->default_state = state;
 	}
 
 	// Example Primitives
 	ret = false;
-	if (ImGui::Checkbox("Render Primitive", &render_primitives))
-		EV_SEND_BOOL(TOGGLE_RENDERER_PRIMITIVES, render_primitives);
+	ImGui::Checkbox("Render Primitive", &App->renderer3D->draw_example_primitive);
 
-	if (ImGui::Combo("##PrimitiveExamples", &curr_primitive, primitive_strs, primitive_arrsize))
-		EV_SEND_UINT32(CHANGE_RENDERER_PRIMITIVE, curr_primitive);
+	ImGui::Combo("##PrimitiveExamples", &App->renderer3D->example_fun, primitive_strs, primitive_arrsize);
 }
 
 //================================================================
@@ -226,15 +216,4 @@ void ConfigWindow::Start() {
 	curr_primitive = App->renderer3D->example_fun;
 	for (int i = 0; polymode_vals[(curr_polymode = i)] != state.poly_mode; ++i);
 	for (int i = 0; polyfill_vals[(curr_polyfill = i)] != state.poly_fill; ++i);
-}
-
-void ConfigWindow::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec) {
-	for (std::shared_ptr<Event> ev: evt_vec) {
-		switch (ev->type) {
-		case EventType::WINDOW_RESIZE:
-			w = ev->point2d.x;
-			h = ev->point2d.y;
-			continue;
-		}
-	}
 }

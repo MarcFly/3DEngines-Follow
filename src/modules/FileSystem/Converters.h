@@ -7,9 +7,9 @@
 #include <src/modules/Module.h>
 #include <libs/assimp/scene.h>
 #include "FSDataTypes.h"
+#include <src/modules/Render/RendererTypes.h>
 
 std::vector<WatchedData> TryConvert(const TempIfStream& file, const char* path = nullptr);
-std::vector<WatchedData> TryImport(TempIfStream& file, const char* path = nullptr);
 bool InitConverters();
 bool CleanUpConverters();
 
@@ -18,21 +18,13 @@ bool CleanUpConverters();
 bool AssimpInit();
 bool AssimpCleanUp();
 
-std::vector<WatchedData> ConvertAssimpScene(const TempIfStream& file);
-WatchedData ImportJsonScene(TempIfStream& file);
+void ConvertAssimpScene(const TempIfStream& file);
 // Meshes
-PlainData ConvertAssimpMesh(const aiMesh* aimesh);
-PlainData ImportMesh(const TempIfStream& file);
+void ConvertAssimpMesh(const aiMesh* aimesh, NIMesh& mesh);
 
 // Materials
-std::vector<WatchedData> ConvertAssimpMaterial(const aiMaterial* aimat, const char* parent_path);
-PlainData ImportMaterial(const TempIfStream& file);
+void ConvertAssimpMaterial(const aiMaterial* aimat, const char* parent_path, Material& mat);
 
 // Textures
 uint32_t ExtensionToDevILType_Convert(const char* ext);
-WatchedData TryConvertTexture(const TempIfStream& file);
-PlainData ConvertDevILTexture(const PlainData& pd, uint32_t tex_type);
-
-uint32_t ExtensionToDevILType_Import(const char* ext);
-WatchedData TryImportTexture(const TempIfStream& file);
-PlainData ImportDevILTexture(const PlainData& pd, uint32_t tex_type);
+Texture ConvertDevILTexture(const TempIfStream& file);

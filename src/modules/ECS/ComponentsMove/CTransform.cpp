@@ -56,12 +56,6 @@ void C_Transform::DrawInspector() {
 			
 
 			local_mat = float4x4::FromTRS(prev_pos, prev_quat, prev_scale);
-			//local_mat = temp_quat * local_mat;
-			//local_mat = local_mat.Translate(temp_pos);
-			//local_mat = local_mat.;
-			//float4x4 change = float4x4::FromTRS(temp_pos, temp_quat, temp_scale);
-			//local_mat = change * local_mat;
-
 		}
 	}
 }

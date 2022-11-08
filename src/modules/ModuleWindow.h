@@ -18,8 +18,6 @@ public:
 	bool Init();
 	bool CleanUp();
 
-	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
-
 	void SetTitle(const char* title);
 
 	void Save(JSON_Object* obj);

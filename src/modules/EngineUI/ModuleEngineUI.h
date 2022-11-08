@@ -19,8 +19,6 @@ public:
 	update_status PostUpdate(float dt);
 	bool CleanUp();
 
-	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
-
 	bool GetEvent(SDL_Event* e);
 	
 	void EngineUI_RegisterItem(UI_Item* item);
@@ -28,6 +26,8 @@ public:
 	{
 		require_update = require_update || !window_state;
 	}
+
+	UI_Item* GetItem(const char* name);
 
 private:
 	MenuBar* menu_bar;

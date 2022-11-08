@@ -5,16 +5,14 @@
 #include <src/modules/ECS/ModuleECS.h>
 
 struct ComponentInspector : UI_Item {
-	uint64_t check_entity = UINT64_MAX;
 	std::string entity_id_str;
-	Entity entity;
-	std::vector<Component*> components;
+	Entity* entity = nullptr;
 
-	ComponentInspector() : UI_Item("Inpsector") {};
+	ComponentInspector() : UI_Item("Inspector") {};
 
-	void GetComponentsFromEntity();
+	RMPopupMenu rm_menu;
+	void UpdateRMMenu();
 
 	void Update();
-	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
 	
 };

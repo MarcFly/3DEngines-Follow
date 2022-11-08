@@ -89,37 +89,6 @@ bool ModuleWindow::CleanUp()
 	return true;
 }
 
-void ModuleWindow::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
-{
-	for (std::shared_ptr<Event> ev : evt_vec) {
-		switch (ev->type) {
-		case EventType::WINDOW_RESIZE:
-			w = ev->point2d.x; h = ev->point2d.y;
-			SDL_SetWindowSize(window, w, h);
-			continue;
-		case EventType::WINDOW_SET_FULLSCREEN:
-			fullscreen = ev->boolean;
-			SDL_SetWindowFullscreen(window, (SDL_WINDOW_FULLSCREEN * fullscreen) | (SDL_WINDOW_FULLSCREEN_DESKTOP * full_desktop));
-			continue;
-		case EventType::WINDOW_SET_FULL_DESKTOP:
-			full_desktop = ev->boolean;
-			SDL_SetWindowFullscreen(window, (SDL_WINDOW_FULLSCREEN * fullscreen) | (SDL_WINDOW_FULLSCREEN_DESKTOP * full_desktop));
-			continue;
-		case EventType::WINDOW_SET_BORDERLESS:
-			borderless = ev->boolean;
-			SDL_SetWindowBordered(window, (SDL_bool)!borderless);
-			continue;
-		case EventType::WINDOW_SET_RESIZABLE:
-			resizable = ev->boolean;
-			SDL_SetWindowResizable(window, (SDL_bool)resizable);
-			continue;
-		case EventType::WINDOW_SET_BRIGHTNESS:
-			// TODO: Change gamma/brightness at rendertime
-			continue;
-		}
-	}
-}
-
 void ModuleWindow::SetTitle(const char* title)
 {
 	SDL_SetWindowTitle(window, title);

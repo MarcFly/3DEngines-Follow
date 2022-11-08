@@ -10,7 +10,5 @@ public:
 	void Start();
 	void Update();
 
-	void ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec);
-
 	void CleanUp();
 };

@@ -1,68 +1,37 @@
 #include "ComponentInspector.h"
 #include <src/Application.h>
 
+void ComponentInspector::UpdateRMMenu() {
+	rm_menu.CheckToOpen();
+	if (ImGui::BeginPopup(rm_menu.container_name)) {
+		if (ImGui::MenuItem("Add Transform")) {
 
+		}
+		if (ImGui::MenuItem("Add Mesh")) {
+
+		}
+	}
+}
 
 void ComponentInspector::Update() {
 	bool changes_happened = false;
 	ImGui::Begin(name.c_str(), &active);
+	if (entity == nullptr) { ImGui::End(); return; }
 
-	if (check_entity == UINT64_MAX || App->ecs->GetEntity(check_entity) == nullptr) {
-		check_entity = UINT64_MAX;
-		ImGui::End();
-		return;
-	}
-
-	changes_happened |= ImGui::Checkbox("##ActiveEntityCheckbox", &entity.active);
+	changes_happened |= ImGui::Checkbox("##ActiveEntityCheckbox", &entity->active);
 
 	ImGui::SameLine();
-	changes_happened |= ImGui::InputText("##EntityNameInspector", entity.name, sizeof(entity.name));
-	
-	GetComponentsFromEntity();
+	changes_happened |= ImGui::InputText("##EntityNameInspector", entity->name, sizeof(entity->name));
+
 	static char button_id[64];
-	for (auto c : components) {
+	for (auto c : entity->components) {
 		sprintf(button_id, "##Button%llu", c->id.id);
 		ImGui::Checkbox(button_id, &c->active);
 		ImGui::SameLine();		
 		c->DrawInspector();
+		sprintf(button_id, "Delete##Button%llu", c->id.id);
+		ImGui::Button(button_id);
 	}
 
 	ImGui::End();
-
-	if(changes_happened)
-		EV_SEND_POINTER(ECS_REQUEST_MODIFY_ENTITY, &entity);
-}
-
-void ComponentInspector::ReceiveEvents(std::vector<std::shared_ptr<Event>>& evt_vec)
-{
-	for (std::shared_ptr<Event> ev : evt_vec) {
-		switch (ev->type) {
-		case HIERARCHY_SELECTED_ENTITY: {
-			check_entity = ev->uint64;
-			Entity* e = App->ecs->GetEntity(check_entity);
-			if (e != nullptr) {
-				entity = *e;
-				entity_id_str = "##" + std::to_string(check_entity);
-			}
-			continue;
-		}
-		case ECS_REQUEST_DELETE_ENTITY: {
-			check_entity = UINT64_MAX;
-			components.clear();
-			entity_id_str.clear();
-			continue;
-		}
-		// TODO: Event that calls for specific component removal
-		// IF inside the components, call again the Entity and GetComponents
-
-		}
-	}
-}
-
-void ComponentInspector::GetComponentsFromEntity() {
-	components.clear();
-	if (check_entity != UINT64_MAX) {
-		for (auto& c : entity.components)
-			components.push_back(App->ecs->GetComponentGeneric(c));
-	}
 }

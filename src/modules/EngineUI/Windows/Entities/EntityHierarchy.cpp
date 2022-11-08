@@ -2,6 +2,10 @@
 #include <src/Application.h>
 #include <src/modules/ECS/ModuleECS.h>
 
+void EntityHierarchyWindow::Start() {
+    inspector = (ComponentInspector*)App->engine_ui->GetItem("Inspector");
+}
+
 void EntityHierarchyWindow::UpdateRMMenu() {
     rm_menu.CheckToOpen();
     if (ImGui::BeginPopup(rm_menu.container_name))
@@ -9,15 +13,17 @@ void EntityHierarchyWindow::UpdateRMMenu() {
         if (ImGui::MenuItem("New Entity"))
         {
             for (int i = 0; i < selected.size(); ++i)
-                EV_SEND_UINT64(ECS_REQUEST_NEW_ENTITY, selected[i]);
-            if(selected.size() == 0)
-                EV_SEND_UINT64(ECS_REQUEST_NEW_ENTITY, UINT64_MAX);
-
+                App->ecs->AddEntity(selected[i]);
+            if (selected.size() == 0)
+                App->ecs->AddEntity(UINT64_MAX);
         }
+        for (int i = 0; i < selected.size(); ++i)
+            if (selected[i] == UINT64_MAX)
+                continue;
         if (ImGui::MenuItem("Delete Selected"))
         {
             for (int i = 0; i < selected.size(); ++i)
-                EV_SEND_UINT64(ECS_REQUEST_DELETE_ENTITY, selected[i]);
+                App->ecs->DeleteEntity(selected[i]);
 
             selected.clear();
         }
@@ -27,8 +33,7 @@ void EntityHierarchyWindow::UpdateRMMenu() {
 
 static ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanFullWidth;
 
-void EntityHierarchyWindow::UpdateEntry(const uint64_t eid) {
-    Entity* curr_e = App->ecs->GetEntity(eid);
+void EntityHierarchyWindow::UpdateEntry(Entity* curr_e) {
     bool isselected = IsSelected(curr_e->id);
     ImGuiTreeNodeFlags tmp_flags = node_flags
         | ((curr_e->children.size() == 0) * ImGuiTreeNodeFlags_Leaf)
@@ -39,7 +44,15 @@ void EntityHierarchyWindow::UpdateEntry(const uint64_t eid) {
         if (!CheckModifiers()) 
             selected.clear();
         selected.push_back(curr_e->id);
-        EV_SEND_UINT64(HIERARCHY_SELECTED_ENTITY, curr_e->id);
+        if (inspector != nullptr) {
+            if (selected.back() == App->ecs->root.id) {
+                inspector->entity = &App->ecs->root;
+            }
+            else {
+                inspector->entity = App->ecs->GetEntity(selected.back());
+            }
+            
+        }
     }
 
     for (int i = 0; open && i < curr_e->children.size(); ++i)
@@ -53,11 +66,10 @@ void EntityHierarchyWindow::Update() {
 	ImGui::Begin(name.c_str(), &active);
     if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !CheckModifiers()) {
         selected.clear();
-        EV_SEND_UINT64(HIERARCHY_SELECTED_ENTITY, UINT64_MAX);
+        if (inspector != nullptr) inspector->entity = nullptr;
     }
 
-    for (auto eid : App->ecs->base_entities)
-        UpdateEntry(eid);
+    UpdateEntry(&App->ecs->root);
 
     UpdateRMMenu();
 

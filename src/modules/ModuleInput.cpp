@@ -96,8 +96,8 @@ update_status ModuleInput::PreUpdate(float dt)
 		switch(e.type)
 		{
 		case SDL_DROPFILE:
-			EV_SEND_STR(EventType::FILE_DROPPED, e.drop.file); 
-			// MEMLEAK: event does not free sdl allocated str
+			TryLoadFromDisk(e.drop.file);
+			SDL_free(e.drop.file);
 			break;
 		case SDL_MOUSEWHEEL:
 			mouse_z = e.wheel.y;
@@ -119,10 +119,8 @@ update_status ModuleInput::PreUpdate(float dt)
 			{
 				switch (e.window.event) {
 				case SDL_WINDOWEVENT_RESIZED:
-					std::shared_ptr<Event> ev = std::make_shared<Event>(WINDOW_RESIZE);
-					ev->point2d.x = e.window.data1;
-					ev->point2d.y = e.window.data2;
-					App->events->RegisterEvent(ev);
+					App->window->w = e.window.data1;
+					App->window->h = e.window.data2;
 				}
 			}
 		}

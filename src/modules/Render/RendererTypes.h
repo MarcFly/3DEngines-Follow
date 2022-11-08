@@ -16,24 +16,7 @@ struct OpenGLState {
 	uint32_t poly_mode = GL_FRONT_AND_BACK, poly_fill = GL_FILL;
 };
 
-
-struct VTX_arr {
-	std::vector<float3> vertices;
-	GLenum draw_mode = GL_STATIC_DRAW;
-};
-
 // Non-Interleaved Mesh - Data Blocks
-struct NIMesh {
-	std::vector<float3> vertices;
-	std::vector<float3> normals;
-	std::vector<float2> uvs;
-
-	std::vector<uint32_t> indices;
-	std::vector<uint16_t> h_indices; // in case it has halfsized indices
-
-	KeyPosPair material;
-};
-
 struct GPUMesh {
 	uint32_t vtx_id = 0;
 	uint32_t norm_id = 0;
@@ -43,7 +26,30 @@ struct GPUMesh {
 	uint32_t idx_id = 0;
 	uint64_t num_idx = 0;
 
-	KeyPosPair material;
+	void UnloadFromGPU();
+
+	void Bind();
+	void Draw();
+};
+
+struct NIMesh {
+	std::vector<float3> vertices;
+	std::vector<float3> normals;
+	std::vector<float2> uvs;
+
+	std::vector<uint32_t> indices;
+
+	GPUMesh LoadToGPU();
+};
+
+
+
+struct GPUTex {
+	uint32_t img_id;
+	uint32_t w, h;
+
+	void Bind();
+	void UnloadFromGPU();
 };
 
 struct Texture {
@@ -54,12 +60,11 @@ struct Texture {
 	uint32_t format;
 	uint32_t unit_size;
 	uint32_t unit_type;
+
+	GPUTex LoadToGPU() const;
 };
 
-struct GPUTex {
-	uint32_t img_id;
-	uint32_t w, h;
-};
+
 
 struct MaterialState {
 	bool cull_faces = true;
@@ -71,6 +76,13 @@ struct MaterialState {
 struct TexRelation {
 	uint64_t tex_uid;
 	uint32_t type; // Be it Normal Map, Albedo,...
+};
+
+struct GPUMat {
+	std::vector<GPUTex> texture_use;
+
+	void Bind();
+	void UnloadFromGPU();
 };
 
 struct Material {
@@ -91,18 +103,18 @@ struct Material {
 
 	float refractiveness;
 
-	std::vector<TexRelation> textures;
+	std::vector<Texture> textures_data;
 
-};
-
-struct GPUMat {
-	const Material* mat;
-	KeyPosPair disk_id;
-	std::vector<TexRelation> gpu_textures;
+	GPUMat LoadToGPU();
+	
 };
 
 struct GPUFBO {
 	GLuint framebuffer_id;
 	GLuint renderbuffer_id;
 	GPUTex attachment;
+
+	void Create(int w, int h);
+	void Destroy();
+	void Bind();
 };

@@ -46,7 +46,6 @@
     <ClCompile Include="src\modules\EngineUI\ModuleEngineUI.cpp" />
     <ClCompile Include="src\modules\EngineUI\MenuBar\MenuBar.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.cpp" />
-    <ClCompile Include="src\modules\EventSystem\ModuleEventSystem.cpp" />
     <ClCompile Include="src\helpers\JSON\parson.c" />
     <ClCompile Include="src\helpers\MathGeoLib\Algorithm\Random\LCG.cpp" />
     <ClCompile Include="src\helpers\MathGeoLib\Algorithm\GJK.cpp" />
@@ -104,10 +103,8 @@
     <ClCompile Include="src\modules\EngineUI\Windows\Inspector\ComponentInspector.cpp" />
     <ClCompile Include="src\modules\ECS\ComponentsRender\C_MeshRenderer.cpp" />
     <ClCompile Include="src\modules\ECS\ComponentsMove\CTransform.cpp" />
-    <ClCompile Include="src\modules\ECS\ComponentsRender\S_MeshRenderer.cpp" />
     <ClCompile Include="src\modules\FileSystem\Converters.cpp" />
     <ClCompile Include="src\modules\FileSystem\ModuleFS.cpp" />
-    <ClCompile Include="src\modules\ECS\ComponentsMove\S_Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
@@ -136,8 +133,6 @@
     <ClInclude Include="src\modules\EngineUI\MenuBar\MenuBar.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\DemoWindow.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\Configuration\ConfigWindow.h" />
-    <ClInclude Include="src\modules\EventSystem\ModuleEventSystem.h" />
-    <ClInclude Include="src\modules\EventSystem\Event.h" />
     <ClInclude Include="src\modules\Render\RendererTypes.h" />
     <ClInclude Include="src\modules\FileSystem\ModuleFS.h" />
     <ClInclude Include="src\helpers\JSON\parson.h" />

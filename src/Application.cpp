@@ -9,7 +9,6 @@ Application::Application()
 	input = new ModuleInput();
 	renderer3D = new ModuleRenderer3D();
 	camera = new ModuleCamera3D();
-	events = new ModuleEventSystem();
 	fs = new ModuleFS();
 	ecs = new ModuleECS();
 	engine_ui = new ModuleEngineUI();
@@ -32,7 +31,6 @@ Application::Application()
 	AddModule(engine_ui);
 
 	AddModule(fs);
-	AddModule(events);
 }
 
 Application::~Application()
@@ -85,27 +83,6 @@ void Application::FinishUpdate()
 {
 	//Do here object move?
 
-}
-
-// Call PreUpdate, Update and PostUpdate on all modules
-void Application::SendEvents(std::vector<std::shared_ptr<Event>>& evt_vec) {
-	// App can also react to certain events
-	for (std::shared_ptr<Event> evt : evt_vec) {
-		switch (evt->type) {
-		case EventType::SAVE_CONFIG:
-			Save(evt->json_object);
-			continue;
-		case EventType::LOAD_CONFIG:
-			Load(evt->json_object);
-			continue;
-		}
-	}
-
-	for (Module* item : list_modules) {
-		item->ReceiveEvents(evt_vec);
-	}
-
-	evt_vec.clear();
 }
 
 update_status Application::Update()

@@ -60,9 +60,7 @@
     <ClCompile Include="src\helpers\pcg\pcg_basic.c" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\modules\ECS\ComponentsMove\CTransform.cpp" />
-    <ClCompile Include="src\modules\ECS\ComponentsMove\S_Transform.cpp" />
     <ClCompile Include="src\modules\ECS\ComponentsRender\C_MeshRenderer.cpp" />
-    <ClCompile Include="src\modules\ECS\ComponentsRender\S_MeshRenderer.cpp" />
     <ClCompile Include="src\modules\ECS\ModuleECS.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl2.cpp" />
     <ClCompile Include="src\modules\EngineUI\DearImGUI\backends\imgui_impl_opengl3.cpp" />
@@ -82,7 +80,6 @@
     <ClCompile Include="src\modules\EngineUI\Windows\Inspector\ComponentInspector.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.cpp" />
     <ClCompile Include="src\modules\EngineUI\Windows\View\SceneView.cpp" />
-    <ClCompile Include="src\modules\EventSystem\ModuleEventSystem.cpp" />
     <ClCompile Include="src\modules\FileSystem\Converters.cpp" />
     <ClCompile Include="src\modules\FileSystem\Converters\ConverterMesh.cpp" />
     <ClCompile Include="src\modules\FileSystem\Converters\ConverterAssimp.cpp" />
@@ -209,8 +206,6 @@
     <ClInclude Include="src\modules\EngineUI\Windows\RenderTypePeek\RenderTypePeekWindow.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\View\SceneView.h" />
     <ClInclude Include="src\modules\EngineUI\Windows\WindowsIncludeAll.h" />
-    <ClInclude Include="src\modules\EventSystem\Event.h" />
-    <ClInclude Include="src\modules\EventSystem\ModuleEventSystem.h" />
     <ClInclude Include="src\modules\FileSystem\FSDataTypes.h" />
     <ClInclude Include="src\modules\FileSystem\Converters.h" />
     <ClInclude Include="src\modules\FileSystem\ModuleFS.h" />
