@@ -15,4 +15,6 @@ struct C_Transform : public Component {
 	bool valid_tree = false;
 
 	void DrawInspector();
+
+	void PropagateChanges();
 };

@@ -8,6 +8,15 @@ static float3 temp_rot, prev_rot;
 static float3 temp_pos, prev_pos;
 static float3 temp_scale, prev_scale;
 
+void C_Transform::PropagateChanges() {
+	Entity* parent = id.parent;
+	for (Entity* child : parent->children) {
+		C_Transform* child_t = child->GetComponent<C_Transform>();
+		child_t->world_mat = world_mat * local_mat;
+		child_t->PropagateChanges();
+	}
+}
+
 void C_Transform::DrawInspector() {
 	bool changed = false;
 
@@ -17,7 +26,10 @@ void C_Transform::DrawInspector() {
 		ImGui::Checkbox(headerid, &is_static);
 		ImGui::SameLine();
 		sprintf(headerid, "RESET##llu", id.id);
-		if (ImGui::Button(headerid)) local_mat = float4x4::identity;
+		if (ImGui::Button(headerid)) {
+			local_mat = float4x4::identity;
+			PropagateChanges();
+		}
 		if (ImGui::RadioButton("World", world_t)) world_t = !world_t;
 		ImGui::SameLine();
 		if (ImGui::RadioButton("Local", !world_t)) world_t = !world_t;
@@ -36,8 +48,6 @@ void C_Transform::DrawInspector() {
 		changed |= ImGui::DragFloat3(headerid, temp_scale.ptr(), .2f);
 
 		if (changed) {
-			if (world_t)
-				bool test_changes = true;
 			temp_pos -= prev_pos; 
 			temp_rot -= prev_rot; 
 			temp_quat = Quat::FromEulerXYZ(temp_rot.x, temp_rot.y, temp_rot.z);
@@ -56,6 +66,8 @@ void C_Transform::DrawInspector() {
 			
 
 			local_mat = float4x4::FromTRS(prev_pos, prev_quat, prev_scale);
+
+			PropagateChanges();
 		}
 	}
 }
