@@ -439,7 +439,7 @@ static JSON_Status json_object_init(JSON_Object *object, size_t capacity) {
 
     object->count = 0;
     object->cell_capacity = capacity;
-    object->item_capacity = (unsigned int)(capacity * 0.7f);
+    object->item_capacity = (size_t)(capacity * 0.7f);
 
     if (capacity == 0) {
         return JSONSuccess;
@@ -1260,7 +1260,7 @@ static int json_serialize_to_buffer_r(const JSON_Value *value, char *buf, int le
             if (buf != NULL) {
                 num_buf = buf;
             }
-            written = sprintf(num_buf, "\d%llu", u64);
+            written = sprintf(num_buf, "d%llu", u64);
             if (written < 0) {
                 return -1;
             }
@@ -2469,7 +2469,7 @@ int json_value_equals(const JSON_Value *a, const JSON_Value *b) {
         case JSONNumber:
             return fabs(json_value_get_number(a) - json_value_get_number(b)) < 0.000001; /* EPSILON */
         case JSONU64:
-            return json_value_get_u64(a) - json_value_get_u64(b);
+            return (json_value_get_u64(a) - json_value_get_u64(b)) > (unsigned long long)0;
         case JSONError:
             return PARSON_TRUE;
         case JSONNull:

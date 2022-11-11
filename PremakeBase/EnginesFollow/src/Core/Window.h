@@ -10,11 +10,11 @@ namespace Engine {
 	struct Window;
 	struct EF_API InternalWindow {
 		InternalWindow(Window* _window = nullptr) : window(_window) {};
-		uint64_t id;
+		uint64_t id = UINT64_MAX;
 
-		GLFWwindow* internal_window;
+		GLFWwindow* internal_window = nullptr;
 
-		Window* window; // 
+		Window* window = nullptr; // 
 	};
 
 	struct EF_API Window {

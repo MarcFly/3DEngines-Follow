@@ -116,7 +116,7 @@ void Window::Create(bool defaults) {
 		//buffer_hints.emplace_back(hintpair(SQUE_RENDERABLE_TYPE, SQUE_MIN_RENDERABLE));
 
 		w = 1600; h = 900;
-		sprintf_s(title, "Default Window Name %d", win_num++);
+		snprintf(title, sizeof(title), "Default Window Name %d", win_num++);
 	}
 
 	id = simplehash(title);

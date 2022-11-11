@@ -6,7 +6,7 @@ namespace Engine {
 	// Layers are like modules, managed by a higher power like application
 	// The idea is to make it more gradual
 	struct EF_API Layer {
-		uint64_t pos;
+		uint64_t pos = UINT64_MAX;
 		std::string debug_name;
 
 		Layer(const char* name = "Layer") : debug_name(name) {};

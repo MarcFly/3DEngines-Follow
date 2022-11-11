@@ -94,8 +94,14 @@ namespace Engine {
 		template<typename T>
 		static void RegisterFiletaker(T* send = nullptr) {
 			T* curr = send;
-			if (curr == nullptr) curr = new T();
-			filetakers.push_back(curr);
+			if (curr == nullptr) {
+				curr = new T();
+				filetakers.push_back(curr);
+			}
+			else {
+				not_owned_filetakers.push_back(curr);
+			}
+			
 			curr->OnAttach();
 		}
 
@@ -109,6 +115,7 @@ namespace Engine {
 		static uint64_t FindIDByName(const char* name);
 
 		static std::vector<FileTaker*> filetakers;
+		static std::vector<FileTaker*> not_owned_filetakers;
 		static std::unordered_map<uint64_t, WatchedData> allocs;
 		static double unload_bucket_ms; // = 10000;
 		static char execpath[512];

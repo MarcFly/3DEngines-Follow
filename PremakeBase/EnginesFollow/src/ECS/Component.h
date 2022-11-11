@@ -8,7 +8,7 @@ namespace Engine {
 		uint64_t ctype = UINT64_MAX;
 		uint64_t id = UINT64_MAX;
 		uint64_t parent_id = UINT64_MAX;
-		uint32_t quick_ref = UINT32_MAX;
+		size_t quick_ref = UINT32_MAX;
 	};
 
 	struct Component {

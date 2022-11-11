@@ -37,15 +37,15 @@ void FS::Init() {
 	(*strrchr(execpath, '\\')) = '\0';
 
 	char temp[1024];
-	sprintf(temp, "mkdir -p %s\\Assets\\Prefabs", execpath);
+	snprintf(temp, sizeof(temp), "mkdir -p %s\\Assets\\Prefabs", execpath);
 	system(temp);
-	sprintf(temp, "mkdir -p %s\\Assets\\Materials", execpath);
+	snprintf(temp, sizeof(temp), "mkdir -p %s\\Assets\\Materials", execpath);
 	system(temp);
-	sprintf(temp, "mkdir -p %s\\Assets\\Textures", execpath);
+	snprintf(temp, sizeof(temp), "mkdir -p %s\\Assets\\Textures", execpath);
 	system(temp);
-	sprintf(temp, "mkdir -p %s\\Assets\\Meshes", execpath);
+	snprintf(temp, sizeof(temp), "mkdir -p %s\\Assets\\Meshes", execpath);
 	system(temp);
-	sprintf(temp, "mkdir -p %s\\Assets\\Metafiles", execpath);
+	snprintf(temp, sizeof(temp), "mkdir -p %s\\Assets\\Metafiles", execpath);
 	system(temp);
 
 	Events::Subscribe<FilesDropped>(TryLoadFiles_EventFun);
@@ -67,8 +67,7 @@ const char* FileNameExt(const char* path) {
 void FileName(const char* path, char* out) {
 	const char* name_ext = FileNameExt(path);
 	if (name_ext == nullptr) return;
-	int len = strlen(name_ext);
-	char temps[64];
+	size_t len = strlen(name_ext);
 	if (len > 64) return;
 	memcpy(out, name_ext, len);
 	
@@ -112,6 +111,15 @@ FileVirtual* FS::TryLoad(const char* path, const char* parent_path) {
 
 	FileVirtual* ret;
 	for (FileTaker* ft : filetakers) {
+		uint32_t internal_type = ft->ShouldILoad(extension);
+		if (internal_type > 0) {
+			TempIfStream temp(path, parent_path);
+			ret = ft->TryLoad(temp, internal_type);
+			if (ret != nullptr)
+				return ret;
+		}
+	}
+	for (FileTaker* ft : not_owned_filetakers) {
 		uint32_t internal_type = ft->ShouldILoad(extension);
 		if (internal_type > 0) {
 			TempIfStream temp(path, parent_path);

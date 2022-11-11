@@ -11,7 +11,7 @@
 namespace Engine {
 
 	struct System {
-		uint64_t type;
+		uint64_t type = UINT64_MAX;
 
 		// Each System must at least hold 1 complete component type, might have references to other cached components too
 		// Every new component a system brings, it MUST REGISTER IT to the ECS!
@@ -122,9 +122,11 @@ namespace Engine {
 		virtual void SerializeSingleComponent(const CID& cid, JSON_Array* component_arr) {};
 	};
 
-	struct ECS : public Layer {
+	struct ECS : public Layer, public FileTaker {
 		ECS();
 		~ECS();
+
+		char scenename[256];
 
 		// TODO: SWAP TO SLOTMAP!!!
 		std::vector<Entity> entities;

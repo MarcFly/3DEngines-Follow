@@ -4,7 +4,7 @@
 using namespace Engine;
 
 MenuItem::MenuItem(const char* _name, uint32_t id) : name(64, _name) {
-	sprintf(imgui_id, "%s##%u\0", name.str, id);
+	snprintf(imgui_id, sizeof(imgui_id), "%s##%u\0", name.str, id);
 }
 
 void MenuBar::UpdateMenuItem(MenuItem& item) {

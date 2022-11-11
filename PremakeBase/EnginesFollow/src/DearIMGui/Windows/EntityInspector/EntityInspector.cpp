@@ -47,7 +47,7 @@ void EntityInspector::Update() {
 	static char button_id[64];
 	for (auto c : components) {
 		ImGui::BeginChild(c->cid.id);
-		sprintf(button_id, "##Button%llu", c->cid.id);
+		snprintf(button_id, sizeof(button_id), "##Button%llu", c->cid.id);
 		ImGui::Checkbox(button_id, &c->active);
 		ImGui::SameLine();
 		c->DrawInspector();

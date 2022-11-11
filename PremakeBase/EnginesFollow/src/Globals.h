@@ -57,7 +57,7 @@ struct offload_str {
 		str = new char[wanted_size]; 
 		va_list args; 
 		va_start(args, fmt);  
-		vsprintf(str, fmt, args); 
+		vsnprintf(str, wanted_size, fmt, args); 
 		va_end(args); 
 	}
 	offload_str(offload_str& _str) {

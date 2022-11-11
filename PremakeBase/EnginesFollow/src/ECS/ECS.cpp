@@ -222,6 +222,8 @@ JSON_Value* ECS::SerializeScene() {
 	JSON_Value* retval = json_value_init_object();
 	JSON_Object* base_obj = json_object(retval);
 
+	json_object_set_string(base_obj, "scenename", scenename);
+
 	JSON_Value* entities_val = json_value_init_array();
 	JSON_Array* entities_arr = json_array(entities_val);
 

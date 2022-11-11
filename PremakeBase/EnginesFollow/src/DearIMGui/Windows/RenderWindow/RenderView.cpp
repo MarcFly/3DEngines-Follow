@@ -13,7 +13,7 @@ void RenderView::BuildFBStrs() {
 	strs = new char* [num_strs];
 	for (int i = 0; i < num_strs; ++i) {
 		strs[i] = new char[32];
-		sprintf(strs[i], "Framebuffer %d", i);
+		snprintf(strs[i], 32, "Framebuffer %d", i);
 	}
 
 	BuildIDStrs();
@@ -41,7 +41,7 @@ void RenderView::BuildIDStrs() {
 	strs_ids = new char* [num_strs_ids];
 	for (int j = 0; j < fb.attachments.size(); ++j) {
 		strs_ids[j] = new char[32];
-		sprintf(strs_ids[j], "Attachment %d", j);
+		snprintf(strs_ids[j], 32, "Attachment %d", j);
 		ids.push_back(fb.attachments[j].tex_id);
 	}
 
@@ -84,7 +84,7 @@ void RenderView::Update() {
 			ImGui::SameLine();
 			ImGui::PushItemWidth(ww / 2 - pad/2);
 			if (ImGui::BeginCombo("##IDStringSelection", strs_ids[gl_selected_id])) {
-				for (int i = 0; i < fb.attachments.size() > 0; ++i)
+				for (int i = 0; i < fb.attachments.size(); ++i)
 					if (ImGui::Selectable((const char*)strs_ids[i])) {
 						gl_selected_id = i;
 						break;

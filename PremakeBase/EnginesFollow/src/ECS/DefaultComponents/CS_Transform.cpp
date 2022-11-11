@@ -21,12 +21,12 @@ void C_Transform::DrawInspector() {
 	
 	bool changed = false;
 
-	sprintf(headerid, "Transform##%llu", cid.id);
+	snprintf(headerid, sizeof(headerid), "Transform##%llu", cid.id);
 	if (ImGui::CollapsingHeader(headerid)) {
-		sprintf(headerid, "STATIC##%llu", cid.id);
+		snprintf(headerid, sizeof(headerid), "STATIC##%llu", cid.id);
 		ImGui::Checkbox(headerid, &is_static);
 		ImGui::SameLine();
-		sprintf(headerid, "RESET##llu", cid.id);
+		snprintf(headerid, sizeof(headerid), "RESET##%llu", cid.id);
 		if (ImGui::Button(headerid)) local_mat = float4x4::identity;
 		if (ImGui::RadioButton("World", world_t)) world_t = !world_t;
 		ImGui::SameLine();
@@ -38,11 +38,11 @@ void C_Transform::DrawInspector() {
 		prev_pos = temp_pos;
 		prev_rot = temp_rot = temp_quat.ToEulerXYZ();
 		prev_scale = temp_scale;
-		sprintf(headerid, "POSITION##%llu", cid.id);
+		snprintf(headerid, sizeof(headerid), "POSITION##%llu", cid.id);
 		changed |= ImGui::DragFloat3(headerid, temp_pos.ptr(), .2f);
-		sprintf(headerid, "ROTATION##%llu", cid.id);
+		snprintf(headerid, sizeof(headerid), "ROTATION##%llu", cid.id);
 		changed |= ImGui::DragFloat3(headerid, temp_rot.ptr(), .1f);
-		sprintf(headerid, "SCALE##%llu", cid.id);
+		snprintf(headerid, sizeof(headerid), "SCALE##%llu", cid.id);
 		changed |= ImGui::DragFloat3(headerid, temp_scale.ptr(), .2f);
 
 		if (changed) {

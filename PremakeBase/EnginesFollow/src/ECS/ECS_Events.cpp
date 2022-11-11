@@ -1,6 +1,6 @@
 #include "EnginePCH.h"
 #include "ECS_Events.h"
-#include "ECS.h";
+#include "ECS.h"
 
 using namespace Engine;
 

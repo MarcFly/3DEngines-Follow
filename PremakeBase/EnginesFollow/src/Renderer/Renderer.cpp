@@ -128,7 +128,7 @@ void Renderer::Update() {
    RenderState backup;
    
    framebuffers.begin()->second.Bind();
-   Engine::RenderAPI::ClearFB(float4(.5, .1, .1, 1.));
+   Engine::RenderAPI::ClearFB(float4(.5f, .1f, .1f, 1.f));
    
 }
 

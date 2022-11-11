@@ -93,6 +93,7 @@ project "EnginesFollow"
 
     filter "system:windows"
         systemversion "latest"
+        defines {"_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS"}
 
     defines {
         "EF_BUILD_STATIC",

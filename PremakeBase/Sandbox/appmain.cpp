@@ -34,6 +34,7 @@ int e_main(Engine::Application* engine) {
 
 	Engine::ECS ecslayer;
 	engine->modules.PushLayer(&ecslayer);
+	Engine::FS::RegisterFiletaker(&ecslayer);
 
 	Engine::Renderer renderer;
 	engine->modules.PushLayer(&renderer);

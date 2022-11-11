@@ -2,29 +2,24 @@
 
 #include "../Globals.h"
 #include <MathGeoLib.h>
+#include "RenderMacros.h"
 
 namespace Engine {
 	struct EF_API VertAttrib {
 		VertAttrib(const char* _name) {
 			name = new char[128];
-			int namelen = strlen(_name);
-			if (namelen > 128) {
-				memcpy(name, _name, 128);
-				name[127] = '\0';
-			}
-			else {
-				memcpy(name, _name, namelen);
-				name[namelen] = '\0';
-			}
+			size_t namelen = strlen(_name);
+			memcpy(name, _name, 128);
+			(namelen > 128) ? name[127] = '\0' : name[namelen] = '\0';
 		}
 		~VertAttrib() { delete name; }
 
-		int id;
-		int var;
-		uint16_t num_components;
-		bool normalize;
-		uint16_t var_size;
-		uint16_t offset;
+		int id = -1;
+		int var = EF_FLOAT;
+		uint16_t num_components = 3;
+		bool normalize = false;
+		uint16_t var_size = 4;
+		uint16_t offset = 0;
 
 		char* name;
 	};
@@ -115,10 +110,10 @@ namespace Engine {
 
 	struct EF_API Uniform {
 		Uniform(const char* _name) : name(64, _name) { hashid = simplehash(_name); }
-		int id;
-		uint64_t hashid;
-		uint32_t type;
-		int var_size;
+		int id = -1;
+		uint64_t hashid = UINT64_MAX;
+		uint32_t type = 0;
+		int var_size = 0;
 		offload_str name;
 	};
 
