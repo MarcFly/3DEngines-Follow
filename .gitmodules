@@ -1,0 +1,19 @@
+[submodule "PremakeBase/3DEngines-Follow/Vendor/spdlog"]
+	path = PremakeBase/EnginesFollow/Vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "PremakeBase/EnginesFollow/vendor/glfw"]
+	path = PremakeBase/EnginesFollow/vendor/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "PremakeBase/EnginesFollow/vendor/imgui"]
+	path = PremakeBase/EnginesFollow/vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking
+[submodule "PremakeBase/EnginesFollow/vendor/mathgeolib"]
+	path = PremakeBase/EnginesFollow/vendor/mathgeolib
+	url = https://github.com/juj/MathGeoLib.git
+[submodule "PremakeBase/EnginesFollow/vendor/assimp"]
+	path = PremakeBase/EnginesFollow/vendor/assimp
+	url = https://github.com/assimp/assimp.git
+[submodule "PremakeBase/EnginesFollow/vendor/devIL"]
+	path = PremakeBase/EnginesFollow/vendor/devIL
+	url = https://github.com/DentonW/DevIL.git
