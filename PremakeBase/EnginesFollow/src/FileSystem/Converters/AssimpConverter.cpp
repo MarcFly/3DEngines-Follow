@@ -109,7 +109,7 @@ FileVirtual* AssimpConverter::TryLoad(TempIfStream& bytes, const uint32_t intern
 	PlainData json_ser = ret.Serialize();
 
 	static char filepath[256];
-	snprintf(filepath, sizeof(filepath), "%s/Assets/Prefab/%s.jsonscene", FS::execpath, json_object_get_string(json_object(ret.value), "secenename"));
+	snprintf(filepath, sizeof(filepath), "%s/Assets/Prefabs/%s.jsonscene", FS::execpath, json_object_get_string(json_object(ret.value), "scenename"));
 	FS::WriteToDisk(filepath, json_ser); 
 	FS::TryLoadFile(filepath);
 	

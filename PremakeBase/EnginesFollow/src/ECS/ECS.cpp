@@ -235,7 +235,7 @@ JSON_Value* ECS::SerializeScene() {
 		json_object_set_u64(e_obj, "id", e.id);
 		json_object_set_u64(e_obj, "parent_id", e.parent_id);
 		json_object_set_boolean(e_obj, "active", e.active);
-		json_object_set_string_with_len(e_obj, "name", e.name, sizeof(e.name));
+		json_object_set_string_with_len(e_obj, "name", e.name, strlen(e.name));
 
 		JSON_Value* children_val = json_value_init_array();
 		JSON_Array* children_arr = json_array(children_val);
@@ -341,5 +341,79 @@ void ECS::SerializePrefab(const uint64_t entity_id, JSON_Value* value) {
 }
 
 void ECS::DeserializePrefab(const JSON_Value* json_value) {
-	// TODO: Deserialization
+	const JSON_Object* base_obj = json_object(json_value);
+
+	const char* temp_scenename = json_object_get_string(base_obj, "scenename");
+	if(temp_scenename != nullptr)
+		memcpy(scenename, temp_scenename, strlen(temp_scenename));
+
+	const JSON_Array* entities_arr = json_object_get_array(base_obj, "entities");
+	const size_t num_entities = json_array_get_count(entities_arr);
+	for (int i = 0; i < num_entities; ++i) {
+		const JSON_Object* e_obj = json_array_get_object(entities_arr, i);
+		Entity* e = AddEntity(json_object_get_u64(e_obj, "parent_id"));
+
+		e->parent_id = json_object_get_u64(e_obj, "parent_id");
+		const uint64_t tid = json_object_get_u64(e_obj, "id");
+		if (e->parent_id == UINT64_MAX) {
+			for (int j = 0; j < base_entities.size(); ++j)
+				if (base_entities[j] == e->id) {
+					base_entities[j] = tid;
+					break;
+				}
+		} e->id = tid;
+		
+		e->active = json_object_get_boolean(e_obj, "active");
+		const char* name_str = json_object_get_string(e_obj, "name");
+		memcpy(e->name, name_str, strlen(name_str));
+
+		const JSON_Array* children_arr = json_object_get_array(e_obj, "children");
+		const size_t num_children = json_array_get_count(children_arr);
+		for (int j = 0; j < num_children; ++j)
+			e->children.push_back(json_array_get_u64(children_arr, j));
+
+		const JSON_Array* comps_arr = json_object_get_array(e_obj, "components");
+		const size_t nump_components = json_array_get_count(comps_arr);
+		for (int j = 0; j < nump_components; ++j) {
+			const JSON_Object* comp_obj = json_array_get_object(comps_arr, j);
+			e->components.push_back(CID(UINT64_MAX));
+			CID& cid = e->components.back();
+			cid.id = json_object_get_u64(comp_obj, "id");
+			cid.ctype = json_object_get_u64(comp_obj, "ctype");
+			cid.parent_id = e->id;
+		}
+	}
+
+	const JSON_Array* sys_arr = json_object_get_array(base_obj, "systems");
+	const size_t num_systems = json_array_get_count(sys_arr);
+	for (int i = 0; i < num_systems; ++i) {
+		const JSON_Object* sys_obj = json_array_get_object(sys_arr, i);
+		const uint64_t sys_type = json_object_get_u64(sys_obj, "ctype");
+		System* sys = GetSystemOfType(sys_type);
+		if (sys == nullptr) {
+			Engine_ERROR("System {} of type {}, has not been registered", sys_type, json_object_get_string(sys_obj, "name")); 
+			continue;
+		}
+		sys->JSONDeserializeComponents(sys_obj);
+	}
+
+	// TODO: shuffle ids, how to do that? Could also, change ids to have prefabid/sceneid + working id, makes it easier
+}
+
+uint32_t ECS::ShouldILoad(const char* ext) {
+	uint32_t ret = 0;
+	if (!stricmp(ext, ".jsonscene"))
+		ret = 1;
+
+	return ret;
+}
+
+FileVirtual* ECS::TryLoad(TempIfStream& disk_mem, const uint32_t internaltype) {
+	JSONVWrap* ret = new JSONVWrap();
+	ret->ParseBytes(disk_mem);
+
+	// Temporarily add it to scene directly to check loading properly
+	DeserializePrefab(ret->value);
+
+	return ret;
 }

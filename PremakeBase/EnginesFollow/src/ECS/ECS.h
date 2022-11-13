@@ -6,6 +6,8 @@
 #include "Core/Layer.h"
 #include "Component.h"
 #include "Entity.h"
+#include "FileSystem/FS.h"
+
 
 #define MISSING_FUN(returnv) Engine_WARN("Generic System Function is not defined..."); return returnv
 namespace Engine {
@@ -213,6 +215,9 @@ namespace Engine {
 		JSON_Value* SerializeScene();
 		void SerializePrefab(const uint64_t entity_id, JSON_Value* value);
 		void DeserializePrefab(const JSON_Value* json_value);
+
+		uint32_t ShouldILoad(const char* ext);
+		FileVirtual* TryLoad(TempIfStream& disk_mem, const uint32_t internaltype);
 
 		DECL_DYN_ENGINE_EV_FUNS(AddEntity_EventFun);
 		DECL_DYN_ENGINE_EV_FUNS(DeleteEntity_EventFun);

@@ -97,12 +97,11 @@ namespace Engine {
 			if (curr == nullptr) {
 				curr = new T();
 				filetakers.push_back(curr);
+				curr->OnAttach();
 			}
 			else {
 				not_owned_filetakers.push_back(curr);
 			}
-			
-			curr->OnAttach();
 		}
 
 		// This is so bad... need a better way of linking material/textures

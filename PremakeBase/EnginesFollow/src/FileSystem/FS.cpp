@@ -12,6 +12,7 @@
 using namespace Engine;
 
 std::vector<FileTaker*> FS::filetakers;
+std::vector<FileTaker*> FS::not_owned_filetakers;
 std::unordered_map<uint64_t, WatchedData> FS::allocs;
 double FS::unload_bucket_ms = 10000;
 
