@@ -38,10 +38,11 @@ struct AiRefs {
 
 void TraverseAiNodes(const aiScene* scene, const aiNode* node, const uint64_t parent_id, const AiRefs& refs, ECS& local_ecs) {
 	Entity* e = local_ecs.AddEntity(parent_id);
-	uint32_t namesize = (node->mName.length > sizeof(e->name)) ? sizeof(e->name) : node->mName.length;
 	snprintf(e->name, sizeof(e->name), "%s", node->mName.C_Str());
-	CID tid = local_ecs.AddComponent<S_Transform>(e->id);
-	C_Transform& t = local_ecs.GetComponent<C_Transform>(tid);
+
+	// Every game object has at least 1 transform
+	CID cid = local_ecs.AddComponent<S_Transform>(e->id);
+	C_Transform& t = local_ecs.GetComponent<C_Transform>(cid);
 
 	aiVector3D aitranslate, aiscale;
 	aiQuaternion aiquat;
@@ -105,9 +106,11 @@ FileVirtual* AssimpConverter::TryLoad(TempIfStream& bytes, const uint32_t intern
 	TraverseAiNodes(aiscene, aiscene->mRootNode, UINT64_MAX, refs, local_ecs);
 	
 	JSONVWrap ret;
+	snprintf(local_ecs.scenename, sizeof(local_ecs.scenename), "%s", filename);
 	ret.value = local_ecs.SerializeScene();
 	PlainData json_ser = ret.Serialize();
 
+	
 	static char filepath[256];
 	snprintf(filepath, sizeof(filepath), "%s/Assets/Prefabs/%s.jsonscene", FS::execpath, json_object_get_string(json_object(ret.value), "scenename"));
 	FS::WriteToDisk(filepath, json_ser); 

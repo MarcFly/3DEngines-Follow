@@ -22,14 +22,6 @@ ECS::~ECS() {
 
 uint64_t Entity::default_name = 0;
 
-std::vector<CID> Entity::GetComponentsOfType(const uint64_t type) {
-	std::vector<CID> ret;
-	for (CID& cid : components)
-		if (cid.ctype == type)
-			ret.push_back(cid);
-	return ret;
-}
-
 //===================================================================
 // ECS DATA CREATION AND MANAGEMENT
 //===================================================================
@@ -42,8 +34,6 @@ Entity* ECS::AddEntity(const uint64_t _parent_id) {
 	entity.parent_id = _parent_id;
 	std::string temp = std::to_string(Entity::default_name++);
 	memcpy(entity.name, temp.c_str(), temp.length());
-
-	entity.components.push_back(AddComponent<S_Transform>(entity.id));
 
 	if (entity.parent_id == UINT64_MAX)
 		base_entities.push_back(entity.id);
@@ -129,13 +119,6 @@ void ECS::DeleteEntity(const uint64_t entity_id) {
 	}
 }
 
-System* ECS::GetSystemOfType(const uint64_t type) {
-	auto& key = systems.find(type);
-	if (key != systems.end()) return key->second;
-
-	return nullptr;
-}
-
 CID ECS::AddComponentGeneric(const uint64_t type, const uint64_t entity_id) {
 	return GetSystemOfType(type)->AddGeneric(entity_id);
 }
@@ -197,7 +180,7 @@ void ECS::PreUpdate() {
 
 void ECS::Update() {
 	for (auto& sys : systems)
-		sys.second->Update	(0);
+		sys.second->Update(0);
 }
 
 void ECS::PostUpdate() {
@@ -249,7 +232,6 @@ JSON_Value* ECS::SerializeScene() {
 
 		JSON_Value* sys_val = json_object_get_value(base_obj, "systems");
 		JSON_Array* sys_arr = json_array(sys_val);
-		size_t num_systems = json_array_get_count(sys_arr);
 
 		for (int i = 0; i < e.components.size(); ++i) {
 			const CID& c = e.components[i];
@@ -275,7 +257,7 @@ JSON_Value* ECS::SerializeScene() {
 		JSON_Value* curr_sys_val = json_value_init_object();
 		JSON_Object* curr_sys_obj = json_object(curr_sys_val);
 		json_object_set_string(curr_sys_obj, "name", s->GetName());
-		json_object_set_u64(curr_sys_obj, "ctype", s->type);
+		json_object_set_u64(curr_sys_obj, "ctype", s->ctype);
 		
 		s->JSONSerializeComponents(curr_sys_obj);
 
@@ -287,11 +269,19 @@ JSON_Value* ECS::SerializeScene() {
 }
 
 
+void System::SerializeSingleComponent(CID& cid, JSON_Array* comps_arr) {
+	const Component* c = GetConstGeneric(cid);
+	if (c != nullptr) {
+		JSON_Value* v = JSONValueFromComponent(c);
+		if (v != nullptr)
+			json_array_append_value(comps_arr, v);
+	}
+}
 
 // Recursive, bad but easy
 void ECS::SerializePrefab(const uint64_t entity_id, JSON_Value* value) {
 	if (entity_id == UINT64_MAX) return;
-	const Entity& e = *GetEntity(entity_id);
+	Entity& e = *GetEntity(entity_id);
 	JSON_Object* base_obj = json_object(value);
 	JSON_Array* entity_arr = json_array(json_object_get_value(base_obj, "entities"));
 
@@ -318,7 +308,7 @@ void ECS::SerializePrefab(const uint64_t entity_id, JSON_Value* value) {
 	size_t num_systems = json_array_get_count(sys_arr);
 
 	for (int i = 0; i < e.components.size(); ++i) {
-		const CID& c = e.components[i];
+		CID& c = e.components[i];
 		JSON_Value* c_val = json_value_init_object();
 		JSON_Object* c_obj = json_object(c_val);
 
@@ -412,7 +402,10 @@ FileVirtual* ECS::TryLoad(TempIfStream& disk_mem, const uint32_t internaltype) {
 	JSONVWrap* ret = new JSONVWrap();
 	ret->ParseBytes(disk_mem);
 
-	// Temporarily add it to scene directly to check loading properly
+	// TODO: Load into a local ecs
+	// in the local_ecs, shuffle ids, as there are less operationst to do
+	// then merge into full ecs
+
 	DeserializePrefab(ret->value);
 
 	return ret;

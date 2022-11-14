@@ -41,7 +41,7 @@ namespace Engine {
 					break;
 				}
 			} 
-			for (i; i < layers.size(); ++i)
+			for (; i < layers.size(); ++i)
 				layers[i]->pos = i;
 			layer->OnDetach();
 		}
@@ -54,7 +54,7 @@ namespace Engine {
 					break;
 				}
 			}
-			for (i; i < overlays.size(); ++i)
+			for (; i < overlays.size(); ++i)
 				overlays[i]->pos = i;
 			layer->OnDetach();
 		}

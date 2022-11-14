@@ -8,6 +8,7 @@ workspace "Engines3DFollow"
     configurations { "Debug", "Release", "Distribution" }
     architecture "x64"
     startproject "%{AppName}"
+    toolset "clang"
 
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"

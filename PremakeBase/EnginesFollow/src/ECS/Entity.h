@@ -17,7 +17,13 @@ namespace Engine {
 
 		void Refresh(); // Updates Parenting and components
 
-		inline std::vector<CID> GetComponentsOfType(const uint64_t type);
+		inline std::vector<CID> GetComponentsOfType(const uint64_t type) {
+			std::vector<CID> ret;
+			for (CID& cid : components)
+				if (cid.ctype == type)
+					ret.push_back(cid);
+			return ret;
+		}
 		template<typename T>
 		inline std::vector<CID> GetComponents() { return GetComponentsOfType(T::type); }
 	};

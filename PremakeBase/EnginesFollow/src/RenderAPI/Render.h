@@ -10,9 +10,9 @@ namespace Engine {
 			name = new char[128];
 			size_t namelen = strlen(_name);
 			memcpy(name, _name, 128);
-			(namelen > 128) ? name[127] = '\0' : name[namelen] = '\0';
+			(namelen > 127) ? name[127] = '\0' : name[namelen] = '\0';
 		}
-		~VertAttrib() { delete name; }
+		~VertAttrib() { delete[] name; }
 
 		int id = -1;
 		int var = EF_FLOAT;
@@ -70,6 +70,8 @@ namespace Engine {
 	struct EF_API TexAttrib {
 		TexAttrib(const char* name, int32_t id, float* value, int num_values = 1);
 		TexAttrib(const char* name, int32_t id, int* value, int num_values = 1);
+		TexAttrib(const TexAttrib& ta) : isfloat(ta.isfloat), id(ta.id), fvalues(ta.fvalues),
+			num_values(ta.num_values), name(32, ta.name.str) {}
 		~TexAttrib();
 		bool isfloat;
 		uint32_t id;
@@ -110,6 +112,8 @@ namespace Engine {
 
 	struct EF_API Uniform {
 		Uniform(const char* _name) : name(64, _name) { hashid = simplehash(_name); }
+		Uniform(const Uniform& u) : name(64, u.name.str), hashid(u.hashid), type(u.type),
+			var_size(u.var_size), id(u.id) {}
 		int id = -1;
 		uint64_t hashid = UINT64_MAX;
 		uint32_t type = 0;

@@ -1,6 +1,6 @@
 #pragma once
 
-extern int e_main(Engine::Application* engine);
+extern int e_main(std::shared_ptr<Engine::Application>& engine);
 #define EF_QUICK_INIT
 #ifdef EF_QUICK_INIT
 bool quick_init = true;
@@ -11,10 +11,9 @@ bool quick_init = false;
 #ifdef _WIN32
 int main(int argc, char** argv) {
 
-	Engine::Application* engine = new Engine::Application(quick_init);
+	std::shared_ptr<Engine::Application> engine = std::make_shared<Engine::Application>(quick_init);
 	e_main(engine);
 
-	delete engine;
 	return 0;
 }
 #endif

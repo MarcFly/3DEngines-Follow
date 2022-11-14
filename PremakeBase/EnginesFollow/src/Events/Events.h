@@ -46,9 +46,9 @@ namespace Engine {
 /// 	Engine::Events::SendHot(testev); // Undefined behaviour, might not crash but...
 ///			
 #define DEF_DYN_MEMBER_EV_FUNS(evt_type, membertype, name) \
-	void membertype##::##name##Redirect(Engine::Event* evt, void* this_ptr) { \
+	void membertype::name##Redirect(Engine::Event* evt, void* this_ptr) { \
 		((membertype*)this_ptr)->name(evt); } \
-	DEF_EV_FUN(evt_type, membertype##::##name)
+	DEF_EV_FUN(evt_type, membertype::name)
 	
 
 	struct EF_API Events {
@@ -59,7 +59,6 @@ namespace Engine {
 		typedef void(EventRedirectFun)(Event* ev, void* this_ptr);
 
 		struct Subscriber {
-			Subscriber() {}
 			std::vector <std::pair<void*, EventRedirectFun*>> redirected_responses;
 			std::vector<EventFun*> responses;
 			std::vector<Event*> queue;
@@ -89,7 +88,7 @@ namespace Engine {
 		static void Send(T*& ev) {
 			T* curr = ev;
 			ev = nullptr;
-			auto& v = subscribers.find(T::type);
+			auto v = subscribers.find(T::type);
 			if (v != subscribers.end()) {
 				v->second.queue.push_back((Event*)curr);
 			}
@@ -103,7 +102,7 @@ namespace Engine {
 		template<typename T>
 		static void SendNew(T* ev) {
 			T* curr = ev;
-			auto& v = subscribers.find(T::type);
+			auto v = subscribers.find(T::type);
 			if (v != subscribers.end()) {
 				v->second.queue.push_back((Event*)curr);
 			}
@@ -117,7 +116,7 @@ namespace Engine {
 		static void SendHot(T*& ev) {
 			T* curr = ev;
 			ev = nullptr;
-			auto& v = subscribers.find(T::type);
+			auto v = subscribers.find(T::type);
 			if (v != subscribers.end()) {
 				for (EventFun* fun : v->second.responses) {
 					fun(curr);
@@ -133,7 +132,7 @@ namespace Engine {
 		template<typename T>
 		static void SendHotNew(T* ev) {
 			T* curr = ev;
-			auto& v = subscribers.find(T::type);
+			auto v = subscribers.find(T::type);
 			if (v != subscribers.end()) {
 				for (EventFun* fun : v->second.responses) {
 					fun(curr);
@@ -150,7 +149,7 @@ namespace Engine {
 		template<typename T>
 		static void Dispatch() {
 
-			if (subscribers.find(T::GetStaticType())) {}
+			//if (subscribers.find(T::GetStaticType()) != subscribers.end()) {}
 		}
 
 		static std::unordered_map<EventID, Subscriber> subscribers;

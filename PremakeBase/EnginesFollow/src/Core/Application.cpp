@@ -27,7 +27,7 @@ Application::Application(bool quick_init) {
 		main_window.Create();
 		main_window.MakeContextMain();
 		RenderAPI::InitForContext();
-		Engine::Application::RegisterDebugCallbacks();
+		//Engine::Application::RegisterDebugCallbacks();
 	}
 }
 
@@ -45,6 +45,11 @@ void Application::RegisterDebugCallbacks() {
 
 Application::~Application() {
 	main_window.Destroy();
+
+	FS::Close();
+	Window::Close();
+	Input::Close();
+	Logger::Close();
 }
 
 void Application::Run() {

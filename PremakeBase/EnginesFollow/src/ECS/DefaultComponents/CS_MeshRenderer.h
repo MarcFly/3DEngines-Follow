@@ -17,10 +17,11 @@ namespace Engine {
 	};
 
 	struct S_MeshRenderer : public System {
-		std::vector<C_MeshRenderer> components;
 		SystemConstruct(S_MeshRenderer, C_MeshRenderer);
 		DECL_SystemGenericFuns(S_MeshRenderer, C_MeshRenderer);
 		~S_MeshRenderer();
 
+		JSON_Value* JSONValueFromComponent(const Component* c);
+		void ComponentFromJSONObject(const JSON_Object* t_obj);
 	};
 }

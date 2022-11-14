@@ -2,20 +2,16 @@
 #include "FS.h"
 using namespace Engine;
 
-void WatchedData::Delete_RAM() {
-	if (mem != nullptr) {
-		mem->Unload_RAM();
-		loaded_ram = false;
-		delete mem;
-	}
-}
-
 void WatchedData::CheckNecessity() {
 	if (ram_users > 0 && !loaded_ram) {
 		mem = FS::TryLoad(path.c_str());
 		loaded_ram = true;
 	}
 	if (vram_users > 0 && !loaded_vram) {
+		if (!loaded_ram) {
+			mem = FS::TryLoad(path.c_str());
+			loaded_ram = true;
+		}
 		mem->Load_VRAM();
 		loaded_vram = true;
 	}
@@ -43,6 +39,15 @@ void WatchedData::RemoveUser() {
 	--ram_users;
 }
 
+void WatchedData::AddVUser() {
+	++vram_users;
+	CheckNecessity();
+}
+
+void WatchedData::RemoveVUser() {
+	--vram_users;
+}
+
 #include "DefaultFileTypes.h"
 
 void WatchedData::ParseBytes(TempIfStream& disk_mem) {
@@ -67,4 +72,10 @@ PlainData WatchedData::Serialize() {
 	
 	return ret;
 
+}
+
+void WatchedData::Load_FromDisk() {
+	mem = FS::TryLoad(path.c_str());
+	if (mem != nullptr)
+		loaded_ram = true;
 }

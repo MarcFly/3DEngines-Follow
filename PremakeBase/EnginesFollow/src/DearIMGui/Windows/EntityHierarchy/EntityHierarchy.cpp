@@ -36,8 +36,6 @@ void EntityHierarchyWindow::UpdateEntry(const uint64_t eid) {
     if (curr_e == nullptr) 
         return;
 
-    uint32_t truncated_id = curr_e->id >> 32;
-
     bool isselected = IsSelected(curr_e->id);
     ImGuiTreeNodeFlags tmp_flags = node_flags
         | ((curr_e->children.size() == 0) * ImGuiTreeNodeFlags_Leaf)

@@ -3,9 +3,16 @@
 
 using namespace Engine;
 
-MenuItem::MenuItem(const char* _name, uint32_t id) : name(64, _name) {
-	snprintf(imgui_id, sizeof(imgui_id), "%s##%u\0", name.str, id);
+MenuItem::MenuItem(const char* _name, uint64_t id) : name(64, _name) {
+	itemid = id;
+	snprintf(imgui_id, sizeof(imgui_id), "%s##%llu\0", name.str, id);
 }
+
+MenuItem::MenuItem(const MenuItem& mi) : name(64, mi.name.str) {
+	itemid = mi.itemid;
+	snprintf(imgui_id, sizeof(imgui_id), "%s##%llu\0", name.str, itemid);
+}
+
 
 void MenuBar::UpdateMenuItem(MenuItem& item) {
 	if (item.sub_items.size() == 0 && item.active_state != nullptr) {
@@ -32,7 +39,7 @@ void MenuBar::Update() {
 uint32_t MenuBar::RegisterMenuItem(bool* item_active, const char* name, const char* group) {
 	uint32_t ret = items.size();
 
-	items.push_back(MenuItem(name, ret));
+	items.emplace_back(MenuItem(name, ret));
 	MenuItem& mi = items.back();
 	mi.active_state = item_active;
 	if (!strcmp(group, "")) {

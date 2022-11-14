@@ -72,7 +72,7 @@ namespace Engine {
 
 		~WriteStream() {
 			if (stream != nullptr) {
-				delete[] stream, capacity;
+				delete[] stream;
 				stream = nullptr;
 			}
 			pointer = nullptr;
@@ -84,7 +84,7 @@ namespace Engine {
 			if (newcap <= capacity) newcap = capacity * 2;
 			byte* new_stream = new byte[newcap];
 			memcpy(new_stream, stream, size);
-			if (stream != nullptr) delete[] stream, capacity;
+			if (stream != nullptr) delete[] stream;
 			stream = new_stream;
 			pointer = &stream[curr_pos];
 			capacity = newcap;
@@ -107,8 +107,6 @@ namespace Engine {
 			writes.push_back(sizeof(T));
 			if (writes.back() + size > capacity) Realloc(writes.back() + size);
 			memcpy(pointer, data, writes.back());
-
-			T test = *(T*)pointer;
 
 			pointer += writes.back();
 			curr_pos += writes.back();
@@ -148,7 +146,7 @@ namespace Engine {
 			pd.data = data; pd.size = size;
 			data = temp; size = temp_s;
 		}
-		~PlainData() { if (data != nullptr) delete[] data, size; size = 0; }
+		~PlainData() { if (data != nullptr) delete[] data; size = 0; }
 
 		template<typename T>
 		inline void Acquire(T*& _data, uint64_t _size) {
@@ -173,7 +171,7 @@ namespace Engine {
 		~TempIfStream() { CleanUp(); }
 		void CleanUp() {
 			if (stream.is_open()) stream.close();
-			if (pd.data != nullptr) delete[] pd.data, pd.size; pd.data = nullptr;
+			if (pd.data != nullptr) delete[] pd.data; pd.data = nullptr;
 		}
 		void TryLoad(const char* _path, const char* parent_path = nullptr) {
 			CleanUp();

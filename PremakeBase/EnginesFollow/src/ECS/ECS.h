@@ -13,15 +13,16 @@
 namespace Engine {
 
 	struct System {
-		uint64_t type = UINT64_MAX;
+		uint64_t ctype = UINT64_MAX;
 
 		// Each System must at least hold 1 complete component type, might have references to other cached components too
 		// Every new component a system brings, it MUST REGISTER IT to the ECS!
 		// Ex: SystemTransforms() { ComponenTransform::Register(); System(type); }
-#define SystemConstruct(SystemName, ComponentName) static uint64_t type;\
-		SystemName() { ComponentName::Register(); type = ComponentName::type;} \
+#define SystemConstruct(SystemName, ComponentName) std::vector<ComponentName> components; \
+		static uint64_t type;\
+		SystemName() { ComponentName::Register(); ctype = SystemName::type = ComponentName::type;} \
 		static constexpr const char* name = #ComponentName; \
-		const char* GetName() { return SystemName##::name; }
+		const char* GetName() { return SystemName::name; }
 		virtual const char* GetName() { return "noname"; }
 // TODO: Macro that defines the generic functions using the template given
 		virtual ~System() {};
@@ -67,6 +68,7 @@ namespace Engine {
 			return CT::invalid;
 		}
 
+		virtual const Component* GetConstGeneric(CID& cid) { MISSING_FUN(nullptr); }
 		template<typename CT>
 		static const CT& GetConst(data_struct<CT>& comps, CID& cid) {
 			return Get(comps, cid);
@@ -121,7 +123,11 @@ namespace Engine {
 
 		virtual void JSONSerializeComponents(JSON_Object* sys_obj) {}
 		virtual void JSONDeserializeComponents(const JSON_Object* sys_obj) {}
-		virtual void SerializeSingleComponent(const CID& cid, JSON_Array* component_arr) {};
+		
+		virtual JSON_Value* JSONValueFromComponent(const Component* c) { return nullptr; }
+		virtual void ComponentFromJSONObject(const JSON_Object* v) {};
+
+		void SerializeSingleComponent(CID& cid, JSON_Array* component_arr);
 	};
 
 	struct ECS : public Layer, public FileTaker {
@@ -157,11 +163,18 @@ namespace Engine {
 		template<typename SystemType>
 		void RegisterSystem() {
 			SystemType* new_system = new SystemType();
-			if (GetSystemOfType(SystemType::type) == nullptr)
-				systems.insert(std::pair<uint64_t,System*>(new_system->type, (System*)new_system));
+			if (GetSystemOfType(SystemType::type) == nullptr) {
+				std::pair<uint64_t, System*> syspair(new_system->type, (System*)new_system);
+				systems.emplace(syspair);
+			}
 		}
 
-		inline System* GetSystemOfType(const uint64_t type);
+		inline System* GetSystemOfType(const uint64_t type) {
+			auto key = systems.find(type);
+			if (key != systems.end()) return key->second;
+
+			return nullptr;
+		}
 
 		// System and Component should alwas match, so not an issue
 		template<typename Type>
@@ -172,10 +185,12 @@ namespace Engine {
 		CID AddComponentGeneric(const uint64_t type, const uint64_t entity_id);
 		template<typename SystemType>
 		CID AddComponent(const uint64_t entity_id) { 
-			if (GetEntity(entity_id) == nullptr) return CID(UINT64_MAX);
+			Entity* e = GetEntity(entity_id);
+			if (e == nullptr) return CID(UINT64_MAX);
 			SystemType* sys = (SystemType*)GetSystemOfType(SystemType::type);
 			CID ret = System::Add(sys->components, entity_id);
 			sys->OnAdd(ret);
+			e->components.push_back(ret);
 			return ret; 
 		}
 
@@ -235,10 +250,25 @@ namespace Engine {
 	Component* GetGeneric(CID& cid); \
 	CID AddCopyGeneric(CID& copy_component_cid, const uint64_t entity_id); \
 	CID AddCopyOfGeneric(const Component* copy_component, const uint64_t entity_id); \
-	void DeleteGeneric(const CID& cid);
+	void DeleteGeneric(const CID& cid); \
+	void JSONSerializeComponents(JSON_Object* sys_obj); \
+	void JSONDeserializeComponents(const JSON_Object* sys_obj);
 
 #define DEF_SystemGenericFuns(SystemType, ComponentType) CID SystemType::AddGeneric(const uint64_t eid) { return System::Add(components, eid); } \
 	Component* SystemType::GetGeneric(CID& cid) { return (Component*)&System::Get(components, cid); } \
 	CID SystemType::AddCopyGeneric(CID & copy_component_cid, const uint64_t entity_id) {return System::AddCopy(components, copy_component_cid, entity_id); } \
 	CID SystemType::AddCopyOfGeneric(const Component* copy_component, const uint64_t entity_id) { return System::AddCopyOf(components, *(ComponentType*)copy_component, entity_id); } \
-	void SystemType::DeleteGeneric(const CID& cid) { System::DeleteComponent(components, cid); }
+	void SystemType::DeleteGeneric(const CID& cid) { System::DeleteComponent(components, cid); } \
+	void SystemType::JSONSerializeComponents(JSON_Object* sys_obj) { \
+		JSON_Value* comps_arr_v = json_value_init_array(); \
+		JSON_Array* comps_arr = json_array(comps_arr_v); \
+		for (int i = 0; i < components.size(); ++i) \
+			json_array_append_value(comps_arr, JSONValueFromComponent(&components[i])); \
+		json_object_set_value(sys_obj, "components", comps_arr_v); \
+	} \
+	void SystemType::JSONDeserializeComponents(const JSON_Object* sys_obj) { \
+		const JSON_Array* comps_arr = json_object_get_array(sys_obj, "components"); \
+		const size_t num_comps = json_array_get_count(comps_arr); \
+		for (size_t i = 0; i < num_comps; ++i) \
+			ComponentFromJSONObject(json_array_get_object(comps_arr, i));\
+	}

@@ -16,19 +16,10 @@ namespace Engine {
 		virtual PlainData Serialize() { return PlainData(); }; // If no need to serialize directly, just return a copy of it
 		virtual void ParseBytes(TempIfStream& disk_mem) {}; // If no need to parse, acquire memory directly
 	};
-
+	
 	struct WatchedData : public FileVirtual {
-		WatchedData(FileVirtual*& _mem) :mem(_mem) { _mem = nullptr; }
-		WatchedData(WatchedData& _data) {
-			id = _data.id;
-			ram_users = _data.ram_users;
-			vram_users = _data.vram_users;
-			loaded_ram = _data.loaded_ram;
-			loaded_vram = _data.loaded_vram;
-			mem = _data.mem;
-			_data.mem = nullptr; 
-			path = _data.path;
-		}
+		WatchedData(FileVirtual*& _mem) :mem(_mem) { _mem = nullptr; if (mem != nullptr) loaded_ram = true; }
+
 		uint64_t id = PCGRand64();
 		uint32_t ram_users = 0;
 		uint32_t vram_users = 0;
@@ -44,11 +35,21 @@ namespace Engine {
 
 		// Optional: It will first load memory directly from the path file in a binary format
 		// If the functions are setup
-		inline void Delete_RAM();
+		void Load_FromDisk();
+
+		inline void Delete_RAM() {
+			if (mem != nullptr) {
+				mem->Unload_RAM();
+				loaded_ram = false;
+				delete mem;
+			}
+		}
 
 		void CheckNecessity();
 		void AddUser();
+		void AddVUser();
 		void RemoveUser();
+		void RemoveVUser();
 
 		~WatchedData() {
 			if (mem == nullptr) return;
@@ -68,6 +69,7 @@ namespace Engine {
 
 	struct FileTaker {
 		FileTaker();
+		virtual ~FileTaker() {}
 
 		virtual void OnAttach() { Engine_WARN("FileTaker OnAttach undefined"); }
 		virtual void OnDetach() { Engine_WARN("FileTaker OnDetach undefined"); }
@@ -104,6 +106,11 @@ namespace Engine {
 			}
 		}
 
+		static void AddRAMUser(const uint64_t resource_id);
+		static void AddVRAMUser(const uint64_t resource_id);
+		static void RemoveRAMUser(const uint64_t resource_id);
+		static void RemoveVRAMUser(const uint64_t resource_id);
+
 		// This is so bad... need a better way of linking material/textures
 		// That will have repercussions further down the line
 		// unordered map iterator search is not memory safe
@@ -116,7 +123,7 @@ namespace Engine {
 		static std::vector<FileTaker*> filetakers;
 		static std::vector<FileTaker*> not_owned_filetakers;
 		static std::unordered_map<uint64_t, WatchedData> allocs;
-		static double unload_bucket_ms; // = 10000;
+		static double unload_bucket_ms;
 		static char execpath[512];
 		static size_t execpath_len;
 	};

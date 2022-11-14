@@ -9,18 +9,9 @@ void ChangeMainWindow(Engine::Window& win) {
 
 #include <MathGeoLib.h>
 
-struct base {
-	template<typename T>
-	static void inherited_static_fun(std::vector<T>&) {}
-};
-
-struct derivated : public base {
-};
-
-
 #include <ECS/DefaultComponents/CS_Transform.h>
 
-int e_main(Engine::Application* engine) {	
+int e_main(std::shared_ptr<Engine::Application>& engine) {	
 
 	ChangeMainWindow(engine->main_window);
 	

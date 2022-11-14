@@ -17,7 +17,6 @@ namespace Engine {
 	
 
 	struct S_Transform : public System {
-		std::vector<C_Transform> components;
 		SystemConstruct(S_Transform, C_Transform);
 		DECL_SystemGenericFuns(S_Transform, C_Transform);
 		~S_Transform();
@@ -31,9 +30,8 @@ namespace Engine {
 
 		//void DeleteComponent(const CID& cid);
 
-		//void JSONSerializeComponents(JSON_Object* sys_obj);
-		//void JSONDeserializeComponents(const JSON_Object* sys_obj);
-
+		JSON_Value* JSONValueFromComponent(const Component* c);
+		void ComponentFromJSONObject(const JSON_Object* t_obj);
 		// Custom
 
 		//void SetWorldMatrix(C_Transform& t);

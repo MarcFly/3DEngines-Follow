@@ -46,13 +46,11 @@ void EntityInspector::Update() {
 	Engine::Events::SendHotNew(new Engine::RequestEntityComponents_Event(check_entity, components));
 	static char button_id[64];
 	for (auto c : components) {
-		ImGui::BeginChild(c->cid.id+1);
+		ImGui::Separator();
 		snprintf(button_id, sizeof(button_id), "##Button%llu", c->cid.id);
 		ImGui::Checkbox(button_id, &c->active);
 		ImGui::SameLine();
 		c->DrawInspector();
-
-		ImGui::EndChild();
 	}
 
 	RMMUpdate(debug_name.c_str());

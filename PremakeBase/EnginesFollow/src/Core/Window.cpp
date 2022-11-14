@@ -140,18 +140,19 @@ void Window::Create(bool defaults) {
 	glfwSetDropCallback(new_win.internal_window, GLFW_DropFileCallback);
 	glfwSetWindowUserPointer(new_win.internal_window, new_win.window);
 
-	windowmanager.windows.insert(std::pair<uint64_t, InternalWindow>(id, new_win));
+	std::pair<uint64_t, InternalWindow> winpair(id, new_win);
+	windowmanager.windows.insert(winpair);
 
 	Input::AttachWindow(id);
 }
 
 void Window::Destroy() {
 	SET_FLAG(working_flags, WorkingFlags::CLOSE);
-	auto& k = windowmanager.windows.find(id);
-	if (k != windowmanager.windows.end()) {
-		glfwDestroyWindow(k->second.internal_window);
-		windowmanager.windows.erase(k->first);
-	}
+	auto k = windowmanager.windows.find(id);
+	if (k == windowmanager.windows.end()) return;
+
+	glfwDestroyWindow(k->second.internal_window);
+	windowmanager.windows.erase(k->first);
 }
 
 InternalWindow* Window::GetInternalWindow() {

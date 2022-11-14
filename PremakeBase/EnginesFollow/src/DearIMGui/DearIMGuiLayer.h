@@ -42,7 +42,7 @@ namespace Engine {
 
 		virtual void RMMVirtualUpdate() {}
 		void RMMCheckToOpen(const char* container_name) {
-			rm_was_clicked = (ImGui::IsWindowHovered(rm_flags) && ImGui::IsMouseClicked(ImGuiMouseButton_Right) || rm_was_clicked);
+			rm_was_clicked = (ImGui::IsWindowHovered(rm_flags) && ImGui::IsMouseClicked(ImGuiMouseButton_Right)) || rm_was_clicked;
 
 			if (rm_was_clicked && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
 			{
@@ -53,13 +53,14 @@ namespace Engine {
 		}
 	};
 
-	struct MenuItem
-	{
-		MenuItem(const char* _name, uint32_t id);
+	struct MenuItem {
+		MenuItem(const char* _name, uint64_t id);
+		MenuItem(const MenuItem& mi);
 		bool* active_state = nullptr;
 		const char* shortcut = "";
 		offload_str name;
 		char imgui_id[128];
+		uint64_t itemid;
 		std::vector<uint32_t> sub_items;
 	};
 
@@ -69,10 +70,10 @@ namespace Engine {
 		std::vector<MenuItem> items;
 		std::vector<uint32_t> base_items;
 		//std::vector<MenuItem> variable_ui;
-		MenuItem unordered = MenuItem("Unordered", UINT32_MAX);
+		MenuItem unordered;
 
 	public:
-		MenuBar() : IMGui_Item("Menu Bar") { active = true; };
+		MenuBar() : IMGui_Item("Menu Bar"), unordered("Unordered", UINT32_MAX) { active = true; };
 
 		void UpdateMenuItem(MenuItem& item);
 

@@ -27,6 +27,7 @@ DEF_STATIC_MEMBER_EV_FUN(FilesDropped, FS, TryLoadFiles_EventFun) {
 
 char FS::execpath[512];
 size_t FS::execpath_len;
+#include <filesystem>
 
 void FS::Init() {
 	RegisterFiletaker<AssimpConverter>();
@@ -37,7 +38,7 @@ void FS::Init() {
 	execpath_len = GetCurrentDirectoryA(512, execpath);
 	(*strrchr(execpath, '\\')) = '\0';
 
-	char temp[1024];
+	static char temp[1024];
 	snprintf(temp, sizeof(temp), "mkdir -p %s\\Assets\\Prefabs", execpath);
 	system(temp);
 	snprintf(temp, sizeof(temp), "mkdir -p %s\\Assets\\Materials", execpath);
@@ -50,6 +51,20 @@ void FS::Init() {
 	system(temp);
 
 	Events::Subscribe<FilesDropped>(TryLoadFiles_EventFun);
+
+	// TODO: Get All files from metafiles folder
+	snprintf(temp, sizeof(temp), "C:\\Users\\marctorresdev\\Documents\\3DEngines-Follow\\PremakeBase\\Assets\\Metafiles");
+	std::filesystem::path temp_path(temp);
+	std::filesystem::directory_iterator entry_it(temp_path);
+	std::filesystem::directory_iterator entry_end;
+	for (; entry_it != entry_end; ++entry_it) {
+		TempIfStream temp_meta(entry_it->path().generic_string().c_str(), nullptr);
+		FileVirtual* temp = nullptr;
+		WatchedData pushreal(temp);
+		
+		pushreal.ParseBytes(temp_meta);
+		allocs.emplace(pushreal.id, pushreal);
+	}
 }
 
 void FS::Close() {
@@ -99,8 +114,8 @@ uint64_t FS::TryLoadFile(const char* path, const char* parent_path) {
 			pushreal.path = std::string(path); // All should be loaded from assets!
 			WriteToDisk(metapath, pushreal.Serialize());
 		}
-		uint64_t tmpid = pushreal.id;
-		auto retpair = allocs.emplace(tmpid, pushreal);
+		allocs.emplace(pushreal.id, pushreal);
+		pushreal.mem = nullptr;
 		ret = pushreal.id;
 	}
 	
@@ -138,6 +153,31 @@ void FS::WriteToDisk(const char* path, const PlainData& data) {
 	write_file.write((const char*)data.data, data.size);
 	write_file.close();
 }
+
+void FS::AddRAMUser(const uint64_t resource_id) {
+	auto it = allocs.find(resource_id);
+	if (it != allocs.end())
+		it->second.AddUser();
+}
+
+void FS::RemoveRAMUser(const uint64_t resource_id) {
+	auto it = allocs.find(resource_id);
+	if (it != allocs.end())
+		it->second.RemoveUser();
+}
+
+void FS::AddVRAMUser(const uint64_t resource_id) {
+	auto it = allocs.find(resource_id);
+	if (it != allocs.end())
+		it->second.AddVUser();
+}
+
+void FS::RemoveVRAMUser(const uint64_t resource_id) {
+	auto it = allocs.find(resource_id);
+	if (it != allocs.end())
+		it->second.RemoveVUser();
+}
+
 
 uint64_t FS::FindIDByName(const char* str) {
 	const char* tmp = FileNameExt(str);
