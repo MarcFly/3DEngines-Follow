@@ -6,13 +6,13 @@
 using namespace Engine;
 
 TexAttrib::TexAttrib(const char* name, int32_t _id, float* value, int _num_values) : 
-	name(32, name), id(_id), isfloat(true), num_values(_num_values) {
+	name(name), id(_id), isfloat(true), num_values(_num_values) {
 	fvalues = new float[num_values];
 	memcpy(fvalues, value, num_values * sizeof(float));
 }
 
 TexAttrib::TexAttrib(const char* name, int32_t _id, int* value, int _num_values) : 
-	name(32, name), id(_id), isfloat(false), num_values(_num_values) {
+	name(name), id(_id), isfloat(false), num_values(_num_values) {
 	ivalues = new int[num_values];
 	memcpy(ivalues, value, num_values * sizeof(int));
 }

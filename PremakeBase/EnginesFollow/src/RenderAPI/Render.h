@@ -71,7 +71,7 @@ namespace Engine {
 		TexAttrib(const char* name, int32_t id, float* value, int num_values = 1);
 		TexAttrib(const char* name, int32_t id, int* value, int num_values = 1);
 		TexAttrib(const TexAttrib& ta) : isfloat(ta.isfloat), id(ta.id), fvalues(ta.fvalues),
-			num_values(ta.num_values), name(32, ta.name.str) {}
+			num_values(ta.num_values), name(ta.name.str.get()) {}
 		~TexAttrib();
 		bool isfloat;
 		uint32_t id;
@@ -81,7 +81,7 @@ namespace Engine {
 		};
 		int num_values;
 
-		offload_str name;
+		offload_str<32> name;
 	};
 
 	struct EF_API Texture {
@@ -111,14 +111,14 @@ namespace Engine {
 	};
 
 	struct EF_API Uniform {
-		Uniform(const char* _name) : name(64, _name) { hashid = simplehash(_name); }
-		Uniform(const Uniform& u) : name(64, u.name.str), hashid(u.hashid), type(u.type),
+		Uniform(const char* _name) : name(_name) { hashid = simplehash(_name); }
+		Uniform(const Uniform& u) : name(u.name.str.get()), hashid(u.hashid), type(u.type),
 			var_size(u.var_size), id(u.id) {}
 		int id = -1;
 		uint64_t hashid = UINT64_MAX;
 		uint32_t type = 0;
 		int var_size = 0;
-		offload_str name;
+		offload_str<64> name;
 	};
 
 	struct EF_API Shader {

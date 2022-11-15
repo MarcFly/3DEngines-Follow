@@ -3,22 +3,20 @@
 
 using namespace Engine;
 
-MenuItem::MenuItem(const char* _name, uint64_t id) : name(64, _name) {
+MenuItem::MenuItem(const char* _name, uint64_t id) : name(_name), imgui_id(name.str.get()) {
 	itemid = id;
-	snprintf(imgui_id, sizeof(imgui_id), "%s##%llu\0", name.str, id);
+	snprintf(imgui_id.str.get(), sizeof(imgui_id), "%s##%llu\0", name.str.get(), id);
 }
 
-MenuItem::MenuItem(const MenuItem& mi) : name(64, mi.name.str) {
-	itemid = mi.itemid;
-	snprintf(imgui_id, sizeof(imgui_id), "%s##%llu\0", name.str, itemid);
-}
+MenuItem::MenuItem(const MenuItem& mi) : name(mi.name), itemid(mi.itemid), sub_items(mi.sub_items),
+imgui_id(mi.imgui_id), shortcut(mi.shortcut), active_state(mi.active_state) {}
 
 
 void MenuBar::UpdateMenuItem(MenuItem& item) {
 	if (item.sub_items.size() == 0 && item.active_state != nullptr) {
-		ImGui::MenuItem(item.imgui_id, item.shortcut, item.active_state);
+		ImGui::MenuItem(item.imgui_id.str.get(), item.shortcut, item.active_state);
 	}
-	else if(ImGui::BeginMenu(item.imgui_id)) {
+	else if(ImGui::BeginMenu(item.imgui_id.str.get())) {
 		for (uint32_t i : item.sub_items)
 			UpdateMenuItem(items[i]);
 
@@ -39,7 +37,7 @@ void MenuBar::Update() {
 uint32_t MenuBar::RegisterMenuItem(bool* item_active, const char* name, const char* group) {
 	uint32_t ret = items.size();
 
-	items.emplace_back(MenuItem(name, ret));
+	items.push_back(MenuItem(name, ret));
 	MenuItem& mi = items.back();
 	mi.active_state = item_active;
 	if (!strcmp(group, "")) {
@@ -51,7 +49,7 @@ uint32_t MenuBar::RegisterMenuItem(bool* item_active, const char* name, const ch
 	else {
 		bool pushed = false;
 		for (MenuItem& i : items)
-			if (!strcmp(group, i.name.str)) {
+			if (!strcmp(group, i.name.str.get())) {
 				i.sub_items.push_back(ret);
 				pushed = true;
 				break;
@@ -59,10 +57,10 @@ uint32_t MenuBar::RegisterMenuItem(bool* item_active, const char* name, const ch
 
 		if (!pushed) {
 			RegisterMenuItem(nullptr, group);
-
-			for (MenuItem& i : items)
-				if (!strcmp(group, i.name.str)) {
-					i.sub_items.push_back(ret);
+			for(int i = 0; i < items.size(); ++i)
+				if (!strcmp(group, items[i].name.str.get())) {
+					MenuItem& migroup = items[i];
+					migroup.sub_items.push_back(ret);
 					break;
 				}
 		}

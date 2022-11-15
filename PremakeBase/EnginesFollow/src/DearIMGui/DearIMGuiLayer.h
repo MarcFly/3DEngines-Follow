@@ -58,8 +58,8 @@ namespace Engine {
 		MenuItem(const MenuItem& mi);
 		bool* active_state = nullptr;
 		const char* shortcut = "";
-		offload_str name;
-		char imgui_id[128];
+		offload_str<64> name;
+		offload_str<128> imgui_id;
 		uint64_t itemid;
 		std::vector<uint32_t> sub_items;
 	};
@@ -97,7 +97,7 @@ namespace Engine {
 		template<typename I>
 		void RegisterItem(const char* submenu_group) {
 			items.push_back((IMGui_Item*)new I());
-			IMGui_Item*& item = items.back();
+			IMGui_Item* item = items.back();
 			item->OnAttach();
 			menubar.RegisterMenuItem(&item->active, item->debug_name.c_str(), submenu_group);
 		}

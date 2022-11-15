@@ -52,24 +52,20 @@ namespace Engine {
 #define CHECK_FLAG(n, f) (((n) & (f)) > 0)
 
 #include <stdarg.h>
+template<uint32_t strsize>
 struct offload_str {
-	offload_str(int wanted_size, const char* fmt, ...) : size(wanted_size) { 
-		str = new char[wanted_size]; 
+	offload_str(const char* fmt, ...) : size(strsize), str(new char[strsize]) { 
 		va_list args; 
 		va_start(args, fmt);  
-		vsnprintf(str, wanted_size, fmt, args); 
+		vsnprintf(str.get(), strsize, fmt, args);
 		va_end(args); 
 	}
-	offload_str(offload_str& _str) {
+	offload_str(const offload_str& _str) {
 		str = _str.str;
 		size = _str.size;
-
-		_str.str = nullptr;
-		_str.size = 0;
 	}
-	~offload_str() { if (str != nullptr) delete str; }
-	char* str = nullptr;
-	int size = 0;
+	std::shared_ptr<char[]> str;
+	int size = strsize;
 };
 
 #include <pcg_basic.h>

@@ -84,8 +84,8 @@ void ShaderProgram::CacheUniforms() {
 		uniforms.push_back(Uniform("noname"));
 		Uniform& u = uniforms.back();
 		u.id = i;
-		glGetActiveUniform(id, i, u.name.size, &l, &u.var_size, &u.type, u.name.str);
-		u.hashid = simplehash(u.name.str);
+		glGetActiveUniform(id, i, u.name.size, &l, &u.var_size, &u.type, u.name.str.get());
+		u.hashid = simplehash(u.name.str.get());
 	}
 }
 
