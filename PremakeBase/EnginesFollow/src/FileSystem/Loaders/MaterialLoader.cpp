@@ -3,9 +3,9 @@
 
 using namespace Engine;
 
-void FileMaterial::ParseBytes(TempIfStream& disk_mem) {
+void FileMaterial::Load(TempIfStream& disk_mem) {
 	ReadStream read;
-	read.SetData(disk_mem.GetData().data, disk_mem.GetData().size);
+	read.SetData(disk_mem.bytes.get(), disk_mem.size);
 
 	int num_texs = 0;
 	read.Get(&num_texs);
@@ -14,8 +14,10 @@ void FileMaterial::ParseBytes(TempIfStream& disk_mem) {
 	read.GetArr(tex_ids.data(), num_texs);
 	read.GetArr(tex_types.data(), num_texs);
 
-	for (int i = 0; i < num_texs; ++i)
-		textures.push_back(std::pair(tex_ids[i], tex_types[i]));
+	for (int i = 0; i < num_texs; ++i) {
+		textures.push_back(WDHandle<FileTexture>());
+		textures.back().id = tex_ids[i];
+	}
 }
 
 PlainData Engine::FileMaterial::Serialize()

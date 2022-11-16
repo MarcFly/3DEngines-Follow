@@ -232,7 +232,7 @@ namespace Engine {
 		void DeserializePrefab(const JSON_Value* json_value);
 
 		uint32_t ShouldILoad(const char* ext);
-		FileVirtual* TryLoad(TempIfStream& disk_mem, const uint32_t internaltype);
+		std::shared_ptr<FileVirtual> TryLoad(TempIfStream& disk_mem, const uint32_t internaltype);
 
 		DECL_DYN_ENGINE_EV_FUNS(AddEntity_EventFun);
 		DECL_DYN_ENGINE_EV_FUNS(DeleteEntity_EventFun);

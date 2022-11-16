@@ -10,55 +10,47 @@ namespace Engine {
 	struct FileVirtual {
 		uint64_t diskid = UINT64_MAX;
 		virtual ~FileVirtual() {};
-		virtual void Unload_RAM() {}; // Specific way of unloading memory
-		virtual void Load_VRAM() {};
-		virtual void Unload_VRAM() {};
+		virtual void Unload() {}; // Specific way of unloading memory
+		virtual void Load(TempIfStream& disk_mem) {}; // It gets the memory it is supposed to use
 		virtual PlainData Serialize() { return PlainData(); }; // If no need to serialize directly, just return a copy of it
-		virtual void ParseBytes(TempIfStream& disk_mem) {}; // If no need to parse, acquire memory directly
 	};
-	
+
 	struct WatchedData : public FileVirtual {
-		WatchedData(FileVirtual*& _mem) :mem(_mem) { _mem = nullptr; if (mem != nullptr) loaded_ram = true; }
+		WatchedData(std::shared_ptr<FileVirtual>& _mem) : mem(_mem) { if (!mem) loaded = true; }
 
 		uint64_t id = PCGRand64();
-		uint32_t ram_users = 0;
-		uint32_t vram_users = 0;
-		bool loaded_ram = false;
-		bool loaded_vram = false;
+		std::vector<uint64_t> users;
+		bool loaded = false;
 		double last_check_ts = 0;
-		FileVirtual* mem = nullptr;
+		std::shared_ptr<FileVirtual> mem;
 
 		std::string path;
 
-		void ParseBytes(TempIfStream& disk_mem);
+		void Load(TempIfStream& disk_mem);
 		PlainData Serialize();
 
 		// Optional: It will first load memory directly from the path file in a binary format
 		// If the functions are setup
 		void Load_FromDisk();
 
-		inline void Delete_RAM() {
+		inline void Delete() {
 			if (mem != nullptr) {
-				mem->Unload_RAM();
-				loaded_ram = false;
-				delete mem;
+				mem->Unload();
+				loaded = false;
+				mem.reset();
 			}
 		}
 
 		void CheckNecessity();
 		void AddUser();
-		void AddVUser();
 		void RemoveUser();
-		void RemoveVUser();
 
 		~WatchedData() {
 			if (mem == nullptr) return;
-			if (loaded_ram)
-				mem->Unload_RAM();
-			if (loaded_vram)
-				mem->Unload_VRAM();
-			Delete_RAM();
-			loaded_ram = loaded_vram = false;
+			if (loaded)
+				mem->Unload();
+			Delete();
+			loaded = false;
 		}
 	};
 
@@ -76,7 +68,7 @@ namespace Engine {
 
 		// Treating 0 as type not to be loaded by specific FileTaker
 		virtual uint32_t ShouldILoad(const char* extension) { return 0; }
-		virtual FileVirtual* TryLoad(TempIfStream& raw_bytes, const uint32_t internaltype) { return nullptr; }
+		virtual std::shared_ptr<FileVirtual> TryLoad(TempIfStream& raw_bytes, const uint32_t internaltype) { return nullptr; }
 	};
 
 	// TODO: project wise, that to change all pointers to shared_ptr/unique_ptr
@@ -91,7 +83,7 @@ namespace Engine {
 		static void Close();
 		
 		static uint64_t TryLoadFile(const char* path, const char* parent_path = nullptr);
-		static FileVirtual* TryLoad(const char* path, const char* parent_path = nullptr);
+		static std::shared_ptr<FileVirtual> TryLoad(const char* path, const char* parent_path = nullptr);
 		static void WriteToDisk(const char* path, const PlainData& data);
 		template<typename T>
 		static void RegisterFiletaker(T* send = nullptr) {
@@ -106,10 +98,8 @@ namespace Engine {
 			}
 		}
 
-		static void AddRAMUser(const uint64_t resource_id);
-		static void AddVRAMUser(const uint64_t resource_id);
-		static void RemoveRAMUser(const uint64_t resource_id);
-		static void RemoveVRAMUser(const uint64_t resource_id);
+		static std::shared_ptr<FileVirtual> AddUser(const uint64_t resource_id);
+		static void RemoveUser(const uint64_t resource_id);
 
 		// This is so bad... need a better way of linking material/textures
 		// That will have repercussions further down the line
@@ -127,9 +117,29 @@ namespace Engine {
 		static char execpath[512];
 		static size_t execpath_len;
 	};
+	
+
+	// TODO: FileVirtuals, should in itself have another indirection for data inside...
+	// New function to be GetDataSharedPtr...
+	template<class FileVirtualDerive>
+	struct WDHandle {
+		uint64_t id;
+	
+		void Require() {
+			if (!mem)
+				mem = FS::AddUser(id);
+		}
+		void Release() {
+			FS::RemoveUser(id);
+			mem.reset();
+		}
+	
+		std::shared_ptr<FileVirtualDerive> mem;
+	};
+
 }
 
-#define FileTaker_DefaultTryLoad(LoaderType, FileType) Engine::FileVirtual* LoaderType::TryLoad(TempIfStream& raw_bytes, const uint32_t internal_type){\
-		FileType* ret = new FileType();\
-		ret->ParseBytes(raw_bytes);\
+#define FileTaker_DefaultTryLoad(LoaderType, FileType) std::shared_ptr<Engine::FileVirtual> LoaderType::TryLoad(TempIfStream& raw_bytes, const uint32_t internal_type){\
+		std::shared_ptr<FileType> ret(new FileType());\
+		ret->Load(raw_bytes);\
 		return ret;}

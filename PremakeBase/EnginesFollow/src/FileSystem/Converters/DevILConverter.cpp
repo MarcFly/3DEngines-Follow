@@ -29,13 +29,12 @@ uint32_t DevILConverter::ShouldILoad(const char* extension) {
 	return ret;
 }
 
-FileVirtual* DevILConverter::TryLoad(TempIfStream& raw_bytes, const uint32_t internaltype) {
-	const PlainData& d = raw_bytes.GetData();
+std::shared_ptr<FileVirtual> DevILConverter::TryLoad(TempIfStream& raw_bytes, const uint32_t internaltype) {
 	PlainData temp;
 
 	ILuint id_img = ilGenImage();
 	ilBindImage(id_img);
-	bool success = ilLoadL(internaltype, d.data, d.size);
+	bool success = ilLoadL(internaltype, raw_bytes.bytes.get(), raw_bytes.size);
 
 	if (success && ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE)) {
 		ILinfo info;
@@ -44,8 +43,8 @@ FileVirtual* DevILConverter::TryLoad(TempIfStream& raw_bytes, const uint32_t int
 			iluFlipImage();
 
 		temp.size = ilSaveL(IL_DDS, nullptr, 0);
-		temp.data = new byte[temp.size];
-		ilSaveL(IL_DDS, temp.data, info.SizeOfData);
+		temp.bytes = std::shared_ptr<byte[]>(new byte[temp.size]);
+		ilSaveL(IL_DDS, temp.bytes.get(), info.SizeOfData);
 	}
 
 	ilDeleteImage(id_img);

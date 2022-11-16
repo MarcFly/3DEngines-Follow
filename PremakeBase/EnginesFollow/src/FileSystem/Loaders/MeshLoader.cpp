@@ -32,14 +32,12 @@ PlainData FileMesh::Serialize() {
 	out.AddArr(bitangents.data(), bitangents.size());
 
 	auto own = out.GetOwnership();
-	PlainData ret;
-	ret.Acquire(own.first, own.second);
-	return ret;
+	return PlainData(own.first, own.second);
 }
 
-void FileMesh::ParseBytes(TempIfStream& disk_mem) {
+void FileMesh::Load(TempIfStream& disk_mem) {
 	ReadStream read;
-	read.SetData(disk_mem.GetData().data, disk_mem.GetData().size);
+	read.SetData(disk_mem.bytes.get(), disk_mem.size);
 	
 	vtx.resize(read.GetV<int>());
 	int num_vtx = vtx.size();
@@ -66,7 +64,7 @@ void FileMesh::ParseBytes(TempIfStream& disk_mem) {
 	read.GetArr(bitangents.data(), bitangents.size());
 }
 
-void FileMesh::Unload_RAM() {
+void FileMesh::Unload() {
 	for (int i = 0; i < uv_channels.size(); ++i)
 		if (uv_channels[i].data != nullptr) {
 			delete[] uv_channels[i].data, uv_channels[i].num_uv_coords * vtx.size() * sizeof(float);

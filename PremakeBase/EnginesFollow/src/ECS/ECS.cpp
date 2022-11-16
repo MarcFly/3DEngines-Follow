@@ -398,9 +398,10 @@ uint32_t ECS::ShouldILoad(const char* ext) {
 	return ret;
 }
 
-FileVirtual* ECS::TryLoad(TempIfStream& disk_mem, const uint32_t internaltype) {
-	JSONVWrap* ret = new JSONVWrap();
-	ret->ParseBytes(disk_mem);
+std::shared_ptr<FileVirtual>ECS::TryLoad(TempIfStream& disk_mem, const uint32_t internaltype) {
+	
+	std::shared_ptr<JSONVWrap> ret(new JSONVWrap());
+	ret->Load(disk_mem);
 
 	// TODO: Load into a local ecs
 	// in the local_ecs, shuffle ids, as there are less operationst to do
@@ -408,5 +409,5 @@ FileVirtual* ECS::TryLoad(TempIfStream& disk_mem, const uint32_t internaltype) {
 
 	DeserializePrefab(ret->value);
 
-	return ret;
+	return std::static_pointer_cast<FileVirtual>(ret);
 }

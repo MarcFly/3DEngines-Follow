@@ -11,10 +11,8 @@ namespace Engine {
 		Texture gputex;
 		uint32_t deviltype;
 
-		void Load_VRAM();
-		void Unload_VRAM();
-		void Unload_RAM();
-		void ParseBytes(TempIfStream& disk_mem);
+		void Unload();
+		void Load(TempIfStream& disk_mem);
 		// PlainData Serialize(); // No serialization for now
 	};
 
@@ -22,6 +20,6 @@ namespace Engine {
 		void OnAttach();
 		void OnDetach();
 		uint32_t ShouldILoad(const char* extension);
-		FileVirtual* TryLoad(TempIfStream& raw_bytes, const uint32_t internaltype);
+		std::shared_ptr<FileVirtual> TryLoad(TempIfStream& raw_bytes, const uint32_t internaltype);
 	};
 };

@@ -59,10 +59,10 @@ void FS::Init() {
 	std::filesystem::directory_iterator entry_end;
 	for (; entry_it != entry_end; ++entry_it) {
 		TempIfStream temp_meta(entry_it->path().generic_string().c_str(), nullptr);
-		FileVirtual* temp = nullptr;
-		WatchedData pushreal(temp);
+		std::shared_ptr<FileVirtual> null_shrptr;
+		WatchedData pushreal(null_shrptr);
 		
-		pushreal.ParseBytes(temp_meta);
+		pushreal.Load(temp_meta);
 		allocs.emplace(pushreal.id, pushreal);
 	}
 }
@@ -101,7 +101,7 @@ std::string ParentPath(const std::string & path) {
 uint64_t FS::TryLoadFile(const char* path, const char* parent_path) {
 	uint64_t ret = UINT64_MAX;
 	Engine_INFO("TryLoadFiles: {}", path);
-	FileVirtual* push = TryLoad(path, parent_path);
+	std::shared_ptr<FileVirtual> push = TryLoad(path, parent_path);
 	// TODO: Load or create metadata
 	if(push != nullptr) {
 		static char metapath[256];
@@ -109,7 +109,7 @@ uint64_t FS::TryLoadFile(const char* path, const char* parent_path) {
 		TempIfStream temp_meta((const char*)metapath, nullptr);
 		WatchedData pushreal(push);
 		pushreal.path = path;
-		if (temp_meta.GetData().data != nullptr) pushreal.ParseBytes(temp_meta);
+		if (!temp_meta.bytes) pushreal.Load(temp_meta);
 		else {
 			pushreal.path = std::string(path); // All should be loaded from assets!
 			WriteToDisk(metapath, pushreal.Serialize());
@@ -122,10 +122,10 @@ uint64_t FS::TryLoadFile(const char* path, const char* parent_path) {
 	return ret;
 }
 
-FileVirtual* FS::TryLoad(const char* path, const char* parent_path) {
+std::shared_ptr<FileVirtual> FS::TryLoad(const char* path, const char* parent_path) {
 	const char* extension = strrchr(path, '.');
 
-	FileVirtual* ret;
+	std::shared_ptr<FileVirtual> ret;
 	for (FileTaker* ft : filetakers) {
 		uint32_t internal_type = ft->ShouldILoad(extension);
 		if (internal_type > 0) {
@@ -150,34 +150,25 @@ FileVirtual* FS::TryLoad(const char* path, const char* parent_path) {
 void FS::WriteToDisk(const char* path, const PlainData& data) {
 	std::ofstream write_file;
 	write_file.open(path, std::ios::binary);
-	write_file.write((const char*)data.data, data.size);
+	write_file.write((const char*)data.bytes.get(), data.size);
 	write_file.close();
 }
 
-void FS::AddRAMUser(const uint64_t resource_id) {
+std::shared_ptr<FileVirtual> FS::AddUser(const uint64_t resource_id) {
 	auto it = allocs.find(resource_id);
-	if (it != allocs.end())
+	if (it != allocs.end()) {
 		it->second.AddUser();
+		return it->second.mem;
+	}
+
+	return nullptr;
 }
 
-void FS::RemoveRAMUser(const uint64_t resource_id) {
+void FS::RemoveUser(const uint64_t resource_id) {
 	auto it = allocs.find(resource_id);
 	if (it != allocs.end())
 		it->second.RemoveUser();
 }
-
-void FS::AddVRAMUser(const uint64_t resource_id) {
-	auto it = allocs.find(resource_id);
-	if (it != allocs.end())
-		it->second.AddVUser();
-}
-
-void FS::RemoveVRAMUser(const uint64_t resource_id) {
-	auto it = allocs.find(resource_id);
-	if (it != allocs.end())
-		it->second.RemoveVUser();
-}
-
 
 uint64_t FS::FindIDByName(const char* str) {
 	const char* tmp = FileNameExt(str);

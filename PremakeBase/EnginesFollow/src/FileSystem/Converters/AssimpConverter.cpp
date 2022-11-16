@@ -57,8 +57,8 @@ void TraverseAiNodes(const aiScene* scene, const aiNode* node, const uint64_t pa
 		C_MeshRenderer& m = local_ecs.GetComponent<C_MeshRenderer>(mid);
 		mesh_idx = node->mMeshes[i];
 		aimesh = scene->mMeshes[mesh_idx];
-		m.diskmesh = (*refs.mesh_ids)[mesh_idx];
-		m.diskmat = (*refs.mat_ids)[aimesh->mMaterialIndex];
+		m.mesh.id = (*refs.mesh_ids)[mesh_idx];
+		m.mat.id = (*refs.mat_ids)[aimesh->mMaterialIndex];
 	}
 
 	// TODO: Other default components...
@@ -68,7 +68,7 @@ void TraverseAiNodes(const aiScene* scene, const aiNode* node, const uint64_t pa
 		TraverseAiNodes(scene, node->mChildren[i], eid, refs, local_ecs);
 }
 
-FileVirtual* AssimpConverter::TryLoad(TempIfStream& bytes, const uint32_t internaltype) {
+std::shared_ptr<FileVirtual> AssimpConverter::TryLoad(TempIfStream& bytes, const uint32_t internaltype) {
 	// Assimp parsing of a scene, will do too many things
 	// Generate Meshes + meta
 	// Convert textures to .dds and meta...
@@ -77,8 +77,7 @@ FileVirtual* AssimpConverter::TryLoad(TempIfStream& bytes, const uint32_t intern
 	// After each data type created from an aiscene, an event of load for the meta should be sent, so that it becomes available
 
 	Engine::ECS local_ecs; // TODO: external systems register too...
-	const PlainData& pd = bytes.GetData();
-	const aiScene* aiscene = aiImportFileFromMemory((const char*)pd.data, pd.size, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_Triangulate, nullptr);
+	const aiScene* aiscene = aiImportFileFromMemory((const char*)bytes.bytes.get(), bytes.size, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_Triangulate, nullptr);
 
 	const char* filename = FileNameExt(bytes.path.c_str());
 	const std::string parent_path = ParentPath(bytes.path);
@@ -154,8 +153,7 @@ uint64_t AssimpConverter::ConvertMaterial(const aiMaterial* aimat, const char* p
 	out.AddArr(tex_diskids.data(), num_texs);
 	out.AddArr(tex_types.data(), num_texs);
 	
-	PlainData write;
-	write.Acquire(out.stream, out.size);
+	PlainData write(out.stream, out.size);
 	out.stream = nullptr;
 	static char filepath[256];
 	snprintf(filepath, sizeof(filepath), "%s/Assets/Materials/%s.material", FS::execpath, aimat->GetName().C_Str());

@@ -9,6 +9,6 @@ namespace Engine {
 		void OnAttach();
 		void OnDetach();
 		uint32_t ShouldILoad(const char* extension);
-		FileVirtual* TryLoad(TempIfStream& raw_bytes, const uint32_t internaltype);
+		std::shared_ptr<FileVirtual> TryLoad(TempIfStream& raw_bytes, const uint32_t internaltype);
 	};
 };

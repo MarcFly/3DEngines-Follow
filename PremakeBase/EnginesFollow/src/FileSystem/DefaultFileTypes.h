@@ -9,8 +9,8 @@ namespace Engine {
 
 	struct JSONVWrap : public FileVirtual {
 		JSON_Value* value = nullptr;
-		void ParseBytes(TempIfStream& disk_mem) {
-			value = json_parse_string((char*)disk_mem.GetData().data);
+		void Load(TempIfStream& disk_mem) {
+			value = json_parse_string((char*)disk_mem.bytes.get());
 		}
 		void Unload_RAM(PlainData& mem) {
 			json_value_free(value);
@@ -18,11 +18,9 @@ namespace Engine {
 		}
 
 		PlainData Serialize() {
-			PlainData ret;
 			char* temp = json_serialize_to_string_pretty(value);
-			ret.size = strlen(temp);
-			ret.data = (byte*)temp;
-			return ret;
+			size_t size = strlen(temp);
+			return PlainData(temp, size);
 		}
 
 		~JSONVWrap() { 

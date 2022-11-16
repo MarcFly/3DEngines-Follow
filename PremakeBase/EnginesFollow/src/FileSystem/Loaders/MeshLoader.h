@@ -27,12 +27,12 @@ namespace Engine {
 		std::vector<uint32_t> idx;
 
 		PlainData Serialize();
-		void ParseBytes(TempIfStream& disk_mem);
-		void Unload_RAM();
+		void Load(TempIfStream& disk_mem);
+		void Unload();
 	};
 
 	struct MeshLoader : public FileTaker {
 		uint32_t ShouldILoad(const char* extension);
-		FileVirtual* TryLoad(TempIfStream& raw_bytes, const uint32_t internaltype);
+		std::shared_ptr<FileVirtual> TryLoad(TempIfStream& raw_bytes, const uint32_t internaltype);
 	};
 };

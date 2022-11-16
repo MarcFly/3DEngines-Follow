@@ -2,6 +2,15 @@
 #include "../Globals.h"
 
 namespace Engine {
+	struct PlainData {
+		PlainData() {}
+		template<class T>
+		PlainData(T*& any, size_t _size) : bytes((byte*)any), size(_size) { any = nullptr; }
+
+		std::shared_ptr<byte[]> bytes;
+		size_t size = 0;
+	};
+
 	struct ReadStream {
 		byte* stream = nullptr;
 		uint64_t size = 0;
@@ -135,34 +144,6 @@ namespace Engine {
 
 	};
 
-	struct PlainData {
-		byte* data = nullptr;
-		uint64_t size = 0;
-
-		PlainData() {};
-		PlainData(PlainData& pd) {
-			byte* temp = pd.data;
-			uint64_t temp_s = pd.size;
-			pd.data = data; pd.size = size;
-			data = temp; size = temp_s;
-		}
-		~PlainData() { if (data != nullptr) delete[] data; size = 0; }
-
-		template<typename T>
-		inline void Acquire(T*& _data, uint64_t _size) {
-			data = (byte*)_data;
-			_data = nullptr;
-			size = _size;
-		}
-
-		PlainData Copy() {
-			PlainData ret;
-			memcpy(ret.data, data, size);
-			ret.size = size;
-			return ret;
-		}
-	};
-
 	class TempIfStream {
 	public:
 		TempIfStream(const char* _path, const char* parent_path = nullptr) {
@@ -171,7 +152,7 @@ namespace Engine {
 		~TempIfStream() { CleanUp(); }
 		void CleanUp() {
 			if (stream.is_open()) stream.close();
-			if (pd.data != nullptr) delete[] pd.data; pd.data = nullptr;
+			if (!bytes) bytes.reset(); size = 0;
 		}
 		void TryLoad(const char* _path, const char* parent_path = nullptr) {
 			CleanUp();
@@ -186,20 +167,19 @@ namespace Engine {
 			}
 			if (!stream.fail()) {
 				stream.seekg(0, std::ios::end);
-				pd.size = stream.tellg();
+				size = stream.tellg();
 				stream.seekg(0, std::ios::beg);
-				pd.data = new byte[pd.size + 1];
-				stream.read((char*)pd.data, pd.size);
+				bytes = std::shared_ptr<byte[]>(new byte[size]);
+				stream.read((char*)bytes.get(), size);
 			}
 		}
 
-		const PlainData& GetData() const { return pd; }
-		PlainData& AcquireData() { return pd; }
-
 		std::string path;
+		std::shared_ptr<byte[]> bytes;
+		size_t size;
 	private:
 		std::ifstream stream;
-		PlainData pd;
+		
 	};
 	
 };

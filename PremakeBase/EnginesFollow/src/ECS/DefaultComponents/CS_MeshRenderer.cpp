@@ -60,8 +60,8 @@ void C_MeshRenderer::DrawInspector() {
 			}
 		}
 
-		ImGui::Text("Disk Mesh ID: %llu", diskmesh);
-		ImGui::Text("Disk Material ID: %llu", diskmat);
+		ImGui::Text("Disk Mesh ID: %llu", mesh.id);
+		ImGui::Text("Disk Material ID: %llu", mat.id);
 	}
 }
 
@@ -75,8 +75,8 @@ JSON_Value* S_MeshRenderer::JSONValueFromComponent(const Component* c) {
 	json_object_set_u64(m_obj, "ctype", m.cid.ctype);
 	json_object_set_u64(m_obj, "parent_id", m.cid.parent_id);
 
-	json_object_set_u64(m_obj, "diskmesh", m.diskmesh);
-	json_object_set_u64(m_obj, "diskmat", m.diskmat);
+	json_object_set_u64(m_obj, "diskmesh", m.mesh.id);
+	json_object_set_u64(m_obj, "diskmat", m.mat.id);
 
 	float3 pos, scale;
 	Quat rot;
@@ -115,8 +115,8 @@ void S_MeshRenderer::ComponentFromJSONObject(const JSON_Object* m_obj) {
 	m.cid.ctype = json_object_get_u64(m_obj, "ctype");
 	m.cid.parent_id = json_object_get_u64(m_obj, "parent_id");
 
-	m.diskmat = json_object_get_u64(m_obj, "diskmat");
-	m.diskmesh = json_object_get_u64(m_obj, "diskmesh");
+	m.mat.id = json_object_get_u64(m_obj, "diskmat");
+	m.mesh.id = json_object_get_u64(m_obj, "diskmesh");
 
 	float3 pos, scale;
 	Quat rot;

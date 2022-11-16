@@ -3,56 +3,36 @@
 using namespace Engine;
 
 void WatchedData::CheckNecessity() {
-	if (ram_users > 0 && !loaded_ram) {
+	const size_t num_users = users.size();
+	if (num_users > 0 && !loaded) {
 		mem = FS::TryLoad(path.c_str());
-		loaded_ram = true;
+		loaded = true;
 	}
-	if (vram_users > 0 && !loaded_vram) {
-		if (!loaded_ram) {
-			mem = FS::TryLoad(path.c_str());
-			loaded_ram = true;
-		}
-		mem->Load_VRAM();
-		loaded_vram = true;
+	if (num_users == 0 && last_check_ts > FS::unload_bucket_ms) {
+		last_check_ts = 0;
+		Delete();
+		loaded = false;
 	}
 
-	if (last_check_ts > FS::unload_bucket_ms) {
-		if (ram_users == 0 && loaded_ram) {
-			Delete_RAM();
-			loaded_ram = false;
-		}
-		if (vram_users == 0 && loaded_vram) {
-			mem->Unload_VRAM();
-			loaded_vram = false;
-		}
-
-		// TODO: Add ms since last check
-	}
+	// TODO: increment last_check_ts
 }
 
 void WatchedData::AddUser() {
-	++ram_users;
+	//TODO: Get actual userid
+	users.push_back(0);
 	CheckNecessity();
 }
 
 void WatchedData::RemoveUser() {
-	--ram_users;
-}
-
-void WatchedData::AddVUser() {
-	++vram_users;
-	CheckNecessity();
-}
-
-void WatchedData::RemoveVUser() {
-	--vram_users;
+	//TODO: Get actual userid
+	users.pop_back();
 }
 
 #include "DefaultFileTypes.h"
 
-void WatchedData::ParseBytes(TempIfStream& disk_mem) {
+void WatchedData::Load(TempIfStream& disk_mem) {
 	JSONVWrap meta;
-	meta.ParseBytes(disk_mem);
+	meta.Load(disk_mem);
 	JSON_Object* obj = json_object(meta.value);
 	id = json_object_get_u64(obj, "id");
 	path = std::string(json_object_get_string(obj, "relative_path")); // When loaded, full path will be the one of creation...
@@ -77,5 +57,5 @@ PlainData WatchedData::Serialize() {
 void WatchedData::Load_FromDisk() {
 	mem = FS::TryLoad(path.c_str());
 	if (mem != nullptr)
-		loaded_ram = true;
+		loaded = true;
 }
