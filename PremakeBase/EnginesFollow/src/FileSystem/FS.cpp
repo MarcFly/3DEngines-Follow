@@ -68,6 +68,10 @@ void FS::Init() {
 }
 
 void FS::Close() {
+	for (auto& a : allocs) {
+		a.second.CheckNecessity();
+		if (a.second.mem != nullptr) a.second.mem->Unload();
+	}
 	allocs.clear();
 
 	for (FileTaker* ft : filetakers)
@@ -109,7 +113,7 @@ uint64_t FS::TryLoadFile(const char* path, const char* parent_path) {
 		TempIfStream temp_meta((const char*)metapath, nullptr);
 		WatchedData pushreal(push);
 		pushreal.path = path;
-		if (!temp_meta.bytes) pushreal.Load(temp_meta);
+		if (temp_meta.bytes != nullptr) pushreal.Load(temp_meta);
 		else {
 			pushreal.path = std::string(path); // All should be loaded from assets!
 			WriteToDisk(metapath, pushreal.Serialize());
@@ -130,9 +134,11 @@ std::shared_ptr<FileVirtual> FS::TryLoad(const char* path, const char* parent_pa
 		uint32_t internal_type = ft->ShouldILoad(extension);
 		if (internal_type > 0) {
 			TempIfStream temp(path, parent_path);
-			ret = ft->TryLoad(temp, internal_type);
-			if (ret != nullptr)
-				return ret;
+			if (temp.bytes != nullptr) {
+				ret = ft->TryLoad(temp, internal_type);
+				if (ret != nullptr)
+					return ret;
+			}
 		}
 	}
 	for (FileTaker* ft : not_owned_filetakers) {
@@ -154,20 +160,10 @@ void FS::WriteToDisk(const char* path, const PlainData& data) {
 	write_file.close();
 }
 
-std::shared_ptr<FileVirtual> FS::AddUser(const uint64_t resource_id) {
-	auto it = allocs.find(resource_id);
-	if (it != allocs.end()) {
-		it->second.AddUser();
-		return it->second.mem;
-	}
-
-	return nullptr;
-}
-
-void FS::RemoveUser(const uint64_t resource_id) {
+void FS::RemoveUser(const uint64_t& resource_id, const uint64_t& user_id) {
 	auto it = allocs.find(resource_id);
 	if (it != allocs.end())
-		it->second.RemoveUser();
+		it->second.RemoveUser(user_id);
 }
 
 uint64_t FS::FindIDByName(const char* str) {

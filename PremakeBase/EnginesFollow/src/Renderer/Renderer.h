@@ -6,6 +6,7 @@
 #include "../RenderAPI/Render.h"
 #include "../RenderAPI/RenderMacros.h"
 
+#include "FileSystem/Loaders/LoaderFileTypes.h"
 
 namespace Engine {
 
@@ -81,17 +82,20 @@ namespace Engine {
 		// Each Submission helps build the rendergraph
 
 		std::unordered_map<uint64_t, RenderProgram> stages;
+		std::unordered_set<uint64_t> submissions;
 
 		std::unordered_map<uint64_t, Framebuffer> framebuffers;
-		std::unordered_map<uint64_t, ShaderProgram> shaderprograms;
-		std::unordered_map<uint64_t, Mesh> meshes;
-		//std::unordered_map<uint64_t, Material> materials;
-		std::unordered_map<uint64_t, Texture> textures;
-		std::unordered_map<uint64_t, VTX_Buf> vtx_meshes;
+
+		std::unordered_map<uint64_t, WDHandle<FileMesh>> meshes;
+		std::unordered_map<uint64_t, WDHandle<FileMaterial>> materials;
+
+		typedef std::unordered_map<uint64_t, RenderMaterial> temp_rendergraph;
+		temp_rendergraph rendergraph;
 		
 		int32_t default_fb;
 
 		DECL_DYN_ENGINE_EV_FUNS(RequestFramebuffers_EventFun);
+		DECL_DYN_ENGINE_EV_FUNS(SubmitDraw_EventFun);
 	};
 
 

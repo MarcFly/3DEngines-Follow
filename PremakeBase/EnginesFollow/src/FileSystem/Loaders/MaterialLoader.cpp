@@ -1,5 +1,6 @@
 #include "EnginePCH.h"
 #include "MaterialLoader.h"
+#include "LoaderFileTypes.h"
 
 using namespace Engine;
 
@@ -17,6 +18,7 @@ void FileMaterial::Load(TempIfStream& disk_mem) {
 	for (int i = 0; i < num_texs; ++i) {
 		textures.push_back(WDHandle<FileTexture>());
 		textures.back().id = tex_ids[i];
+		textures.back().Require(texuserid);
 	}
 }
 

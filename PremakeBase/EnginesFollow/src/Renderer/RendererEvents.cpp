@@ -6,6 +6,7 @@ using namespace Engine;
 
 EVENT_TYPE_STATIC_DATA(ProvideFramebuffers_Event);
 EVENT_TYPE_STATIC_DATA(RequestFramebuffers_Event);
+EVENT_TYPE_STATIC_DATA(SubmitDraw_Event);
 
 DEF_DYN_MEMBER_EV_FUNS(RequestFramebuffers_Event, Renderer, RequestFramebuffers_EventFun) {
 	std::vector<Framebuffer> fbs;

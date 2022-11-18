@@ -1,5 +1,6 @@
 #include "EnginePCH.h"
 #include "DevILLoader.h"
+#include "LoaderFileTypes.h"
 
 #include <IL/il.h>
 #include <IL/ilut.h>
@@ -7,8 +8,7 @@
 using namespace Engine;
 
 void FileTexture::Unload() {
-	if (gputex.tex_id != 0)
-		gputex.FreeFromGPU();
+	gputex.FreeFromGPU();
 }
 
 void FileTexture::Load(TempIfStream& disk_mem) {
@@ -19,31 +19,31 @@ void FileTexture::Load(TempIfStream& disk_mem) {
 	if (success && ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE)) {
 		ILinfo info;
 		iluGetImageInfo(&info);
-		gputex.data_format = GL_RGBA;
+		
+		w = info.Width;
+		h = info.Height;
+
+		// TODO: Texture Attributes...
+
+		gputex.data_format = info.Format;
 		gputex.var = GL_UNSIGNED_BYTE;
 		gputex.var_size = 1;
-		gputex.dimension_format = GL_TEXTURE_2D;
-		gputex.use_format = GL_RGBA;
+		gputex.dimension_format = info.Type;
+		gputex.use_format = info.Format;
 		gputex.w = info.Width;
 		gputex.h = info.Height;
 
-		// TODO: Texture Attributes...
-		bytes.size = info.SizeOfData;
-		bytes.bytes = std::shared_ptr<byte[]>(new byte[bytes.size]);
-		memcpy(bytes.bytes.get(), ilGetData(), info.SizeOfData);
-	}
-	ilDeleteImage(id_img);
+		// TODO: Attributes from metadata...
 
-	if (bytes.bytes == nullptr) {
-		Engine_ERROR("Texture data is not on RAM, can't send pixels to GPU!");
-	}
-	else {
-		if (gputex.tex_id != 0) gputex.FreeFromGPU(); // Delete and redo, safer
 		gputex.Create();
 		gputex.Bind();
 		gputex.ApplyAttributes();
-		gputex.SendToGPU(bytes.bytes.get());
+		gputex.SendToGPU(ilGetData());
 	}
+	else {
+		Engine_ERROR("Failed to Load Texture: {}", disk_mem.path.c_str());
+	}
+	ilDeleteImage(id_img);
 }
 
 void DevILLoader::OnAttach() {}

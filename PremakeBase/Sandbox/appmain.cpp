@@ -41,9 +41,9 @@ int e_main(std::shared_ptr<Engine::Application>& engine) {
 		Engine::RenderAPI::ClearFB(float4(.1, .1, .1, 1.));
 	}
 
-	engine->modules.PopOverlay(&imguilayer);
-	engine->modules.PopLayer(&ecslayer);
-	engine->modules.PopLayer(&renderer);
+	engine->modules.PopOverlay((Engine::Layer*)&imguilayer);
+	engine->modules.PopLayer((Engine::Layer*)&ecslayer);
+	engine->modules.PopLayer((Engine::Layer*)&renderer);
 
 	APP_INFO("Quitting...");
 

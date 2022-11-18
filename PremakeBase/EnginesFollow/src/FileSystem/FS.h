@@ -4,25 +4,19 @@
 #include <parson.h>
 #include "Events/Events.h"
 #include "Streams.h"
+#include "DefaultFileTypes.h"
 
 namespace Engine {
-
-	struct FileVirtual {
-		uint64_t diskid = UINT64_MAX;
-		virtual ~FileVirtual() {};
-		virtual void Unload() {}; // Specific way of unloading memory
-		virtual void Load(TempIfStream& disk_mem) {}; // It gets the memory it is supposed to use
-		virtual PlainData Serialize() { return PlainData(); }; // If no need to serialize directly, just return a copy of it
-	};
 
 	struct WatchedData : public FileVirtual {
 		WatchedData(std::shared_ptr<FileVirtual>& _mem) : mem(_mem) { if (!mem) loaded = true; }
 
 		uint64_t id = PCGRand64();
-		std::vector<uint64_t> users;
+		std::unordered_set<uint64_t> users;
 		bool loaded = false;
 		double last_check_ts = 0;
 		std::shared_ptr<FileVirtual> mem;
+		std::shared_ptr<JSONVWrap> meta;
 
 		std::string path;
 
@@ -42,8 +36,8 @@ namespace Engine {
 		}
 
 		void CheckNecessity();
-		void AddUser();
-		void RemoveUser();
+		void AddUser(const uint64_t& userid);
+		void RemoveUser(const uint64_t& userid);
 
 		~WatchedData() {
 			if (mem == nullptr) return;
@@ -52,11 +46,6 @@ namespace Engine {
 			Delete();
 			loaded = false;
 		}
-	};
-
-	struct WD_User {
-		uint64_t own_id; // user id
-		uint64_t data_id = UINT64_MAX; // data being used
 	};
 
 	struct FileTaker {
@@ -98,8 +87,17 @@ namespace Engine {
 			}
 		}
 
-		static std::shared_ptr<FileVirtual> AddUser(const uint64_t resource_id);
-		static void RemoveUser(const uint64_t resource_id);
+		template<class FileVirtualDerive>
+		static std::shared_ptr<FileVirtualDerive> AddUser(const uint64_t& resource_id, const uint64_t& userid) {
+				auto it = allocs.find(resource_id);
+				if (it != allocs.end()) {
+					it->second.AddUser(userid);
+					return std::static_pointer_cast<FileVirtualDerive>(it->second.mem);
+				}
+
+				return nullptr;
+		}
+		static void RemoveUser(const uint64_t& resource_id, const uint64_t& userid);
 
 		// This is so bad... need a better way of linking material/textures
 		// That will have repercussions further down the line
@@ -125,12 +123,12 @@ namespace Engine {
 	struct WDHandle {
 		uint64_t id;
 	
-		void Require() {
+		void Require(const uint64_t& userid) {
 			if (!mem)
-				mem = FS::AddUser(id);
+				mem = FS::AddUser<FileVirtualDerive>(id, userid);
 		}
-		void Release() {
-			FS::RemoveUser(id);
+		void Release(const uint64_t& userid) {
+			FS::RemoveUser(id, userid);
 			mem.reset();
 		}
 	

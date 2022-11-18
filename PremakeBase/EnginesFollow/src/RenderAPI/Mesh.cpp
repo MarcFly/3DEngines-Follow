@@ -7,7 +7,7 @@ using namespace Engine;
 // VTX_BUF INITIALIZATION
 //==================================================================
 
-uint16_t VTX_Buf::VertSize() {
+uint16_t VTX_Descriptor::VertSize() {
 	vtx_size = 0;
 	for (VertAttrib& a : attributes)
 		vtx_size += a.var_size * a.num_components;
@@ -15,7 +15,7 @@ uint16_t VTX_Buf::VertSize() {
 	return vtx_size;
 }
 
-void VTX_Buf::SetInterleave() {
+void VTX_Descriptor::SetInterleave() {
 	VertSize();
 	uint16_t offset = 0;
 	for (VertAttrib& a : attributes) {
@@ -24,7 +24,7 @@ void VTX_Buf::SetInterleave() {
 	}
 }
 
-void VTX_Buf::SetBlock() {
+void VTX_Descriptor::SetBlock() {
 	VertSize();
 	uint16_t offset = 0;
 	for (VertAttrib& a : attributes) {
@@ -33,24 +33,23 @@ void VTX_Buf::SetBlock() {
 	}
 }
 
-uint16_t VTX_Buf::GetAttributeSize(const char* name) {
+uint16_t VTX_Descriptor::GetAttributeSize(const char* name) {
 	for (VertAttrib& a : attributes) {
-		if (!strcmp(a.name, name))
+		if (!strcmp(a.name.str.get(), name))
 			return a.var_size * a.num_components;
 	}
 
 	return 0;
 }
 
-uint16_t VTX_Buf::GetAttributeSize(int id) {
+uint16_t VTX_Descriptor::GetAttributeSize(int id) {
 	if (id >= attributes.size()) return 0;
 	return attributes[id].var_size * attributes[id].num_components;
 }
 
 #include <glad/glad.h>
 
-void VTX_Buf::BindLocations() {
-	Bind();
+void VTX_Descriptor::BindLocations() {
 	VertSize();
 	for (int i = 0; i < attributes.size(); ++i) {
 		VertAttrib& a = attributes[i];
@@ -76,7 +75,7 @@ void VTX_Buf::Create() {
 }
 
 void VTX_Buf::SendToGPU(void* vtx_data) {
-	glBufferData(GL_ARRAY_BUFFER, vtx_size * vtx_num, vtx_data, draw_mode);
+	glBufferData(GL_ARRAY_BUFFER, vtx_desc.vtx_size * vtx_num, vtx_data, draw_mode);
 }
 
 void VTX_Buf::FreeFromGPU() {
@@ -127,7 +126,6 @@ void Mesh::Bind() {
 }
 
 void Mesh::Draw() {
-	Bind();
 	glDrawElements(vtx.draw_config, idx_num, idx_var, NULL);
 }
 

@@ -139,3 +139,16 @@ void S_MeshRenderer::ComponentFromJSONObject(const JSON_Object* m_obj) {
 
 	m.local_mat = float4x4::FromTRS(pos, rot, scale);
 }
+
+#include "Renderer/RendererEvents.h"
+
+void S_MeshRenderer::Update(float dt) {
+	for (int i = 0; i < components.size(); ++i) {
+		C_MeshRenderer& mesh = components[i];
+		mesh.mesh.Require(mesh.cid.id);
+		mesh.mat.Require(mesh.cid.id);
+
+		Events::SendNew(new SubmitDraw_Event(mesh.cid.id, mesh.local_mat, mesh.mesh, mesh.mat));
+		//mesh.mat.mem->textures.
+	}
+}

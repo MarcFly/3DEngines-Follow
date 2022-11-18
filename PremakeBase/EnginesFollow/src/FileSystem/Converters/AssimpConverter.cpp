@@ -166,48 +166,88 @@ uint64_t AssimpConverter::ConvertMaterial(const aiMaterial* aimat, const char* p
 
 uint64_t AssimpConverter::ConvertMesh(const aiMesh* aimesh, const char* filename, int meshnum) {
 	FileMesh test;
-	int num_vtx = aimesh->mNumVertices;
-	bool hasfaces, hasnormals, hastanbitan;
-
-	test.vtx.resize(num_vtx);
-	memcpy(test.vtx.data(), aimesh->mVertices, sizeof(float3)*num_vtx);
-	
-	hasfaces = aimesh->HasFaces();
-	if (hasfaces) {
-		uint32_t numIndices = aimesh->mFaces->mNumIndices;
-		test.idx.resize(aimesh->mNumFaces * numIndices);
-		for (int i = 0; i < aimesh->mNumFaces; ++i)
-			memcpy(&test.idx.data()[i * numIndices], aimesh->mFaces[i].mIndices, sizeof(uint32_t) * numIndices);
-	}
-
-	hasnormals = aimesh->HasNormals();
-	if (hasnormals) {
-		test.vtx_normals.resize(num_vtx);
-		memcpy(test.vtx_normals.data(), aimesh->mNormals, sizeof(float3) * num_vtx);
-	}
-
-	int num_uvchannels = aimesh->GetNumUVChannels();
-	for (int i = 0; i < num_uvchannels; ++i) {
-		if (aimesh->HasTextureCoords(i)) {
-			test.uv_channels.push_back(FileMesh::uvs());
-			FileMesh::uvs& uv = test.uv_channels.back();
-			uv.num_uv_coords = aimesh->mNumUVComponents[i];
-			uv.data = new float[uv.num_uv_coords * num_vtx];
-			float* pointer = uv.data;
-			for (int j = 0; j < num_vtx; ++j, pointer += uv.num_uv_coords)
-				memcpy(pointer, &aimesh->mTextureCoords[i][j], sizeof(float) * uv.num_uv_coords);
-
-			uv.name = std::string(aimesh->GetTextureCoordsName(i)->C_Str());
+	test.mesh = std::make_shared<RAMMesh>();
+	if (aimesh->HasFaces()) {
+		size_t num_indicesperface = aimesh->mFaces->mNumIndices;
+		size_t num_indices = test.mesh->num_idx = aimesh->mNumFaces * num_indicesperface; // Assimp only has 4byte indices
+		test.mesh->idx = std::shared_ptr<byte[]>(new byte[num_indices * sizeof(uint32_t)]);
+		for (uint32_t i = 0; i < aimesh->mNumFaces; ++i) {
+			memcpy(	&test.mesh->idx.get()[i * sizeof(uint32_t) * num_indicesperface],
+					aimesh->mFaces[i].mIndices,
+					sizeof(uint32_t) * num_indicesperface);
 		}
+
+		test.mesh->idx_size = sizeof(uint32_t);
+		test.mesh->idx_var = GL_UNSIGNED_INT;
 	}
 
-	hastanbitan = aimesh->HasTangentsAndBitangents();
-	if (hastanbitan) {
-		test.tangents.resize(num_vtx);
-		test.bitangents.resize(num_vtx);
-		memcpy(test.tangents.data(), aimesh->mTangents, sizeof(float3) * num_vtx);
-		memcpy(test.bitangents.data(), aimesh->mBitangents, sizeof(float3) * num_vtx);
+	int num_vtx = aimesh->mNumVertices;
+	test.mesh->vtx_desc.vtx_num = num_vtx;
+	test.mesh->vtx_desc.attributes.reserve(15);
+	test.mesh->vtx_desc.attributes.push_back("position");
+	VertAttrib* pos_attrib = &test.mesh->vtx_desc.attributes.back();
+
+	bool hasnormals = aimesh->HasNormals();
+	VertAttrib* normals_attrib = nullptr;
+	if (hasnormals) {
+		test.mesh->vtx_desc.attributes.push_back("normal");
+		normals_attrib = &test.mesh->vtx_desc.attributes.back();
 	}
+
+	bool hastanbitan = aimesh->HasTangentsAndBitangents();
+	VertAttrib* tan_attrib = nullptr;
+	VertAttrib* bitan_attrib = nullptr;
+	if (hastanbitan) {
+		test.mesh->vtx_desc.attributes.push_back("tangent");
+		tan_attrib = &test.mesh->vtx_desc.attributes.back();
+		test.mesh->vtx_desc.attributes.push_back("bitangent");
+		bitan_attrib = &test.mesh->vtx_desc.attributes.back();
+	}
+
+	size_t num_uv_channels = aimesh->GetNumUVChannels();
+	static char uvchname[8];
+	std::vector<VertAttrib*> uvattribs;
+	for (int i = 0; i < num_uv_channels; ++i) {
+		snprintf(uvchname, sizeof(uvchname), "uv%d", i);
+		test.mesh->vtx_desc.attributes.push_back(uvchname);
+		test.mesh->vtx_desc.attributes.back().num_components = aimesh->mNumUVComponents[i];
+		uvattribs.push_back(&test.mesh->vtx_desc.attributes.back());
+	}
+
+	size_t vtx_bufsize = test.mesh->vtx_desc.VertSize() * num_vtx;
+
+	test.mesh->vtx = std::shared_ptr<byte[]>(new byte[vtx_bufsize]);
+
+	// HERE THINK IF YOU WANT INTERLEAVED OR BLOCK
+	// BLOCK FOR NOW
+	byte* pointer = test.mesh->vtx.get();
+	size_t offset = pos_attrib->num_components * pos_attrib->var_size * num_vtx;
+	memcpy(pointer, aimesh->mVertices, offset);
+	pointer += offset;
+
+	if (hasnormals) {
+		offset = normals_attrib->num_components * normals_attrib->var_size * num_vtx;
+		memcpy(pointer, aimesh->mNormals, offset);
+		pointer += offset;
+	}
+
+	if (hastanbitan) {
+		offset = tan_attrib->num_components * tan_attrib->var_size * num_vtx;
+		memcpy(pointer, aimesh->mTangents, offset);
+		pointer += offset;
+
+		offset = bitan_attrib->num_components * bitan_attrib->var_size * num_vtx;
+		memcpy(pointer, aimesh->mBitangents, offset);
+		pointer += offset;
+	}
+
+	for (int i = 0; i < num_uv_channels; ++i) {
+		offset = uvattribs[i]->num_components * uvattribs[i]->var_size;
+		for (int j = 0; j < uvattribs[i]->num_components; ++j) {
+			memcpy(pointer, &aimesh->mTextureCoords[i][j], offset);
+			pointer += offset;
+		}
+	}	
 
 	PlainData write = test.Serialize();
 	static char filepath[256];

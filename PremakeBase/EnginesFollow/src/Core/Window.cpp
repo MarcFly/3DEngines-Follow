@@ -103,8 +103,8 @@ static int win_num = 0;
 
 void Window::Create(bool defaults) {
 	if (defaults) {
-		context_hints.emplace_back(hintpair(GLFW_CONTEXT_VERSION_MAJOR, 4));
-		context_hints.emplace_back(hintpair(GLFW_CONTEXT_VERSION_MINOR, 6));
+		context_hints.emplace_back(hintpair(GLFW_CONTEXT_VERSION_MAJOR, 3));
+		context_hints.emplace_back(hintpair(GLFW_CONTEXT_VERSION_MINOR, 1));
 
 		buffer_hints.emplace_back(hintpair(GLFW_RED_BITS, 8));
 		buffer_hints.emplace_back(hintpair(GLFW_GREEN_BITS, 8));

@@ -72,6 +72,29 @@ void RenderState::BackUp()
 
     //SQUE_CHECK_RENDER_ERRORS();
 }
+//===================================================================
+// TEST SHADERS
+//===================================================================
+
+const char* vertex_shader =
+"#version 330"
+"attribute vec3 position;"
+"attribute vec3 normal;"
+"attribute vec3 tangent;"
+"attribute vec3 bitangent;"
+"attribute vec2 uv0;"
+"out vec2 texcoord;"
+"uniform mat4 modelviewproj;"
+"void main(){"
+"gl_Position = modelviewproj * vec4(position, 1.0);"
+"texcoord = vec2(texcoord.x, texcoord.y);}"
+;
+
+const char* frag_shader =
+"#version 330"
+"out vec4 FragColor;"
+"in vec2 texcoord;"
+;
 
 //===================================================================
 // RENDERER FLOW
@@ -111,6 +134,7 @@ void Renderer::OnAttach() {
     framebuffers.insert(std::pair<uint64_t, Framebuffer>(dummy.id, dummy));
 
     Events::SubscribeDyn<RequestFramebuffers_Event>(RequestFramebuffers_EventFunRedirect, this);
+    Events::SubscribeDyn<SubmitDraw_Event>(SubmitDraw_EventFunRedirect, this);
 }
 
 void Renderer::OnDetach() {
@@ -121,7 +145,12 @@ void Renderer::OnDetach() {
 }
 
 void Renderer::PreUpdate() {
-
+    // Clear rendergraph
+    for (auto& rmat : rendergraph) {
+        for (auto& rmesh : rmat.second.meshes) {
+            rmesh.second.transforms.clear();
+        }
+    }
 }
 
 void Renderer::Update() {
@@ -129,9 +158,42 @@ void Renderer::Update() {
    
    framebuffers.begin()->second.Bind();
    Engine::RenderAPI::ClearFB(float4(.5f, .1f, .1f, 1.f));
-   
 }
 
+//Temporary camera an matrices
+#define GRID_SIZE 10
 void Renderer::PostUpdate() {
-    
+    RenderState backup;
+    framebuffers.begin()->second.Bind();
+
+    for (auto& rmat : rendergraph) {
+        std::vector<WDHandle<FileTexture>>& texs = materials[rmat.first].mem->textures;
+        for (uint32_t i = GL_TEXTURE0; i < GL_TEXTURE0 + texs.size(); ++i) {
+            glEnable(i);
+            texs[i - GL_TEXTURE0].mem->gputex.Bind();
+        }
+   
+        for (auto& rmesh : rmat.second.meshes) {
+            Mesh& gpumesh = meshes[rmesh.first].mem->gpumesh;
+            gpumesh.Bind();
+            for (int i = 0; i < rmesh.second.transforms.size(); ++i) {
+   
+                glPushMatrix();
+                glMultMatrixf(rmesh.second.transforms[i].Transposed().ptr());
+                glPopMatrix();
+   
+                gpumesh.Draw();
+            }
+        }
+    }
 }
+
+DEF_DYN_MEMBER_EV_FUNS(SubmitDraw_Event, Renderer, SubmitDraw_EventFun) {
+    submissions.insert(ev->submit_id);
+    meshes.insert_or_assign(ev->mesh.id, ev->mesh);
+    materials.insert_or_assign(ev->mat.id, ev->mat);
+
+    RenderMaterial& rmat = rendergraph.insert(std::pair(ev->mat.id, RenderMaterial())).first->second;
+    RenderMesh& rmesh = rmat.meshes.insert(std::pair(ev->mesh.id, RenderMesh())).first->second;
+    rmesh.transforms.push_back(ev->transform);
+}}

@@ -39,7 +39,7 @@ void ImGuiLayer::OnAttach() {
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)internalwindow, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
+	ImGui_ImplOpenGL3_Init("#version 150");
 	
 	// Register some default itemss
 	// Should be application decided, I provide the templates, user adds them

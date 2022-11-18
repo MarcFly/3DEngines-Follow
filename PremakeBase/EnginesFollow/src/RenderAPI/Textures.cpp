@@ -46,7 +46,7 @@ void Texture::Create() {
 }
 
 void Texture::GenMipmaps() {
-	glGenerateTextureMipmap(tex_id);
+	//glGenerateTextureMipmap(tex_id);
 }
 
 void Texture::SendToGPU(void* pixels, const int mipmap_level) {

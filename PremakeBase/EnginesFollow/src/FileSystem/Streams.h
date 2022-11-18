@@ -112,7 +112,7 @@ namespace Engine {
 		}
 
 		template<class T>
-		void Add(T* data) {
+		void Add(const T* data) {
 			writes.push_back(sizeof(T));
 			if (writes.back() + size > capacity) Realloc(writes.back() + size);
 			memcpy(pointer, data, writes.back());
@@ -123,7 +123,7 @@ namespace Engine {
 		}
 
 		template<class T>
-		void AddArr(T* data, uint64_t num_elements) {
+		void AddArr(const T* data, uint64_t num_elements) {
 			writes.push_back(sizeof(T) * num_elements);
 			if (writes.back() + size > capacity) Realloc(writes.back() + size);
 			memcpy(pointer, data, writes.back());

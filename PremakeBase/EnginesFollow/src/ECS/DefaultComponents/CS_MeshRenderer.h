@@ -24,6 +24,8 @@ namespace Engine {
 		DECL_SystemGenericFuns(S_MeshRenderer, C_MeshRenderer);
 		~S_MeshRenderer();
 
+		void Update(float dt);
+
 		JSON_Value* JSONValueFromComponent(const Component* c);
 		void ComponentFromJSONObject(const JSON_Object* t_obj);
 	};

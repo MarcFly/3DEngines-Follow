@@ -6,16 +6,6 @@
 
 namespace Engine {
 
-	struct FileTexture : public FileVirtual {
-		PlainData bytes;
-		Texture gputex;
-		uint32_t deviltype;
-
-		void Unload();
-		void Load(TempIfStream& disk_mem);
-		// PlainData Serialize(); // No serialization for now
-	};
-
 	struct DevILLoader : public FileTaker {
 		void OnAttach();
 		void OnDetach();

@@ -14,5 +14,5 @@ void RenderAPI::InitForContext(){
 
 void RenderAPI::ClearFB(float4 rgba) {
 	glClearColor(rgba.x, rgba.y, rgba.z, rgba.w);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

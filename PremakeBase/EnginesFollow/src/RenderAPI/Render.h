@@ -6,14 +6,8 @@
 
 namespace Engine {
 	struct EF_API VertAttrib {
-		VertAttrib(const char* _name) {
-			name = new char[128];
-			size_t namelen = strlen(_name);
-			memcpy(name, _name, 128);
-			(namelen > 127) ? name[127] = '\0' : name[namelen] = '\0';
-		}
-		~VertAttrib() { delete[] name; }
-
+		VertAttrib(const char* _name) : name(_name) {}
+		
 		int id = -1;
 		int var = EF_FLOAT;
 		uint16_t num_components = 3;
@@ -21,7 +15,24 @@ namespace Engine {
 		uint16_t var_size = 4;
 		uint16_t offset = 0;
 
-		char* name;
+		offload_str<128> name;
+	};
+
+	struct EF_API VTX_Descriptor {
+		std::vector<VertAttrib> attributes;
+		uint16_t vtx_size;
+		uint32_t vtx_num;
+		uint8_t num_uv_channels;
+
+		uint16_t VertSize(); // Calculates it
+		void SetInterleave();
+		void SetBlock();
+
+
+		uint16_t GetAttributeSize(const char* name);
+		uint16_t GetAttributeSize(int id);
+
+		void BindLocations();
 	};
 
 	struct EF_API VTX_Buf
@@ -32,22 +43,14 @@ namespace Engine {
 		uint32_t vtx_id;
 		uint32_t vtx_num;
 
-		std::vector<VertAttrib> attributes;
-		uint16_t vtx_size;
-		
-		uint16_t VertSize(); // Calculates it
-		void SetInterleave();
-		void SetBlock();
-		uint16_t GetAttributeSize(const char* name);
-		uint16_t GetAttributeSize(int id);
-		void BindLocations();
+		VTX_Descriptor vtx_desc;
 
 		void Create();
 		void SendToGPU(void* vtx_data);
 		void FreeFromGPU();
 
-		inline void Bind();
-		inline void Draw();
+		void Bind();
+		void Draw();
 	};
 
 	struct EF_API Mesh {
@@ -63,8 +66,8 @@ namespace Engine {
 		void SendToGPU(void* vtx_data, void* idx_data);
 		void FreeFromGPU();
 
-		inline void Bind();
-		inline void Draw();
+		void Bind();
+		void Draw();
 	};
 
 	struct EF_API TexAttrib {
